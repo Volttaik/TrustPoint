@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/"
+title = "TrustPoint Bank"
+version = "1.0.0"
+id = "artifacts/trustpoint-bank"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/" ]
+localPort = 23415
+
+[services.development]
+run = "pnpm --filter @workspace/trustpoint-bank run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/trustpoint-bank", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/trustpoint-bank", "run", "serve" ]
+
+[services.env]
+PORT = "23415"
+BASE_PATH = "/"

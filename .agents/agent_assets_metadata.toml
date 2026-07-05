@@ -1,0 +1,32 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "h6rqTiK7u2gR7_l475c2K"
+uri = "file://artifacts/trustpoint-bank/assets/images/icon.png"
+type = "image"
+title = "trustpoint bank icon"
+
+[[generated]]
+id = "eVsXHlPoYEBwlBrGttbXS"
+uri = "file://artifacts/trustpoint-bank/assets/images/splash_bg.png"
+type = "image"
+title = "login background silk"
+
+[[generated]]
+id = "0l1OyIAxgXuuESrtV4tqm"
+uri = "file://artifacts/trustpoint-bank/assets/images/onboard_security.png"
+type = "image"
+title = "security shield illustration"
+
+[[generated]]
+id = "Skdd1HyX8dxFgb-t-02WQ"
+uri = "file://artifacts/trustpoint-bank/assets/images/onboard_speed.png"
+type = "image"
+title = "speed paper plane illustration"
+
+[[generated]]
+id = "2GCLhhikOhNED4hMo_vXF"
+uri = "file://artifacts/trustpoint-bank/assets/images/onboard_control.png"
+type = "image"
+title = "control card phone illustration"

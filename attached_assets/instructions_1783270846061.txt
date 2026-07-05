@@ -1,0 +1,259 @@
+**Role:** Senior UI/UX Designer & Frontend Specialist for Fintech.
+**Platform:** React Native (Expo) / Flutter compatible component library.
+**Design System Name:** Red Velvet Black.
+**Brand:** TrustPoint Bank — "Security Meets Modernity."
+**Core Palette:**
+- **Primary Red:** `#E63946` (Vibrant, trust-energizing red).
+- **Primary Black (Dark Mode):** `#0A0A0A` (Deep void black, never pure `#000`).
+- **Secondary Dark Gray:** `#1A1A1A` (Cards, surfaces).
+- **Accent Gold/White:** `#F1FAEE` (Text on dark, subtle highlights).
+- **Light Mode Background:** `#F8F9FA` (Soft off-white).
+- **Light Mode Surface:** `#FFFFFF` (Pure white cards).
+- **Soft Shadows:** Use `shadow-color: #E63946` with 10% opacity for a "red glow" effect on elevated cards; standard black shadows with 5% opacity for light mode.
+
+**Global Design Rules (CRITICAL):**
+1.  **Soft & Smooth UI:** Every interactive element must have a `border-radius` of 16px (cards), 12px (buttons), or 50px (input fields). No sharp corners.
+2.  **Micro-interactions:** All buttons must have a `scale: 0.97` on press. Transitions must be `spring-based` (damping: 15, stiffness: 170).
+3.  **Depth:** Use a 3-layer shadow system. Layer 1: subtle spread. Layer 2: soft blur. Layer 3: a colored glow (red in dark mode, faint grey in light mode).
+4.  **Typography:** Use only Inter/SF Pro Rounded. Headings: Semi-bold (600). Body: Regular (400). Captions: Medium (500). Font smoothing: `antialiased`.
+5.  **Mode Toggle:** A sleek slider switch in settings instantly swaps the entire `Red Velvet Black` theme to the `Soft Crimson Light` theme.
+
+---
+
+### PHASE 1: STRUCTURAL DNA & COMPONENTS (Reusable)
+**Generate the foundational system first. Ensure every component has a Light and Dark variant.**
+
+**1. Atoms:**
+- **Buttons:** Primary (Solid Red, White Text), Secondary (Outline Red Border, Transparent), Ghost (Text only), Destructive (Black/Dark Red).
+- **Input Fields:** Pill-shaped. Dark mode: Black surface with red bottom border on focus. Light mode: White surface with red bottom border. Prefix icon slot.
+- **Bottom Navigation Bar (5 Items):** Home, Transfer, Payments (Center floating action button, diamond-shaped with red gradient), Cards, More. Active icon: Solid Red. Inactive: Grey.
+- **Transaction List Item:** Rounded user avatar (AI-generated) on the left, Title, Date, Amount (Red if debit, Green if credit - yes, green for received money against red theme).
+
+**2. Molecules:**
+- **Balance Shield Widget:** A blurred glass-morphism card showing total balance. Tap the "eye" icon to toggle visibility (********).
+- **Quick Action Grid:** 4 circular icons (Send, Request, Pay, Invest) with red gradient backgrounds.
+- **Card Carousel:** Horizontal scroll of physical/virtual debit cards with 3D tilt effect.
+
+**3. AI-Generated Image Assets Required:**
+- *Prompt for Zite:* "Generate abstract, flowing red and black liquid silk textures to use as background gradients for the login screen and credit card backgrounds. The texture should look luxurious and premium, with no hard edges."
+- *Avatars:* A grid of 20 diverse, professional headshots in circular frames, lit with a subtle red rim light.
+
+---
+
+### PHASE 2: SCREEN SPECIFICATIONS (200+ Screens)
+*Design each route explicitly. Include empty, loading, error, and success states for every flow.*
+
+#### A. ONBOARDING & AUTH (15 Screens)
+1.  **Splash:** Black background, TrustPoint red logo centralized. AI Image: Animated, shimmering red silk threads forming the logo.
+2.  **Onboarding 1 (Security):** Illustration of a black shield with a glowing red checkmark. Text: "Bank with Zero Worries."
+3.  **Onboarding 2 (Speed):** Illustration of a red paper plane flying through black geometric rings.
+4.  **Onboarding 3 (Control):** Mobile 3D render showing a credit card hovering over a phone.
+5.  **Register (Step 1):** BVN input. AI Image: Background abstract biometric fingerprint lines in soft red.
+6.  **Register (Step 2):** OTP Verification. 4 red outlined boxes. Timer counts down.
+7.  **Register (Step 3):** Create Profile. Avatar upload placeholder (user face silhouette with red border).
+8.  **Register (Step 4):** Set PIN. A 4-digit PIN pad. The pad numbers are black circles with red numbers.
+9.  **Register Success:** Confetti animation in red/black/gold. "Welcome to TrustPoint."
+10. **Login:** Standard PIN input. "Forgot PIN?" link in red.
+11. **Biometric Setup:** Full-screen fingerprint scanner animation (ripple effect on a dark background).
+12. **Biometric Login (Face ID):** Face scanning frame with red tracking dots around the user's face.
+13. **Account Locked (Error State):** Red warning triangle. "Too many attempts. Try again in 5 minutes."
+14. **Device Verification:** "We noticed a new login from Lagos, NG." Map pin in red.
+15. **2FA Method Select:** Toggle between SMS, Authenticator App, Email. Red switches.
+
+#### B. DASHBOARD & HOME (8 Screens)
+16. **Main Dashboard (Default):** "Good morning, User." Balance Shield (Blurred), Card Carousel (Physical Red & Virtual Black cards), 4 Quick Actions, Recent Transactions list.
+17. **Dashboard (Empty State):** Zero balance. Ghost illustrations of a plant growing out of a wallet. "Fund your account to start."
+18. **Dashboard (Loading):** Skeleton screens. Red shimmer gradients sliding across grey placeholder blocks.
+19. **Account Aggregation (Linked):** Dashboard showing TrustPoint balance + linked other bank balances (Union Bank, etc.) using different colored small dots.
+20. **Net Worth Overview:** Simple donut chart. Assets (Black), Liabilities (Red), Net (White).
+21. **Spending Overview Widget:** Tapping expands a section showing Category breakdown. "Food & Drinks" bar is 70% filled (Red).
+22. **Monthly Summary Banner:** Carousel card "You spent 15% less on data this month. 🎉"
+23. **Promotions Banner:** Deep red background with gold text "Refer & Earn 500 Naira."
+
+#### C. ACCOUNTS & BALANCE (6 Screens)
+24. **Account List:** "Savings Account" (Black card), "Current Account" (Red card). Shown as stackable cards.
+25. **Account Detail (Savings):** Full transaction history for that specific account. Interest earned badge (Gold).
+26. **Statement Request:** Calendar picker (Range selection). Red dots on dates with transactions. Black background.
+27. **Download Statement:** PDF/CV CSV toggle. Loading state with red progress bar. Success state: File downloaded to "Files."
+28. **Linked Accounts:** List of external banks with masked account numbers. "Remove" button (Red text).
+29. **Account Info (Copyable):** Tap account number to copy. Tooltip turns from "Copy" to "Copied" with a red flash.
+
+#### D. TRANSFERS (20 Screens)
+30. **Transfer Method Select:** "TrustPoint to TrustPoint," "Other Banks," "International."
+31. **Select Beneficiary:** Searchable list. AI avatars with names. Swipe left to favorite.
+32. **New Beneficiary Form:** Bank name (Dropdown), Account number (Validation check shows green border instantly).
+33. **Beneficiary Validation (Success):** Account name appears with a "verified" red ribbon badge.
+34. **Beneficiary Validation (Failed):** "Account does not exist." Sad face icon.
+35. **Transfer Amount Input:** Large red calculator-style keypad (no buttons, just ink). Amount displayed with a fading red glow.
+36. **Insufficient Balance (Error Modal):** Glass panel. "You need ₦500 more." "Top Up" button.
+37. **Transfer Review:** Sender (Me) -> Receiver (Avatar + Name). Amount in bold. Fee breakdown (Fee: ₦10, Total: ₦1010).
+38. **Transaction PIN Entry:** The background blurs, the PIN pad slides up. A black screen with 4 white dots.
+39. **Transfer Processing (Loading):** Animated red spinning circle. "Sending ₦1,000 to John."
+40. **Transfer Success:** Big checkmark inside a red circle. "Transaction Successful." Button: "Share Receipt."
+41. **Share Receipt:** Stylized receipt card export. Background: Black with red TrustPoint watermark.
+42. **Receipt Details View:** Digital paper effect. Status: "Completed."
+43. **Schedule Transfer:** Date/Time picker. "Repeat" selector (Weekly, Monthly).
+44. **Scheduled Transfers List:** Shows upcoming payments. Option to "Cancel" (red outline).
+45. **Favorite Transfers:** Horizontal scrollable chips of frequent contacts at the top.
+46. **Transfer Limit Reached:** Modal warning. "Upgrade to Tier 3 to send more."
+47. **FX Rate Calculator:** Convert Naira to USD. Red line chart showing rate fluctuation.
+48. **Beneficiary Management:** Edit/Delete beneficiary. Delete slides out a red "trash" area.
+49. **Select Purpose of Transfer:** Dropdown (Family Support, Business, etc.).
+
+#### E. TRANSACTION HISTORY & RECEIPTS (10 Screens)
+50. **All Transactions:** Infinite scroll list. Grouped by "Today," "Yesterday," "This Week."
+51. **Filter Transactions:** Bottom sheet. Categories (Airtime, Transfer, Bill), Status (Success, Failed, Pending), Date Range.
+52. **Search Transactions:** Live search with debounce. Red magnifying glass icon.
+53. **Transaction Detail (Incoming):** Logo of sender bank, Credit amount (Green), Reference ID with copy button.
+54. **Transaction Detail (Failed):** Red exclamation mark. "Reason: Network Timeout." "Try Again" button.
+55. **Transaction Dispute Form:** Radio buttons for "I was debited but not paid," "Fraud." Text input for description.
+56. **Dispute Status Tracker:** Visual stepper (3 steps: Submitted -> Investigating -> Resolved). Current step is red.
+57. **Dispute Resolved (Success):** "Your money has been reversed." Reversal receipt viewable.
+58. **Export History:** Select range, exporting animation (data flying into a CSV icon).
+59. **Monthly Summary Graphic:** AI generated minimalistic red and black background showing spending analytics.
+
+#### F. AIRTIME & DATA PURCHASE (10 Screens)
+60. **Airtime Home:** Radio selection "My Phone" / "Others." Recent top-up amounts shown.
+61. **Airtime Amount Selector:** 100, 200, 500, 1000, 2000. Custom input. Network provider icons (MTN, Glo, Airtel, 9mobile) in greyscale until selected, then they turn colored.
+62. **Airtime Pin Confirm:** "You are about to buy ₦500 Airtel Airtime for 0803..." PIN entry.
+63. **Airtime Success:** "Transaction Successful. ₦543 has been sent."
+64. **Data Bundle Plans List:** Cards stacking. "1.5GB Daily" (Red border highlight for "Best Seller").
+65. **Data Bonus Offers:** "Buy 10GB and get 2GB free." Glowing red ribbon on the card.
+66. **Contact Picker:** Access phone contacts to select a number for airtime gifting.
+67. **Auto-Recharge Setup:** Toggle to enable. Select frequency (Every Monday). Select amount.
+68. **Airtime to Cash:** Interface to convert airtime credit to bank balance (Reverse transaction).
+69. **Airtime Beneficiary Fast Track:** Recent numbers as avatars. Tap to instantly bring up PIN pad.
+
+#### G. BILL PAYMENTS (15 Screens)
+70. **Bill Categories:** Grid layout. Electricity (Bulb icon), Water (Tap icon), TV (Monitor), Internet, Education, Betting.
+71. **Electricity Provider List:** EKEDC, IKEDC, AEDC. Search bar at top.
+72. **Meter Token Input:** Long input field for Meter Number. "Validate Meter" button.
+73. **Meter Validation Result:** Shows Customer Name and Address. "Is this correct?" Yes/No.
+74. **Electricity Amount:** Input amount. Dynamic estimate: "Approx. 45.5 kWh."
+75. **Cable TV Provider:** DSTV, GOTV, Startimes. "Smart Card Number" input.
+76. **Select Bouquet:** DSTV packages listed (Premium, Compact+). Prices clearly shown.
+77. **Internet Provider:** Smile, Spectranet. "Account ID" input.
+78. **Educational Payment:** Select Institution (WAEC, JAMB). Input Registration Number.
+79. **Betting Top-up:** Bet9ja, BetKing. User ID input. Load from saved IDs.
+80. **Quick Pay Widgets:** Recurring payments shown as "Pay Again" cards (Tap to auto-fill details).
+81. **Bill Reminders:** Set up reminders for due dates. Red bell icon with countdown.
+82. **Bill Payment Review:** Aggregated view "You are paying EKEDC ₦5000."
+83. **Bill Payment Success (Token):** Huge screen displaying the 20-digit token. "Copy" and "Share on WhatsApp" buttons.
+84. **Bills History:** Filter by type. Status indicators (Paid - Green, Failed - Red).
+
+#### H. CARD MANAGEMENT (12 Screens)
+85. **My Cards:** Virtual card (Black with red chip) and Physical card (Red with black chip). "Freeze Card" slider toggle.
+86. **Card Details (Virtual):** Full screen card reveal with 3D rotation. Tap to reveal CVV.
+87. **Create Virtual Card:** "Set Spending Limit." Select currency (Naira/USD).
+88. **Card Fund Source:** Select which account to deduct from. Radio buttons.
+89. **Card PIN Change:** "Enter Old PIN," "Enter New PIN." Visual card graphic that shakes on wrong PIN.
+90. **Card Limit Adjustment:** Slider from 0 to 1,000,000. Real-time red bar filling.
+91. **Freeze Card (Confirmation):** Modal "Are you sure you want to freeze your card?" Card graphic turns greyscale.
+92. **Unfreeze Card:** Greyscale card turns back to colored red/black.
+93. **Report Lost/Stolen:** Swipe a red slider button to "Confirm."
+94. **Card Replacement Request:** "Reason for replacement." Address delivery confirmation.
+95. **Track Delivery Status:** Map view with a red pin showing the courier's location en route to you.
+96. **Card Transaction Controls:** Toggle switches for: Online Payments, POS, ATM Withdrawal, International.
+
+#### I. NOTIFICATIONS (5 Screens)
+97. **Notification Center:** Grouped by Today/Yesterday. Red dot next to unread.
+98. **In-App Notification Detail:** "You have a new credit alert." Large red "View" button.
+99. **Push Notification Settings:** Toggle for "Marketing," "Security Alerts," "Transaction Receipts."
+100. **Empty Notification State:** Bell icon with a zero badge. "We’ll notify you when something happens."
+101. **Security Alert Notification:** Full-screen red takeover warning. "Suspicious Login Blocked."
+
+#### J. PROFILE & SETTINGS (12 Screens)
+102. **Profile Overview:** Large circular avatar. Verified badge (Red checkmark). Tier Level (Tier 2).
+103. **Edit Profile:** Update Name, Email, Phone.
+104. **Account Upgrade (Tier Limit):** List of benefits for Tier 3. "Upgrade Now" button. Upload ID document interface.
+105. **Document Upload:** Camera access to capture BVN/NIN/Slip. Frame guides in red.
+106. **Identity Verification (Selfie):** Liveness detection. "Blink your eyes." Red glowing ring.
+107. **Security Settings:** List items: PIN, Biometric, 2FA, Trusted Devices.
+108. **Trusted Devices:** List of phones/laptops that have logged in. "Remove Device" option.
+109. **Linked Accounts Management:** View banks linked via open banking.
+110. **Theme Selector:** "Dark Mode (Red Velvet)," "Light Mode (Soft Crimson)," "System Default." Live preview in the background.
+111. **Language Selector:** List of languages (English, Hausa, Yoruba, Igbo).
+112. **Data & Privacy:** Request data export. Delete account (destructive red flow).
+113. **Logout Confirmation:** Modal "Are you sure?" Red logout button.
+
+#### K. SUPPORT & HELP (5 Screens)
+114. **Help Center:** Article categories (Getting Started, Payments, Security). Accordion style FAQ.
+115. **Live Chat:** Chat bubble interface. Sent messages are Red bubbles, received are Black (Dark Mode) or White (Light Mode).
+116. **Chatbot Interaction:** Quick reply buttons. "Check Balance," "Dispute Transaction."
+117. **Ticket Status:** "Ticket #8042 - Awaiting Reply." Red status indicator if unresolved.
+118. **Contact Us:** Click-to-call phone numbers, emails.
+
+#### L. SECURITY FLOWS (10 Screens)
+119. **Change PIN:** Sequential screens Old PIN -> New PIN -> Confirm PIN.
+120. **PIN Recovery:** "Forgot PIN" flow. Uses BVN and DOB verification.
+121. **Set Biometrics:** Toggle to enable Face ID/Fingerprint. Sensor icon animates.
+122. **Security Question Setup:** 3 drop-down menus to select questions. Input answers.
+123. **OTP Resend Timer:** Resend code in `00:45`. Button is greyed out, turns red when timer expires.
+124. **Transaction PIN vs Login PIN:** Explainer screen giving option to set different PINs.
+125. **Session Timeout:** App overlays a black screen with red padlock after 5 minutes idle. "Login to continue."
+
+#### M. ADVANCED FEATURES (120+ Screens - Detailed for Zite)
+
+**M1. SAVINGS & INVESTMENTS (15 Screens)**
+126. **Savings Dashboard:** Overview of "Piggy Bank," "Fixed Deposit," "Halal Savings."
+127. **Create Savings Goal:** Name the goal (AI Image: Car, House, Vacation illustrations), Target Amount, Maturity Date.
+128. **Auto-Save Rules:** "Save ₦500 every time I make a transfer over ₦1000." Rule builder interface.
+129. **Fixed Deposit Calculator:** Slider for amount and tenure. Real-time interest calculation. Red gradient chart.
+130. **Break FD (Early Termination):** Warning screen with penalty breakdown. "You will lose ₦2,000 interest."
+131. **Interest History:** Timeline view of interest earned.
+132. **Investment Products:** List of mutual funds. Risk level indicators (Low - Green, Medium - Orange, High - Red).
+133. **Portfolio Chart:** Pie chart of investments. User taps a slice to see details.
+
+**M2. LOANS (15 Screens)**
+134. **Loan Dashboard:** "Eligible Amount," "Current Loan" status bars.
+135. **Loan Application:** Slider to select amount. Tenor selector (3, 6, 9, 12 months).
+136. **Loan Offer Letter:** Digital contract view. "Agree & Accept" signature pad.
+137. **Loan Disbursement:** "Your account has been credited." Success screen.
+138. **Loan Repayment Schedule:** Calendar view with due dates highlighted in red.
+139. **Active Loan Detail:** "Amount Left: ₦50,000." "Next Repayment: Jan 25." Pay Installment button.
+140. **Loan Top-up:** If eligible, a button to top up an existing loan.
+141. **Loan Denied (Error State):** "Unfortunately, you are not eligible right now." Suggestions to improve eligibility.
+
+**M3. VIRTUAL & PHYSICAL CARDS (10 Screens)**
+142. **Card Design Studio:** Swipe through 5 card designs (Midnight Black, Crimson Red, Gold Abstract). AI Generation prompt: "A sleek, abstract red and black credit card mockup with a metallic chip and TrustPoint branding in silver."
+143. **Set Card Nickname:** "My Netflix Card," "Travel Card."
+144. **Card Security Code (Dynamic CVV):** A CVV that changes every hour. Timer countdown.
+145. **Spending Insights (Per Card):** Categorizes spend only on that specific card.
+
+**M4. PAYMENTS & QR (10 Screens)**
+146. **QR Code Scanner:** Full-screen camera with red corner brackets. Scans external QR.
+147. **My QR Code:** Generates a stylized TrustPoint QR (Black and Red pixels). "Show this to receive payment."
+148. **Tap to Pay (NFC):** Animation of phone tapping a POS machine. Red ripple effect.
+149. **Split Bill:** Select friends from contacts. Assign amounts. "Request Money" blast.
+
+**M5. BUSINESS & FREELANCE (10 Screens)**
+150. **Business Dashboard:** Revenue vs. Expense graph. Red line for expenses.
+151. **Invoice Generator:** Add Client, Description, Amount. Preview PDF (Black and Red template).
+152. **Invoice Sent Log:** Status tracker (Sent -> Viewed -> Paid).
+153. **POS Terminal Management:** View your connected POS devices.
+
+**M6. REFERRALS & REWARDS (10 Screens)**
+154. **Referral Hub:** "Invite friends. Get ₦500 when they sign up."
+155. **Share Referral Link:** Native share sheet overlay.
+156. **Rewards Catalog:** "Redeem points." Items: Airtime vouchers, Data, Bill waivers.
+157. **Points History:** Chronological list of points earned and redeemed.
+158. **Leaderboard (Gamification):** Weekly top referrers. User's position highlighted in red.
+
+**N. MISCELLANEOUS & STATES (30+ Screens)**
+159. **No Internet Connection:** Full-screen red alert bar at the top. "Reconnecting..." with a pulsing radar animation.
+160. **404 Navigation Error:** A floating black hole animation with a red ring. "Page not found. Go back."
+161. **Under Maintenance:** "We're polishing the servers. Back in 30 mins." Red progress bar at the bottom.
+162. **Force Update:** Modal. "New version available. Update to continue." Red "Update" button. Black "Later" text.
+163. **Legal Documents:** Privacy Policy, Terms & Conditions rendered in a WebView. The header is red.
+164. **GDPR Cookie Consent:** Bottom banner. "We use red velvet cookies... just kidding. Real cookies." Red "Accept" button.
+165. **Empty Search Results:** "No results for 'Asdfg'." Magnifying glass with a sad face.
+166. **Rate Us Prompt:** "Loving TrustPoint?" 5 stars. Stars turn red on tap.
+167. **Biometric Capture (Liveness):** "Turn your head left." 3D mask of a face with red guides.
+168. **Saving Simulation:** Animated jar filling up with red liquid as money is saved.
+169. **Card Controls Map:** Map showing where the card has been used recently. Red pins.
+170. **Scheduled Payment Cancellation:** Are you sure? The scheduled payment card breaks apart visually.
+
+---
+
+### FINAL INSTRUCTION FOR ZITE:
+"Zite, generate the full Red Velvet Black design system for TrustPoint. Ensure every screen listed above has a **Dark Mode (Black/Red)** and **Light Mode (White/Red)** variant. The style must be 100% mobile-optimized with a floating soft aesthetic and colored glow shadows. Export all components as reusable auto-layout elements. For the screens requiring AI-generated images, use the descriptions in the prompt to generate the photos/illustrations directly in the designs."
