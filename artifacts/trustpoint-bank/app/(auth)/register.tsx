@@ -2,18 +2,13 @@ import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Feather } from "@expo/vector-icons";
@@ -22,82 +17,132 @@ import { Input } from "@/components/ui/Input";
 import { OTPInput } from "@/components/ui/OTPInput";
 import { PinPad } from "@/components/ui/PinPad";
 import { useApp } from "@/context/AppContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "react-native";
 
-const STEPS = ["BVN", "OTP", "Profile", "PIN", "Success"];
+const STEPS = ["Phone", "OTP", "Profile", "PIN", "Done"];
+
+const GENDERS = ["Male", "Female", "Rather not say"];
+const NIGERIAN_STATES = [
+  "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
+  "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT","Gombe","Imo",
+  "Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos","Nasarawa",
+  "Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto","Taraba",
+  "Yobe","Zamfara",
+];
 
 export default function RegisterScreen() {
-  const { registerUser } = useApp();
+  const { registerUser, phoneExists } = useApp();
   const [step, setStep] = useState(0);
-  const [bvn, setBvn] = useState("");
-  const [bvnError, setBvnError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Step 0 - Phone
+  const [phone, setPhone] = useState("");
+
+  // Step 2 - Profile
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [gender, setGender] = useState("");
+  const [dob, setDob] = useState("");
+  const [state, setState] = useState("");
+  const [showStateList, setShowStateList] = useState(false);
+
+  // Step 3 - PIN
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [pinStep, setPinStep] = useState<"set" | "confirm">("set");
   const [pinError, setPinError] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const progress = (step / (STEPS.length - 1)) * 100;
-
-  const handleBVN = () => {
-    if (bvn.length !== 11) {
-      setBvnError("BVN must be 11 digits");
-      return;
-    }
-    setBvnError("");
+  const handlePhone = async () => {
+    const cleaned = phone.replace(/\D/g, "");
+    if (cleaned.length < 10) { setError("Enter a valid phone number"); return; }
+    setLoading(true);
+    setError("");
+    try {
+      const exists = await phoneExists(cleaned);
+      if (exists) {
+        setError("This number is already registered. Please login instead.");
+        setLoading(false);
+        return;
+      }
+    } catch {}
+    await AsyncStorage.setItem("@tp_last_phone", cleaned);
+    setLoading(false);
     setStep(1);
   };
 
   const handleOTP = (code: string) => {
+    // Accept any 4-digit code — OTP is mocked
     if (code.length === 4) setTimeout(() => setStep(2), 400);
   };
 
   const handleProfile = () => {
-    if (!name.trim()) return;
+    if (!name.trim()) { setError("Full name is required"); return; }
+    if (!gender) { setError("Please select your gender"); return; }
+    setError("");
     setStep(3);
   };
 
-  const handlePin = (key: string) => {
-    if (pinStep === "set") {
-      const newPin = pin + key;
+  const handlePinFirstSet = (key: string) => {
+    const newPin = pin + key;
+    if (newPin.length <= 4) {
       setPin(newPin);
-      if (newPin.length === 4) setTimeout(() => { setPinStep("confirm"); setPin(""); }, 300);
-    } else {
-      const newConfirm = confirmPin + key;
+      if (newPin.length === 4) {
+        AsyncStorage.setItem("@tp_reg_pin", newPin);
+        setTimeout(() => { setPinStep("confirm"); setPin(""); }, 300);
+      }
+    }
+  };
+
+  const handlePinConfirm = (key: string) => {
+    const newConfirm = confirmPin + key;
+    if (newConfirm.length <= 4) {
       setConfirmPin(newConfirm);
       if (newConfirm.length === 4) {
-        setTimeout(() => {
-          if (newConfirm !== (pin || "")) {
+        setTimeout(async () => {
+          const stored = await AsyncStorage.getItem("@tp_reg_pin");
+          const origPin = stored || "";
+          if (newConfirm !== origPin) {
             setPinError(true);
             setConfirmPin("");
-            setTimeout(() => setPinError(false), 1000);
+            setTimeout(() => setPinError(false), 800);
           } else {
-            setStep(4);
-            setTimeout(() => finishRegister(newConfirm), 600);
+            await finishRegister(origPin);
           }
         }, 300);
       }
     }
   };
 
-  const handlePinDelete = () => {
-    if (pinStep === "set") setPin((p) => p.slice(0, -1));
-    else setConfirmPin((p) => p.slice(0, -1));
+  const handlePinKey = pinStep === "set" ? handlePinFirstSet : handlePinConfirm;
+  const currentPinValue = pinStep === "set" ? pin : confirmPin;
+
+  const finishRegister = async (rawPin: string) => {
+    setLoading(true);
+    try {
+      await registerUser({
+        name: name.trim(),
+        phone: phone.replace(/\D/g, ""),
+        email: email.trim() || undefined,
+        gender,
+        dateOfBirth: dob,
+        stateOfOrigin: state,
+        rawPin,
+      });
+      setStep(4);
+    } catch (err: any) {
+      setError(err.message ?? "Registration failed. Please try again.");
+      setStep(0);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const finishRegister = async (userPin: string) => {
-    const initials = name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-    await registerUser({
-      name: name.trim() || "John Doe",
-      email: email.trim() || "user@email.com",
-      phone: phone.trim() || "08012345678",
-      bvn,
-      pin: userPin,
-      initials,
-      onboarded: true,
-    });
+  const back = () => {
+    setError("");
+    if (step === 3 && pinStep === "confirm") { setPinStep("set"); setConfirmPin(""); return; }
+    setStep((s) => Math.max(0, s - 1));
   };
 
   const renderStep = () => {
@@ -105,97 +150,195 @@ export default function RegisterScreen() {
       case 0:
         return (
           <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Verify your identity</Text>
-            <Text style={styles.stepSub}>Enter your 11-digit Bank Verification Number</Text>
-            <Input
-              label="BVN"
-              value={bvn}
-              onChangeText={(t) => { setBvn(t.replace(/[^0-9]/g, "").slice(0, 11)); setBvnError(""); }}
-              keyboardType="number-pad"
-              placeholder="e.g. 12345678901"
-              error={bvnError}
-              maxLength={11}
-              prefixIcon={<Feather name="shield" size={18} color="#8E8E93" />}
-            />
-            <Button onPress={handleBVN} fullWidth disabled={bvn.length !== 11}>
-              Continue
-            </Button>
-          </View>
-        );
-      case 1:
-        return (
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Verify your phone</Text>
-            <Text style={styles.stepSub}>We sent a 4-digit code to 080*****678</Text>
-            <OTPInput length={4} onComplete={handleOTP} timerSeconds={45} onResend={() => {}} />
-          </View>
-        );
-      case 2:
-        return (
-          <View style={styles.stepContent}>
-            <Text style={styles.stepTitle}>Create your profile</Text>
-            <Text style={styles.stepSub}>Tell us a bit about yourself</Text>
-            <Input
-              label="Full Name"
-              value={name}
-              onChangeText={setName}
-              placeholder="e.g. John Doe"
-              prefixIcon={<Feather name="user" size={18} color="#8E8E93" />}
-            />
-            <Input
-              label="Email Address"
-              value={email}
-              onChangeText={setEmail}
-              placeholder="e.g. john@email.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              prefixIcon={<Feather name="mail" size={18} color="#8E8E93" />}
-            />
+            <Text style={[styles.stepTitle, { fontFamily: "Inter_700Bold" }]}>Welcome to TrustPoint</Text>
+            <Text style={[styles.stepSub, { fontFamily: "Inter_400Regular" }]}>
+              Enter your phone number to get started. No BVN needed.
+            </Text>
             <Input
               label="Phone Number"
               value={phone}
-              onChangeText={setPhone}
-              placeholder="e.g. 08012345678"
+              onChangeText={(t) => { setPhone(t); setError(""); }}
               keyboardType="phone-pad"
+              placeholder="e.g. 08012345678"
               prefixIcon={<Feather name="phone" size={18} color="#8E8E93" />}
+              maxLength={14}
             />
-            <Button onPress={handleProfile} fullWidth disabled={!name.trim()}>
+            {error ? <Text style={[styles.errorMsg, { fontFamily: "Inter_400Regular" }]}>{error}</Text> : null}
+            <Button onPress={handlePhone} fullWidth loading={loading} disabled={phone.replace(/\D/g,"").length < 10}>
               Continue
             </Button>
+            <TouchableOpacity onPress={() => router.replace("/(auth)/login")} style={{ alignSelf: "center" }}>
+              <Text style={[styles.linkText, { fontFamily: "Inter_400Regular" }]}>
+                Already have an account? <Text style={{ color: "#E63946" }}>Sign in</Text>
+              </Text>
+            </TouchableOpacity>
           </View>
         );
+
+      case 1:
+        return (
+          <View style={styles.stepContent}>
+            <Text style={[styles.stepTitle, { fontFamily: "Inter_700Bold" }]}>Verify your number</Text>
+            <Text style={[styles.stepSub, { fontFamily: "Inter_400Regular" }]}>
+              Enter any 4-digit code to verify{"\n"}
+              <Text style={{ color: "#E63946" }}>{phone}</Text>
+            </Text>
+            <OTPInput length={4} onComplete={handleOTP} timerSeconds={45} onResend={() => {}} />
+            <Text style={[styles.devNote, { fontFamily: "Inter_400Regular" }]}>
+              💡 For now, enter any 4 digits to proceed.
+            </Text>
+          </View>
+        );
+
+      case 2:
+        return (
+          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ width: "100%" }}>
+            <View style={styles.stepContent}>
+              <Text style={[styles.stepTitle, { fontFamily: "Inter_700Bold" }]}>Your Profile</Text>
+              <Text style={[styles.stepSub, { fontFamily: "Inter_400Regular" }]}>Tell us about yourself</Text>
+
+              <Input
+                label="Full Name *"
+                value={name}
+                onChangeText={(t) => { setName(t); setError(""); }}
+                placeholder="e.g. Adaeze Okafor"
+                prefixIcon={<Feather name="user" size={18} color="#8E8E93" />}
+              />
+              <Input
+                label="Email Address"
+                value={email}
+                onChangeText={setEmail}
+                placeholder="e.g. ada@email.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                prefixIcon={<Feather name="mail" size={18} color="#8E8E93" />}
+              />
+
+              {/* Gender selector */}
+              <View>
+                <Text style={[styles.fieldLabel, { fontFamily: "Inter_500Medium" }]}>Gender *</Text>
+                <View style={styles.chipRow}>
+                  {GENDERS.map((g) => (
+                    <Pressable
+                      key={g}
+                      onPress={() => { setGender(g); setError(""); }}
+                      style={[
+                        styles.genderChip,
+                        {
+                          backgroundColor: gender === g ? "#E63946" : "#1A1A1A",
+                          borderColor: gender === g ? "#E63946" : "#2A2A2A",
+                        },
+                      ]}
+                    >
+                      <Text style={[styles.chipText, { color: gender === g ? "#fff" : "#8E8E93", fontFamily: "Inter_500Medium" }]}>
+                        {g}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              <Input
+                label="Date of Birth"
+                value={dob}
+                onChangeText={setDob}
+                placeholder="DD/MM/YYYY"
+                keyboardType="numbers-and-punctuation"
+                prefixIcon={<Feather name="calendar" size={18} color="#8E8E93" />}
+                maxLength={10}
+              />
+
+              {/* State selector */}
+              <View>
+                <Text style={[styles.fieldLabel, { fontFamily: "Inter_500Medium" }]}>State of Origin</Text>
+                <Pressable
+                  onPress={() => setShowStateList((v) => !v)}
+                  style={[styles.stateSelector, { backgroundColor: "#181818" }]}
+                >
+                  <Feather name="map-pin" size={18} color="#8E8E93" />
+                  <Text style={[styles.stateSelectorText, { color: state ? "#F1FAEE" : "#8E8E93", fontFamily: "Inter_400Regular" }]}>
+                    {state || "Select state…"}
+                  </Text>
+                  <Feather name={showStateList ? "chevron-up" : "chevron-down"} size={16} color="#8E8E93" />
+                </Pressable>
+                {showStateList && (
+                  <View style={[styles.stateList, { backgroundColor: "#1A1A1A", borderColor: "#2A2A2A" }]}>
+                    <ScrollView style={{ maxHeight: 180 }} nestedScrollEnabled>
+                      {NIGERIAN_STATES.map((s) => (
+                        <Pressable
+                          key={s}
+                          onPress={() => { setState(s); setShowStateList(false); }}
+                          style={[styles.stateItem, { borderBottomColor: "#2A2A2A" }]}
+                        >
+                          <Text style={[styles.stateItemText, { color: state === s ? "#E63946" : "#F1FAEE", fontFamily: "Inter_400Regular" }]}>
+                            {s}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+              </View>
+
+              {error ? <Text style={[styles.errorMsg, { fontFamily: "Inter_400Regular" }]}>{error}</Text> : null}
+              <Button onPress={handleProfile} fullWidth disabled={!name.trim() || !gender}>
+                Continue
+              </Button>
+            </View>
+          </KeyboardAvoidingView>
+        );
+
       case 3:
         return (
           <View style={styles.pinContent}>
-            <Text style={styles.stepTitle}>
-              {pinStep === "set" ? "Set your PIN" : "Confirm your PIN"}
+            <Text style={[styles.stepTitle, { fontFamily: "Inter_700Bold", textAlign: "center" }]}>
+              {pinStep === "set" ? "Create your PIN" : "Confirm your PIN"}
             </Text>
-            <Text style={styles.stepSub}>
+            <Text style={[styles.stepSub, { fontFamily: "Inter_400Regular", textAlign: "center" }]}>
               {pinStep === "set"
-                ? "Create a 4-digit transaction PIN"
+                ? "Set a secure 4-digit transaction PIN"
                 : "Re-enter your PIN to confirm"}
             </Text>
+            {pinError && (
+              <Text style={[styles.errorMsg, { fontFamily: "Inter_500Medium", textAlign: "center" }]}>
+                PINs don't match. Try again.
+              </Text>
+            )}
             <PinPad
-              pin={pinStep === "set" ? pin : confirmPin}
-              onKeyPress={handlePin}
-              onDelete={handlePinDelete}
+              pin={currentPinValue}
+              onKeyPress={handlePinKey}
+              onDelete={() => {
+                if (pinStep === "set") setPin((p) => p.slice(0, -1));
+                else setConfirmPin((p) => p.slice(0, -1));
+              }}
               shake={pinError}
             />
+            {loading && (
+              <Text style={[{ color: "#8E8E93", fontSize: 13, fontFamily: "Inter_400Regular" }]}>
+                Creating account…
+              </Text>
+            )}
           </View>
         );
+
       case 4:
         return (
           <View style={styles.successContent}>
             <View style={styles.checkCircle}>
-              <Feather name="check" size={48} color="#fff" />
+              <Feather name="check" size={52} color="#fff" />
             </View>
-            <Text style={styles.welcomeTitle}>Welcome to TrustPoint.</Text>
-            <Text style={styles.stepSub}>Your account has been created successfully.</Text>
+            <Text style={[styles.welcomeTitle, { fontFamily: "Inter_700Bold" }]}>
+              Welcome, {name.split(" ")[0]}!
+            </Text>
+            <Text style={[styles.stepSub, { fontFamily: "Inter_400Regular", textAlign: "center" }]}>
+              Your TrustPoint account has been created successfully.
+            </Text>
             <Button onPress={() => router.replace("/(main)")} fullWidth size="large">
               Go to Dashboard
             </Button>
           </View>
         );
+
       default:
         return null;
     }
@@ -206,44 +349,40 @@ export default function RegisterScreen() {
       <StatusBar style="light" />
 
       {/* Header */}
-      <View style={styles.header}>
-        {step > 0 && step < 4 && (
-          <TouchableOpacity onPress={() => setStep((s) => Math.max(0, s - 1))} style={styles.backBtn}>
-            <Feather name="arrow-left" size={22} color="#F1FAEE" />
-          </TouchableOpacity>
-        )}
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>Create Account</Text>
-          {step < 4 && (
-            <Text style={styles.headerStep}>Step {step + 1} of {STEPS.length - 1}</Text>
+      {step < 4 && (
+        <View style={styles.header}>
+          {step > 0 ? (
+            <TouchableOpacity onPress={back} style={styles.backBtn}>
+              <Feather name="arrow-left" size={22} color="#F1FAEE" />
+            </TouchableOpacity>
+          ) : (
+            <View style={{ width: 40 }} />
           )}
+          <View style={styles.headerCenter}>
+            <Image
+              source={require("@/assets/images/icon_transparent.png")}
+              style={styles.headerIcon}
+              resizeMode="contain"
+            />
+          </View>
+          <View style={{ width: 40 }} />
         </View>
-      </View>
+      )}
 
       {/* Progress bar */}
       {step < 4 && (
         <View style={styles.progressBar}>
-          <Animated.View
-            style={[
-              styles.progressFill,
-              { width: `${((step + 1) / (STEPS.length - 1)) * 100}%` },
-            ]}
-          />
+          <View style={[styles.progressFill, { width: `${((step + 1) / (STEPS.length - 1)) * 100}%` }]} />
         </View>
       )}
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={{ flex: 1 }}
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {renderStep()}
-        </ScrollView>
-      </KeyboardAvoidingView>
+        {renderStep()}
+      </ScrollView>
     </View>
   );
 }
@@ -253,10 +392,10 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingTop: 60,
-    paddingBottom: 16,
-    gap: 12,
+    paddingBottom: 12,
   },
   backBtn: {
     width: 40,
@@ -266,46 +405,51 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerCenter: { flex: 1 },
-  headerTitle: {
-    fontSize: 18,
-    color: "#F1FAEE",
-    fontFamily: "Inter_600SemiBold",
-    letterSpacing: -0.5,
-  },
-  headerStep: {
-    fontSize: 12,
-    color: "#8E8E93",
-    fontFamily: "Inter_400Regular",
-    marginTop: 2,
-  },
+  headerCenter: { alignItems: "center" },
+  headerIcon: { width: 40, height: 40 },
   progressBar: {
     height: 3,
-    backgroundColor: "#2A2A2A",
+    backgroundColor: "#1A1A1A",
     marginHorizontal: 20,
     borderRadius: 2,
+    marginBottom: 4,
   },
-  progressFill: {
-    height: 3,
-    backgroundColor: "#E63946",
-    borderRadius: 2,
+  progressFill: { height: 3, backgroundColor: "#E63946", borderRadius: 2 },
+  content: { padding: 24, paddingBottom: 60 },
+  stepContent: { gap: 18 },
+  pinContent: { alignItems: "center", gap: 20, paddingTop: 16 },
+  successContent: { alignItems: "center", gap: 20, paddingTop: 32 },
+  stepTitle: { fontSize: 28, color: "#F1FAEE", letterSpacing: -1 },
+  stepSub: { fontSize: 15, color: "#8E8E93", lineHeight: 22 },
+  fieldLabel: { fontSize: 13, color: "#8E8E93", marginBottom: 8 },
+  chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  genderChip: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1.5,
   },
-  content: { padding: 24, paddingBottom: 48 },
-  stepContent: { gap: 20 },
-  pinContent: { alignItems: "center", gap: 24, paddingTop: 24 },
-  successContent: { alignItems: "center", gap: 20, paddingTop: 40 },
-  stepTitle: {
-    fontSize: 28,
-    color: "#F1FAEE",
-    fontFamily: "Inter_700Bold",
-    letterSpacing: -1,
+  chipText: { fontSize: 14 },
+  stateSelector: {
+    height: 52,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    gap: 10,
   },
-  stepSub: {
-    fontSize: 15,
-    color: "#8E8E93",
-    fontFamily: "Inter_400Regular",
-    lineHeight: 22,
+  stateSelectorText: { flex: 1, fontSize: 15 },
+  stateList: {
+    borderRadius: 12,
+    borderWidth: 1,
+    marginTop: 4,
+    overflow: "hidden",
   },
+  stateItem: { padding: 14, borderBottomWidth: 0.5 },
+  stateItemText: { fontSize: 14 },
+  errorMsg: { fontSize: 13, color: "#E63946" },
+  linkText: { fontSize: 14, color: "#8E8E93" },
+  devNote: { fontSize: 12, color: "#555", textAlign: "center" },
   checkCircle: {
     width: 96,
     height: 96,
@@ -319,11 +463,5 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     marginBottom: 8,
   },
-  welcomeTitle: {
-    fontSize: 32,
-    color: "#F1FAEE",
-    fontFamily: "Inter_700Bold",
-    letterSpacing: -1,
-    textAlign: "center",
-  },
+  welcomeTitle: { fontSize: 32, color: "#F1FAEE", letterSpacing: -1 },
 });

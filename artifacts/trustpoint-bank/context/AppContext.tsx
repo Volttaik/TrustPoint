@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react";
 import { useColorScheme } from "react-native";
+import { apiGet, apiPost } from "@/utils/api";
 
 export interface Transaction {
   id: string;
@@ -45,12 +46,15 @@ export interface Beneficiary {
 }
 
 export interface User {
-  id: string;
+  id?: number;
   name: string;
   email: string;
   phone: string;
+  gender?: string;
+  dateOfBirth?: string;
+  stateOfOrigin?: string;
   accountNumber: string;
-  bvn: string;
+  bvn?: string;
   tier: number;
   avatarColor: string;
   initials: string;
@@ -62,7 +66,7 @@ export interface User {
   onboarded: boolean;
 }
 
-interface AppContextType {
+export interface AppContextType {
   user: User | null;
   isAuthenticated: boolean;
   theme: "dark" | "light";
@@ -70,9 +74,9 @@ interface AppContextType {
   transactions: Transaction[];
   cards: Card[];
   beneficiaries: Beneficiary[];
-  login: (pin: string) => boolean;
+  login: (pin: string) => Promise<boolean>;
   logout: () => void;
-  registerUser: (data: Partial<User>) => void;
+  registerUser: (data: Partial<User> & { rawPin: string }) => Promise<void>;
   updateBalance: (amount: number, type: "credit" | "debit") => void;
   addTransaction: (tx: Omit<Transaction, "id" | "date" | "reference">) => void;
   toggleFavorite: (id: string) => void;
@@ -81,21 +85,22 @@ interface AppContextType {
   showBalance: boolean;
   toggleShowBalance: () => void;
   isLoading: boolean;
+  phoneExists: (phone: string) => Promise<boolean>;
 }
 
 export const AppContext = createContext<AppContextType | null>(null);
 
 const MOCK_TRANSACTIONS: Transaction[] = [
-  { id: "1", title: "Adebayo Okafor", subtitle: "Transfer received", amount: 85000, type: "credit", status: "success", date: new Date().toISOString(), category: "Transfer", reference: "TXN" + Date.now(), bank: "GTBank", avatarColor: "#2A9D8F" },
-  { id: "2", title: "EKEDC Electricity", subtitle: "Prepaid Token", amount: 5000, type: "debit", status: "success", date: new Date(Date.now() - 3600000).toISOString(), category: "Bills", reference: "TXN" + (Date.now() - 1), bank: "EKEDC", avatarColor: "#E76F51" },
-  { id: "3", title: "MTN Airtime", subtitle: "Airtime Top-up", amount: 1000, type: "debit", status: "success", date: new Date(Date.now() - 7200000).toISOString(), category: "Airtime", reference: "TXN" + (Date.now() - 2), avatarColor: "#F4A261" },
-  { id: "4", title: "Chioma Ngozi", subtitle: "Money sent", amount: 25000, type: "debit", status: "success", date: new Date(Date.now() - 86400000).toISOString(), category: "Transfer", reference: "TXN" + (Date.now() - 3), bank: "Zenith Bank", avatarColor: "#457B9D" },
-  { id: "5", title: "Netflix Subscription", subtitle: "Monthly subscription", amount: 4615, type: "debit", status: "success", date: new Date(Date.now() - 86400000 * 2).toISOString(), category: "Entertainment", reference: "TXN" + (Date.now() - 4), avatarColor: "#E63946" },
-  { id: "6", title: "Salary — TechCorp Ltd", subtitle: "Monthly salary", amount: 450000, type: "credit", status: "success", date: new Date(Date.now() - 86400000 * 5).toISOString(), category: "Income", reference: "TXN" + (Date.now() - 5), avatarColor: "#2D6A4F" },
-  { id: "7", title: "DStv Subscription", subtitle: "Premium bouquet", amount: 29500, type: "debit", status: "success", date: new Date(Date.now() - 86400000 * 7).toISOString(), category: "Bills", reference: "TXN" + (Date.now() - 6), avatarColor: "#023E8A" },
-  { id: "8", title: "Emeka Obi", subtitle: "Transfer received", amount: 15000, type: "credit", status: "success", date: new Date(Date.now() - 86400000 * 8).toISOString(), category: "Transfer", reference: "TXN" + (Date.now() - 7), bank: "UBA", avatarColor: "#6D6875" },
-  { id: "9", title: "Airtel Data Bundle", subtitle: "10GB Monthly", amount: 3500, type: "debit", status: "failed", date: new Date(Date.now() - 86400000 * 9).toISOString(), category: "Airtime", reference: "TXN" + (Date.now() - 8), avatarColor: "#E63946" },
-  { id: "10", title: "Shoprite Supermarket", subtitle: "POS Purchase", amount: 12400, type: "debit", status: "success", date: new Date(Date.now() - 86400000 * 10).toISOString(), category: "Shopping", reference: "TXN" + (Date.now() - 9), avatarColor: "#48CAE4" },
+  { id: "1", title: "Adebayo Okafor", subtitle: "Transfer received", amount: 85000, type: "credit", status: "success", date: new Date().toISOString(), category: "Transfer", reference: "TXN001", bank: "GTBank", avatarColor: "#2A9D8F" },
+  { id: "2", title: "EKEDC Electricity", subtitle: "Prepaid Token", amount: 5000, type: "debit", status: "success", date: new Date(Date.now() - 3600000).toISOString(), category: "Bills", reference: "TXN002", avatarColor: "#E76F51" },
+  { id: "3", title: "MTN Airtime", subtitle: "Airtime Top-up", amount: 1000, type: "debit", status: "success", date: new Date(Date.now() - 7200000).toISOString(), category: "Airtime", reference: "TXN003", avatarColor: "#F4A261" },
+  { id: "4", title: "Chioma Ngozi", subtitle: "Money sent", amount: 25000, type: "debit", status: "success", date: new Date(Date.now() - 86400000).toISOString(), category: "Transfer", reference: "TXN004", bank: "Zenith Bank", avatarColor: "#457B9D" },
+  { id: "5", title: "Netflix Subscription", subtitle: "Monthly subscription", amount: 4615, type: "debit", status: "success", date: new Date(Date.now() - 86400000 * 2).toISOString(), category: "Entertainment", reference: "TXN005", avatarColor: "#E63946" },
+  { id: "6", title: "Salary — TechCorp Ltd", subtitle: "Monthly salary", amount: 450000, type: "credit", status: "success", date: new Date(Date.now() - 86400000 * 5).toISOString(), category: "Income", reference: "TXN006", avatarColor: "#2D6A4F" },
+  { id: "7", title: "DStv Subscription", subtitle: "Premium bouquet", amount: 29500, type: "debit", status: "success", date: new Date(Date.now() - 86400000 * 7).toISOString(), category: "Bills", reference: "TXN007", avatarColor: "#023E8A" },
+  { id: "8", title: "Emeka Obi", subtitle: "Transfer received", amount: 15000, type: "credit", status: "success", date: new Date(Date.now() - 86400000 * 8).toISOString(), category: "Transfer", reference: "TXN008", bank: "UBA", avatarColor: "#6D6875" },
+  { id: "9", title: "Airtel Data Bundle", subtitle: "10GB Monthly", amount: 3500, type: "debit", status: "failed", date: new Date(Date.now() - 86400000 * 9).toISOString(), category: "Data", reference: "TXN009", avatarColor: "#E63946" },
+  { id: "10", title: "Shoprite Supermarket", subtitle: "POS Purchase", amount: 12400, type: "debit", status: "success", date: new Date(Date.now() - 86400000 * 10).toISOString(), category: "Shopping", reference: "TXN010", avatarColor: "#48CAE4" },
 ];
 
 const MOCK_CARDS: Card[] = [
@@ -111,22 +116,30 @@ const MOCK_BENEFICIARIES: Beneficiary[] = [
   { id: "b5", name: "Kola Adesanya", bank: "Access Bank", account: "7890123456", avatarColor: "#F4A261", initials: "KA", favorite: false },
 ];
 
-const DEFAULT_USER: User = {
-  id: "u1",
-  name: "John Doe",
-  email: "john.doe@email.com",
-  phone: "08012345678",
-  accountNumber: "1234567890",
-  bvn: "12345678901",
-  tier: 2,
-  avatarColor: "#E63946",
-  initials: "JD",
-  balance: 247560,
-  income: 450000,
-  expenses: 76015,
-  pin: "1234",
-  biometricEnabled: false,
-  onboarded: false,
+const buildUser = (apiUser: any, pin: string): User => {
+  const nameParts = (apiUser.name ?? "").trim().split(" ");
+  const initials = nameParts.map((w: string) => w[0]).join("").slice(0, 2).toUpperCase() || "??";
+  const colors = ["#E63946", "#2A9D8F", "#457B9D", "#6D6875", "#E76F51"];
+  const avatarColor = colors[apiUser.id % colors.length] ?? "#E63946";
+  return {
+    id: apiUser.id,
+    name: apiUser.name ?? "",
+    email: apiUser.email ?? "",
+    phone: apiUser.phone ?? "",
+    gender: apiUser.gender ?? "",
+    dateOfBirth: apiUser.dateOfBirth ?? "",
+    stateOfOrigin: apiUser.stateOfOrigin ?? "",
+    accountNumber: apiUser.accountNumber ?? "",
+    tier: parseInt(apiUser.tier ?? "1"),
+    avatarColor,
+    initials,
+    balance: 247560,
+    income: 450000,
+    expenses: 76015,
+    pin,
+    biometricEnabled: false,
+    onboarded: true,
+  };
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -141,15 +154,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
+    const init = async () => {
       try {
-        const [storedUser, storedTheme, storedTransactions, storedCards, storedBeneficiaries] = await Promise.all([
-          AsyncStorage.getItem("@tp_user"),
-          AsyncStorage.getItem("@tp_theme"),
-          AsyncStorage.getItem("@tp_transactions"),
-          AsyncStorage.getItem("@tp_cards"),
-          AsyncStorage.getItem("@tp_beneficiaries"),
-        ]);
+        const [storedUser, storedTheme, storedTransactions, storedCards, storedBeneficiaries] =
+          await Promise.all([
+            AsyncStorage.getItem("@tp_user"),
+            AsyncStorage.getItem("@tp_theme"),
+            AsyncStorage.getItem("@tp_transactions"),
+            AsyncStorage.getItem("@tp_cards"),
+            AsyncStorage.getItem("@tp_beneficiaries"),
+          ]);
         if (storedUser) setUser(JSON.parse(storedUser));
         if (storedTheme) setTheme(storedTheme as "dark" | "light");
         else setTheme(systemScheme === "light" ? "light" : "dark");
@@ -157,12 +171,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (storedCards) setCards(JSON.parse(storedCards));
         if (storedBeneficiaries) setBeneficiaries(JSON.parse(storedBeneficiaries));
       } catch (e) {
-        console.error(e);
+        console.error("AppContext init error:", e);
       } finally {
         setIsLoading(false);
       }
     };
-    loadData();
+    init();
   }, []);
 
   const saveUser = useCallback(async (u: User | null) => {
@@ -178,28 +192,53 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const toggleShowBalance = useCallback(() => setShowBalance((v) => !v), []);
 
-  const login = useCallback((pin: string): boolean => {
-    const u = user ?? DEFAULT_USER;
-    if (pin === u.pin) {
-      setIsAuthenticated(true);
-      if (!user) {
-        setUser(DEFAULT_USER);
-        saveUser(DEFAULT_USER);
-      }
+  const phoneExists = useCallback(async (phone: string): Promise<boolean> => {
+    try {
+      await apiGet(`/user/${encodeURIComponent(phone)}`);
       return true;
+    } catch {
+      return false;
     }
-    return false;
+  }, []);
+
+  const login = useCallback(async (pin: string): Promise<boolean> => {
+    const storedPhone = user?.phone ?? await AsyncStorage.getItem("@tp_last_phone");
+    if (!storedPhone) return false;
+    try {
+      const apiUser = await apiPost("/login", { phone: storedPhone, pin });
+      const u = buildUser(apiUser, pin);
+      setUser(u);
+      await saveUser(u);
+      setIsAuthenticated(true);
+      return true;
+    } catch {
+      return false;
+    }
   }, [user, saveUser]);
 
   const logout = useCallback(() => {
     setIsAuthenticated(false);
   }, []);
 
-  const registerUser = useCallback(async (data: Partial<User>) => {
-    const newUser = { ...DEFAULT_USER, ...data, onboarded: true };
-    setUser(newUser);
-    await saveUser(newUser);
-    setIsAuthenticated(true);
+  const registerUser = useCallback(async (data: Partial<User> & { rawPin: string }) => {
+    try {
+      const apiUser = await apiPost("/register", {
+        name: data.name,
+        phone: data.phone,
+        email: data.email,
+        pin: data.rawPin,
+        gender: data.gender,
+        dateOfBirth: data.dateOfBirth,
+        stateOfOrigin: data.stateOfOrigin,
+      });
+      const u = buildUser(apiUser, data.rawPin);
+      setUser(u);
+      await saveUser(u);
+      await AsyncStorage.setItem("@tp_last_phone", data.phone ?? "");
+      setIsAuthenticated(true);
+    } catch (err: any) {
+      throw err;
+    }
   }, [saveUser]);
 
   const updateBalance = useCallback((amount: number, type: "credit" | "debit") => {
@@ -212,12 +251,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, [saveUser]);
 
-  const addTransaction = useCallback(async (tx: Omit<Transaction, "id" | "date" | "reference">) => {
+  const addTransaction = useCallback((tx: Omit<Transaction, "id" | "date" | "reference">) => {
     const newTx: Transaction = {
       ...tx,
       id: Date.now().toString() + Math.random().toString(36).substr(2, 6),
       date: new Date().toISOString(),
-      reference: "TXN" + Date.now(),
+      reference: "TXN" + Date.now().toString().slice(-8),
     };
     setTransactions((prev) => {
       const updated = [newTx, ...prev];
@@ -272,6 +311,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       showBalance,
       toggleShowBalance,
       isLoading,
+      phoneExists,
     }}>
       {children}
     </AppContext.Provider>

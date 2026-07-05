@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import {
-  Animated,
   Pressable,
   StyleSheet,
   Text,
@@ -26,16 +25,31 @@ export function Input({
   suffixIcon,
   secureToggle,
   secureTextEntry,
+  onFocus: onFocusProp,
+  onBlur: onBlurProp,
   ...rest
 }: InputProps) {
   const colors = useColors();
   const [focused, setFocused] = useState(false);
   const [secure, setSecure] = useState(secureTextEntry ?? false);
 
-  const handleFocus = useCallback(() => setFocused(true), []);
-  const handleBlur = useCallback(() => setFocused(false), []);
+  const handleFocus = useCallback((e: any) => {
+    setFocused(true);
+    onFocusProp?.(e);
+  }, [onFocusProp]);
 
-  const borderColor = error ? colors.destructive : focused ? colors.primary : colors.border;
+  const handleBlur = useCallback((e: any) => {
+    setFocused(false);
+    onBlurProp?.(e);
+  }, [onBlurProp]);
+
+  const bg = focused
+    ? colors.background === "#0A0A0A"
+      ? "#222222"
+      : "#F0F0F0"
+    : colors.background === "#0A0A0A"
+    ? "#181818"
+    : "#F5F5F5";
 
   return (
     <View style={{ width: "100%" }}>
@@ -48,12 +62,7 @@ export function Input({
         style={[
           styles.container,
           {
-            backgroundColor: colors.inputBackground,
-            borderColor,
-            shadowColor: focused ? colors.primary : "transparent",
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: focused ? 0.2 : 0,
-            shadowRadius: 8,
+            backgroundColor: bg,
           },
         ]}
       >
@@ -97,8 +106,7 @@ const styles = StyleSheet.create({
   },
   container: {
     height: 52,
-    borderRadius: 50,
-    borderWidth: 1.5,
+    borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
@@ -106,17 +114,9 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 15,
     letterSpacing: -0.2,
-  },
-  prefix: {
-    marginRight: 10,
-  },
-  suffix: {
-    marginLeft: 10,
-    padding: 4,
-  },
-  error: {
-    fontSize: 12,
-    marginTop: 4,
-    marginLeft: 4,
-  },
+    outlineStyle: "none",
+  } as any,
+  prefix: { marginRight: 10 },
+  suffix: { marginLeft: 10, padding: 4 },
+  error: { fontSize: 12, marginTop: 4, marginLeft: 4 },
 });

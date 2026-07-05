@@ -1,45 +1,44 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming,
-} from "react-native-reanimated";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { PinPad } from "@/components/ui/PinPad";
 import { useApp } from "@/context/AppContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
   const { login, user } = useApp();
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [displayPhone, setDisplayPhone] = useState("");
 
-  const handleKey = (key: string) => {
-    if (pin.length >= 4) return;
+  useEffect(() => {
+    AsyncStorage.getItem("@tp_last_phone").then((p) => {
+      if (p) setDisplayPhone(p.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2"));
+    });
+  }, []);
+
+  const handleKey = async (key: string) => {
+    if (pin.length >= 4 || loading) return;
     const newPin = pin + key;
     setPin(newPin);
     if (newPin.length === 4) {
-      setTimeout(() => {
-        const success = login(newPin);
+      setLoading(true);
+      setTimeout(async () => {
+        const success = await login(newPin);
+        setLoading(false);
         if (success) {
           router.replace("/(main)");
         } else {
           setError(true);
           setAttempts((a) => a + 1);
-          setTimeout(() => {
-            setError(false);
-            setPin("");
-          }, 600);
+          setTimeout(() => { setError(false); setPin(""); }, 700);
         }
-      }, 200);
+      }, 300);
     }
   };
-
-  const handleDelete = () => setPin((p) => p.slice(0, -1));
 
   const displayName = user?.name?.split(" ")[0] ?? "there";
 
@@ -53,37 +52,44 @@ export default function LoginScreen() {
       />
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
 
-      {/* Logo */}
       <View style={styles.top}>
-        <View style={styles.logoIcon}>
-          <Text style={styles.logoT}>T</Text>
-        </View>
-        <Text style={styles.greeting}>Welcome back,</Text>
-        <Text style={styles.name}>{displayName}</Text>
+        <Image
+          source={require("@/assets/images/icon_transparent.png")}
+          style={styles.icon}
+          resizeMode="contain"
+        />
+        <Text style={[styles.greeting, { fontFamily: "Inter_400Regular" }]}>Welcome back,</Text>
+        <Text style={[styles.name, { fontFamily: "Inter_700Bold" }]}>{displayName}</Text>
+        {displayPhone ? (
+          <Text style={[styles.phone, { fontFamily: "Inter_400Regular" }]}>{displayPhone}</Text>
+        ) : null}
       </View>
 
-      {/* PIN Pad */}
       <View style={styles.padArea}>
         {error && (
-          <Text style={styles.errorText}>Incorrect PIN. {3 - attempts} attempts left.</Text>
+          <Text style={[styles.errorText, { fontFamily: "Inter_500Medium" }]}>
+            Incorrect PIN.{attempts < 3 ? ` ${3 - attempts} attempt${3 - attempts === 1 ? "" : "s"} left.` : " Please try again."}
+          </Text>
+        )}
+        {loading && (
+          <Text style={[styles.verifyText, { fontFamily: "Inter_400Regular" }]}>Verifying…</Text>
         )}
         <PinPad
           pin={pin}
           onKeyPress={handleKey}
-          onDelete={handleDelete}
+          onDelete={() => { if (!loading) setPin((p) => p.slice(0, -1)); }}
           shake={error}
         />
       </View>
 
-      {/* Bottom links */}
       <View style={styles.bottom}>
         <TouchableOpacity onPress={() => {}}>
-          <Text style={styles.forgotText}>
+          <Text style={[styles.linkText, { fontFamily: "Inter_400Regular" }]}>
             Forgot PIN? <Text style={{ color: "#E63946" }}>Reset</Text>
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.replace("/(auth)/register")}>
-          <Text style={styles.forgotText}>
+          <Text style={[styles.linkText, { fontFamily: "Inter_400Regular" }]}>
             New user? <Text style={{ color: "#E63946" }}>Create account</Text>
           </Text>
         </TouchableOpacity>
@@ -94,63 +100,25 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0A0A0A" },
-  overlay: { backgroundColor: "rgba(0,0,0,0.75)" },
+  overlay: { backgroundColor: "rgba(0,0,0,0.72)" },
   top: {
     alignItems: "center",
     paddingTop: 100,
-    paddingBottom: 40,
-    gap: 8,
+    paddingBottom: 32,
+    gap: 6,
   },
-  logoIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 18,
-    backgroundColor: "#E63946",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-    shadowColor: "#E63946",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-  },
-  logoT: {
-    fontSize: 36,
-    color: "#fff",
-    fontFamily: "Inter_700Bold",
-    letterSpacing: -1,
-  },
-  greeting: {
-    fontSize: 15,
-    color: "#8E8E93",
-    fontFamily: "Inter_400Regular",
-  },
-  name: {
-    fontSize: 28,
-    color: "#F1FAEE",
-    fontFamily: "Inter_700Bold",
-    letterSpacing: -1,
-  },
+  icon: { width: 72, height: 72, marginBottom: 10 },
+  greeting: { fontSize: 14, color: "#8E8E93" },
+  name: { fontSize: 28, color: "#F1FAEE", letterSpacing: -1 },
+  phone: { fontSize: 13, color: "#8E8E93" },
   padArea: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 20,
+    gap: 16,
   },
-  errorText: {
-    fontSize: 13,
-    color: "#E63946",
-    fontFamily: "Inter_500Medium",
-    textAlign: "center",
-  },
-  bottom: {
-    paddingBottom: 52,
-    alignItems: "center",
-    gap: 12,
-  },
-  forgotText: {
-    fontSize: 14,
-    color: "#8E8E93",
-    fontFamily: "Inter_400Regular",
-  },
+  errorText: { fontSize: 13, color: "#E63946" },
+  verifyText: { fontSize: 13, color: "#8E8E93" },
+  bottom: { paddingBottom: 52, alignItems: "center", gap: 14 },
+  linkText: { fontSize: 14, color: "#8E8E93" },
 });

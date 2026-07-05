@@ -8,11 +8,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Button } from "@/components/ui/Button";
@@ -22,48 +17,49 @@ const { width } = Dimensions.get("window");
 const SLIDES = [
   {
     id: "1",
-    image: require("@/assets/images/onboard_security.png"),
+    image: require("@/assets/images/onboard_security_transparent.png"),
     title: "Bank with\nZero Worries.",
     subtitle: "Your money is protected with military-grade encryption and biometric security.",
+    accent: "#E63946",
   },
   {
     id: "2",
-    image: require("@/assets/images/onboard_speed.png"),
-    title: "Lightning Fast\nTransactions.",
+    image: require("@/assets/images/onboard_speed_transparent.png"),
+    title: "Lightning Fast\nTransfers.",
     subtitle: "Send and receive money instantly to any bank in Nigeria and beyond.",
+    accent: "#34C759",
   },
   {
     id: "3",
-    image: require("@/assets/images/onboard_control.png"),
+    image: require("@/assets/images/onboard_control_transparent.png"),
     title: "Complete\nControl.",
-    subtitle: "Manage cards, savings, investments, and loans — all in one app.",
+    subtitle: "Manage cards, savings, investments, and loans — all in one seamless app.",
+    accent: "#007AFF",
   },
 ];
 
 export default function OnboardingScreen() {
   const [active, setActive] = useState(0);
   const flatRef = useRef<FlatList>(null);
-  const btnScale = useSharedValue(1);
-
-  const btnStyle = useAnimatedStyle(() => ({ transform: [{ scale: btnScale.value }] }));
 
   const goNext = () => {
     if (active < SLIDES.length - 1) {
       flatRef.current?.scrollToIndex({ index: active + 1, animated: true });
+      setActive((a) => a + 1);
     } else {
       router.replace("/(auth)/register");
     }
   };
 
   const skip = () => router.replace("/(auth)/register");
+  const accent = SLIDES[active]?.accent ?? "#E63946";
 
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Skip */}
       <TouchableOpacity onPress={skip} style={styles.skipBtn}>
-        <Text style={styles.skipText}>Skip</Text>
+        <Text style={[styles.skipText, { fontFamily: "Inter_500Medium" }]}>Skip</Text>
       </TouchableOpacity>
 
       <FlatList
@@ -76,10 +72,12 @@ export default function OnboardingScreen() {
         scrollEnabled={false}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
-            <Image source={item.image} style={styles.illustration} resizeMode="contain" />
+            <View style={[styles.imageWrapper, { backgroundColor: item.accent + "12" }]}>
+              <Image source={item.image} style={styles.illustration} resizeMode="contain" />
+            </View>
             <View style={styles.textArea}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.subtitle}>{item.subtitle}</Text>
+              <Text style={[styles.title, { fontFamily: "Inter_700Bold" }]}>{item.title}</Text>
+              <Text style={[styles.subtitle, { fontFamily: "Inter_400Regular" }]}>{item.subtitle}</Text>
             </View>
           </View>
         )}
@@ -89,7 +87,6 @@ export default function OnboardingScreen() {
         }}
       />
 
-      {/* Dots */}
       <View style={styles.dots}>
         {SLIDES.map((_, i) => (
           <View
@@ -97,7 +94,7 @@ export default function OnboardingScreen() {
             style={[
               styles.dot,
               {
-                backgroundColor: i === active ? "#E63946" : "#333",
+                backgroundColor: i === active ? accent : "#333",
                 width: i === active ? 24 : 8,
               },
             ]}
@@ -105,29 +102,23 @@ export default function OnboardingScreen() {
         ))}
       </View>
 
-      {/* CTA */}
       <View style={styles.bottom}>
         <Button onPress={goNext} size="large" fullWidth>
           {active === SLIDES.length - 1 ? "Get Started" : "Next"}
         </Button>
-        {active < SLIDES.length - 1 && (
-          <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
-            <Text style={styles.loginHint}>
-              Already have an account?{" "}
-              <Text style={{ color: "#E63946" }}>Sign in</Text>
-            </Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
+          <Text style={[styles.loginHint, { fontFamily: "Inter_400Regular" }]}>
+            Already have an account?{" "}
+            <Text style={{ color: "#E63946" }}>Sign in</Text>
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0A0A0A",
-  },
+  container: { flex: 1, backgroundColor: "#0A0A0A" },
   skipBtn: {
     position: "absolute",
     top: 60,
@@ -136,47 +127,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    backgroundColor: "#ffffff11",
+    backgroundColor: "#ffffff10",
   },
-  skipText: {
-    color: "#ffffff88",
-    fontSize: 14,
-    fontFamily: "Inter_500Medium",
-  },
-  slide: {
-    flex: 1,
+  skipText: { color: "#ffffff77", fontSize: 14 },
+  slide: { flex: 1, alignItems: "center", paddingTop: 80, paddingHorizontal: 24 },
+  imageWrapper: {
+    width: width * 0.75,
+    height: width * 0.75,
+    borderRadius: (width * 0.75) / 2,
     alignItems: "center",
-    paddingTop: 100,
-    paddingHorizontal: 24,
+    justifyContent: "center",
+    marginBottom: 40,
   },
-  illustration: {
-    width: width * 0.7,
-    height: width * 0.7,
-    marginBottom: 32,
-  },
-  textArea: { alignItems: "center", gap: 12 },
+  illustration: { width: "80%", height: "80%" },
+  textArea: { alignItems: "center", gap: 14 },
   title: {
-    fontSize: 38,
+    fontSize: 40,
     color: "#F1FAEE",
-    fontFamily: "Inter_700Bold",
     textAlign: "center",
     letterSpacing: -1.5,
-    lineHeight: 44,
+    lineHeight: 46,
   },
   subtitle: {
     fontSize: 15,
     color: "#8E8E93",
     textAlign: "center",
-    fontFamily: "Inter_400Regular",
     lineHeight: 22,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
   },
-  dots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 8,
-    marginBottom: 24,
-  },
+  dots: { flexDirection: "row", justifyContent: "center", gap: 8, marginBottom: 24 },
   dot: { height: 6, borderRadius: 3 },
   bottom: {
     paddingHorizontal: 24,
@@ -184,9 +163,5 @@ const styles = StyleSheet.create({
     gap: 16,
     alignItems: "center",
   },
-  loginHint: {
-    fontSize: 14,
-    color: "#8E8E93",
-    fontFamily: "Inter_400Regular",
-  },
+  loginHint: { fontSize: 14, color: "#8E8E93" },
 });
