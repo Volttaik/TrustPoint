@@ -6,11 +6,11 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { Feather } from "@expo/vector-icons";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
 interface Action {
-  icon: keyof typeof Feather.glyphMap;
+  icon: TpIconName;
   label: string;
   onPress: () => void;
 }
@@ -55,7 +55,7 @@ function ActionButton({ icon, label, onPress, colors }: Action & { colors: any }
             },
           ]}
         >
-          <Feather name={icon} size={22} color="#fff" />
+          <TpIcon name={icon} size={22} color="#fff" strokeWidth={1.8} />
         </TouchableOpacity>
       </Animated.View>
       <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>

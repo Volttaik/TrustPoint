@@ -5,7 +5,6 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { Feather } from "@expo/vector-icons";
 import { Avatar } from "@/components/Avatar";
 import { useColors } from "@/hooks/useColors";
 import { Transaction } from "@/context/AppContext";
@@ -82,12 +81,7 @@ export function TransactionItem({ tx, onPress }: TransactionItemProps) {
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 12,
-  },
+  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
   center: { flex: 1, gap: 3 },
   title: { fontSize: 15, letterSpacing: -0.3 },
   sub: { fontSize: 12 },

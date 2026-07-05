@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -35,7 +35,7 @@ export default function ProfileScreen() {
       <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>Edit Profile</Text>
         <View style={{ width: 40 }} />
@@ -46,17 +46,38 @@ export default function ProfileScreen() {
           <View style={styles.avatarArea}>
             <Avatar initials={user?.initials ?? "JD"} color={user?.avatarColor ?? colors.primary} size={80} />
             <TouchableOpacity style={[styles.editAvatarBtn, { backgroundColor: colors.primary }]}>
-              <Feather name="camera" size={14} color="#fff" />
+              <TpIcon name="camera" size={14} color="#fff" strokeWidth={2} />
             </TouchableOpacity>
           </View>
 
-          <Input label="Full Name" value={name} onChangeText={setName} placeholder="Your full name" prefixIcon={<Feather name="user" size={18} color="#8E8E93" />} />
-          <Input label="Email Address" value={email} onChangeText={setEmail} placeholder="Your email" keyboardType="email-address" autoCapitalize="none" prefixIcon={<Feather name="mail" size={18} color="#8E8E93" />} />
-          <Input label="Phone Number" value={phone} onChangeText={setPhone} placeholder="Your phone" keyboardType="phone-pad" prefixIcon={<Feather name="phone" size={18} color="#8E8E93" />} />
+          <Input
+            label="Full Name"
+            value={name}
+            onChangeText={setName}
+            placeholder="Your full name"
+            prefixIcon={<TpIcon name="user" size={18} color="#8E8E93" strokeWidth={1.8} />}
+          />
+          <Input
+            label="Email Address"
+            value={email}
+            onChangeText={setEmail}
+            placeholder="Your email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            prefixIcon={<TpIcon name="mail" size={18} color="#8E8E93" strokeWidth={1.8} />}
+          />
+          <Input
+            label="Phone Number"
+            value={phone}
+            onChangeText={setPhone}
+            placeholder="Your phone"
+            keyboardType="phone-pad"
+            prefixIcon={<TpIcon name="phone" size={18} color="#8E8E93" strokeWidth={1.8} />}
+          />
 
           {saved && (
             <View style={[styles.savedBanner, { backgroundColor: colors.success + "22", borderColor: colors.success }]}>
-              <Feather name="check-circle" size={16} color={colors.success} />
+              <TpIcon name="check-circle" size={16} color={colors.success} strokeWidth={1.8} />
               <Text style={[styles.savedText, { color: colors.success, fontFamily: "Inter_600SemiBold" }]}>Profile updated!</Text>
             </View>
           )}

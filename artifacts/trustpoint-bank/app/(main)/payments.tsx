@@ -5,19 +5,17 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
-import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
-const CATEGORIES = [
+const CATEGORIES: { id: string; label: string; icon: TpIconName; color: string }[] = [
   { id: "electricity", label: "Electricity", icon: "zap", color: "#FF9500" },
   { id: "airtime", label: "Airtime", icon: "phone", color: "#34C759" },
   { id: "data", label: "Data", icon: "wifi", color: "#007AFF" },
@@ -89,7 +87,7 @@ export default function PaymentsScreen() {
                 ]}
               >
                 <View style={[styles.catIcon, { backgroundColor: cat.color + "22" }]}>
-                  <Feather name={cat.icon as any} size={22} color={cat.color} />
+                  <TpIcon name={cat.icon} size={22} color={cat.color} strokeWidth={1.8} />
                 </View>
                 <Text style={[styles.catLabel, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
                   {cat.label}
@@ -109,7 +107,7 @@ export default function PaymentsScreen() {
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
                 placeholder="e.g. 08012345678"
-                prefixIcon={<Feather name="phone" size={18} color="#8E8E93" />}
+                prefixIcon={<TpIcon name="phone" size={18} color="#8E8E93" strokeWidth={1.8} />}
               />
             )}
 
@@ -147,7 +145,7 @@ export default function PaymentsScreen() {
 
             {success ? (
               <View style={[styles.successBanner, { backgroundColor: colors.success + "22", borderColor: colors.success }]}>
-                <Feather name="check-circle" size={18} color={colors.success} />
+                <TpIcon name="check-circle" size={18} color={colors.success} strokeWidth={1.8} />
                 <Text style={[styles.successText, { color: colors.success, fontFamily: "Inter_600SemiBold" }]}>
                   Payment successful!
                 </Text>
@@ -190,12 +188,7 @@ const styles = StyleSheet.create({
   form: { borderRadius: 20, borderWidth: 1, padding: 20, gap: 16 },
   fieldLabel: { fontSize: 13, marginBottom: 8 },
   quickAmounts: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
-  quickChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
+  quickChip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, borderWidth: 1 },
   quickChipText: { fontSize: 13 },
   successBanner: {
     flexDirection: "row",

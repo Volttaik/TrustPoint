@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
+import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -47,10 +47,9 @@ export default function AmountScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
 
-      {/* Header */}
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
@@ -63,7 +62,6 @@ export default function AmountScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Amount display */}
       <View style={styles.amountArea}>
         <Text style={[styles.currency, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>₦</Text>
         <Text
@@ -81,12 +79,10 @@ export default function AmountScreen() {
         </Text>
       </View>
 
-      {/* Balance hint */}
       <Text style={[styles.balanceHint, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
         Balance: ₦{(user?.balance ?? 0).toLocaleString()}
       </Text>
 
-      {/* Quick amounts */}
       <View style={styles.quickRow}>
         {QUICK_AMOUNTS.map((a) => (
           <TouchableOpacity
@@ -107,7 +103,6 @@ export default function AmountScreen() {
         ))}
       </View>
 
-      {/* Custom keypad */}
       <View style={styles.keypad}>
         {KEYS.map((key, idx) => (
           <TouchableOpacity
@@ -117,7 +112,7 @@ export default function AmountScreen() {
             activeOpacity={0.6}
           >
             {key === "⌫" ? (
-              <Feather name="delete" size={22} color={colors.text} />
+              <TpIcon name="delete" size={22} color={colors.text} strokeWidth={1.8} />
             ) : (
               <Text style={[styles.keyText, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
                 {key}
@@ -127,7 +122,6 @@ export default function AmountScreen() {
         ))}
       </View>
 
-      {/* CTA */}
       <View style={[styles.cta, { paddingBottom: bottomPad + 20 }]}>
         {!hasEnough && numAmount > (user?.balance ?? 0) && (
           <Text style={[styles.errorText, { color: colors.destructive, fontFamily: "Inter_500Medium" }]}>
@@ -154,47 +148,20 @@ export default function AmountScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 8,
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 8 },
   backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
   headerCenter: { alignItems: "center" },
   headerTitle: { fontSize: 15, letterSpacing: -0.3 },
   headerSub: { fontSize: 13 },
-  amountArea: {
-    flexDirection: "row",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    gap: 6,
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
+  amountArea: { flexDirection: "row", alignItems: "flex-end", justifyContent: "center", gap: 6, paddingHorizontal: 20, paddingVertical: 16 },
   currency: { fontSize: 28, marginBottom: 6 },
   amount: { fontSize: 56, letterSpacing: -2, flex: 1, textAlign: "center" },
   balanceHint: { fontSize: 13, textAlign: "center", marginBottom: 12 },
   quickRow: { flexDirection: "row", justifyContent: "center", gap: 8, paddingHorizontal: 20, marginBottom: 16 },
   quickChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1 },
   quickText: { fontSize: 13 },
-  keypad: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: 20,
-    gap: 8,
-    justifyContent: "center",
-    flex: 1,
-    alignContent: "center",
-  },
-  key: {
-    width: "30%",
-    height: 60,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  keypad: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 20, gap: 8, justifyContent: "center", flex: 1, alignContent: "center" },
+  key: { width: "30%", height: 60, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   keyText: { fontSize: 24 },
   cta: { paddingHorizontal: 20, gap: 8 },
   errorText: { fontSize: 13, textAlign: "center" },

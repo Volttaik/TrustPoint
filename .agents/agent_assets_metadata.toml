@@ -54,3 +54,63 @@ id = "L1qht9hb_OOAScnMrWkGZ"
 uri = "file://artifacts/trustpoint-bank/assets/images/bg_dark_surface.png"
 type = "image"
 title = "generated_image"
+
+[[generated]]
+id = "Y32vw_ViJM6LIHhcgAnf2"
+uri = "file://artifacts/trustpoint-bank/assets/images/card_physical_new.png"
+type = "image"
+title = "physical debit card red black"
+
+[[generated]]
+id = "1j-ZDRyF_yXg90_YvF4Nw"
+uri = "file://artifacts/trustpoint-bank/assets/images/card_virtual_new.png"
+type = "image"
+title = "virtual debit card black carbon"
+
+[[generated]]
+id = "PMQPscEZM_WeAySD5rqje"
+uri = "file://artifacts/trustpoint-bank/assets/images/card_premium.png"
+type = "image"
+title = "premium gold black card"
+
+[[generated]]
+id = "GU6jo2PQcKvHLfHGCsw-s"
+uri = "file://artifacts/trustpoint-bank/assets/images/icons/nav_home_inactive.png"
+type = "image"
+title = "home icon grey inactive"
+
+[[generated]]
+id = "RyK3EevaULmxLQk6cM3Uh"
+uri = "file://artifacts/trustpoint-bank/assets/images/icons/nav_home_active.png"
+type = "image"
+title = "home icon red active"
+
+[[generated]]
+id = "LMNm6y-g4Ntt-bqXCoMG-"
+uri = "file://artifacts/trustpoint-bank/assets/images/icons/nav_transfer_inactive.png"
+type = "image"
+title = "transfer icon grey inactive"
+
+[[generated]]
+id = "9WTOQF1xvIkOI92Ncgrk_"
+uri = "file://artifacts/trustpoint-bank/assets/images/icons/nav_transfer_active.png"
+type = "image"
+title = "transfer icon red active"
+
+[[generated]]
+id = "LOvq_2w1t1Ahhs2BR_kvm"
+uri = "file://artifacts/trustpoint-bank/assets/images/icons/nav_pay_center.png"
+type = "image"
+title = "diamond pay icon red center"
+
+[[generated]]
+id = "EYgkN2EmvQWBeTKqylSMk"
+uri = "file://artifacts/trustpoint-bank/assets/images/icons/nav_cards_inactive.png"
+type = "image"
+title = "cards icon grey inactive"
+
+[[generated]]
+id = "iOogS17PV89HaputXh0nF"
+uri = "file://artifacts/trustpoint-bank/assets/images/icons/nav_cards_active.png"
+type = "image"
+title = "cards icon red active"

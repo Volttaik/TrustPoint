@@ -11,9 +11,9 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TransactionItem } from "@/components/TransactionItem";
+import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { Transaction } from "@/context/AppContext";
@@ -29,7 +29,6 @@ function groupByDate(transactions: Transaction[]) {
     else if (diffDays === 1) key = "Yesterday";
     else if (diffDays < 7) key = "This Week";
     else key = date.toLocaleDateString("en-NG", { month: "long", year: "numeric" });
-
     if (!groups[key]) groups[key] = [];
     groups[key].push(tx);
   });
@@ -66,19 +65,18 @@ export default function TransactionsScreen() {
 
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
           Transactions
         </Text>
         <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="sliders" size={18} color={colors.text} />
+          <TpIcon name="sliders" size={18} color={colors.text} strokeWidth={1.8} />
         </TouchableOpacity>
       </View>
 
-      {/* Search */}
       <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-        <Feather name="search" size={17} color={colors.mutedForeground} />
+        <TpIcon name="search" size={17} color={colors.mutedForeground} strokeWidth={1.8} />
         <TextInput
           style={[styles.searchInput, { color: colors.text, fontFamily: "Inter_400Regular" }]}
           placeholder="Search transactions..."
@@ -88,12 +86,11 @@ export default function TransactionsScreen() {
         />
         {query.length > 0 && (
           <TouchableOpacity onPress={() => setQuery("")}>
-            <Feather name="x" size={15} color={colors.mutedForeground} />
+            <TpIcon name="x" size={15} color={colors.mutedForeground} strokeWidth={2} />
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Filters */}
       <FlatList
         data={FILTERS}
         horizontal
@@ -107,10 +104,7 @@ export default function TransactionsScreen() {
               onPress={() => setFilter(item)}
               style={[
                 styles.filterChip,
-                {
-                  backgroundColor: active ? colors.primary : colors.surface,
-                  borderColor: active ? colors.primary : colors.border,
-                },
+                { backgroundColor: active ? colors.primary : colors.surface, borderColor: active ? colors.primary : colors.border },
               ]}
             >
               <Text style={[styles.filterText, { color: active ? "#fff" : colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
@@ -132,15 +126,12 @@ export default function TransactionsScreen() {
           </Text>
         )}
         renderItem={({ item }) => (
-          <TransactionItem
-            tx={item}
-            onPress={() => router.push(`/transactions/${item.id}` as any)}
-          />
+          <TransactionItem tx={item} onPress={() => router.push(`/transactions/${item.id}` as any)} />
         )}
         ItemSeparatorComponent={() => <View style={[styles.sep, { backgroundColor: colors.border }]} />}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Feather name="inbox" size={36} color={colors.mutedForeground} />
+            <TpIcon name="inbox" size={36} color={colors.mutedForeground} strokeWidth={1.5} />
             <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
               No transactions found
             </Text>
@@ -153,26 +144,10 @@ export default function TransactionsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 12 },
   backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 22, letterSpacing: -0.5 },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginHorizontal: 20,
-    marginBottom: 12,
-    paddingHorizontal: 14,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 1,
-  },
+  searchBar: { flexDirection: "row", alignItems: "center", gap: 10, marginHorizontal: 20, marginBottom: 12, paddingHorizontal: 14, height: 46, borderRadius: 23, borderWidth: 1 },
   searchInput: { flex: 1, fontSize: 14 },
   filterList: { paddingHorizontal: 20, gap: 8, marginBottom: 12 },
   filterChip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20, borderWidth: 1 },

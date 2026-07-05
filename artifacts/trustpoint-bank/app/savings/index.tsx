@@ -2,12 +2,12 @@ import React from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
-const SAVING_GOALS = [
+const SAVING_GOALS: { id: string; name: string; target: number; saved: number; icon: TpIconName; color: string }[] = [
   { id: "1", name: "New iPhone", target: 800000, saved: 350000, icon: "smartphone", color: "#007AFF" },
   { id: "2", name: "Emergency Fund", target: 500000, saved: 500000, icon: "shield", color: "#34C759" },
   { id: "3", name: "Vacation", target: 1000000, saved: 120000, icon: "map", color: "#FF9500" },
@@ -33,14 +33,13 @@ export default function SavingsScreen() {
       <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_700Bold" }]}>Savings</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad + 24 }]} showsVerticalScrollIndicator={false}>
-        {/* Total card */}
         <View style={[styles.totalCard, { backgroundColor: colors.primary }]}>
           <Text style={[styles.totalLabel, { fontFamily: "Inter_500Medium" }]}>Total Saved</Text>
           <Text style={[styles.totalAmount, { fontFamily: "Inter_700Bold" }]}>
@@ -51,7 +50,6 @@ export default function SavingsScreen() {
           </Text>
         </View>
 
-        {/* Goals */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
@@ -70,7 +68,7 @@ export default function SavingsScreen() {
               <View key={goal.id} style={[styles.goalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <View style={styles.goalTop}>
                   <View style={[styles.goalIcon, { backgroundColor: goal.color + "22" }]}>
-                    <Feather name={goal.icon as any} size={20} color={goal.color} />
+                    <TpIcon name={goal.icon} size={20} color={goal.color} strokeWidth={1.8} />
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={[styles.goalName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>{goal.name}</Text>
@@ -85,7 +83,7 @@ export default function SavingsScreen() {
                   )}
                 </View>
                 <View style={[styles.progressTrack, { backgroundColor: colors.border }]}>
-                  <View style={[styles.progressFill, { width: `${Math.min(progress, 100)}%`, backgroundColor: done ? colors.success : goal.color }]} />
+                  <View style={[styles.progressFill, { width: `${Math.min(progress, 100)}%` as any, backgroundColor: done ? colors.success : goal.color }]} />
                 </View>
                 <Text style={[styles.pct, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
                   {progress.toFixed(0)}% completed
@@ -95,7 +93,6 @@ export default function SavingsScreen() {
           })}
         </View>
 
-        {/* Investment products */}
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
             Investment Products
@@ -130,14 +127,8 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 22, letterSpacing: -0.5 },
   scroll: { paddingHorizontal: 20, gap: 24, paddingTop: 8 },
   totalCard: {
-    borderRadius: 20,
-    padding: 24,
-    gap: 6,
-    shadowColor: "#E63946",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
+    borderRadius: 20, padding: 24, gap: 6,
+    shadowColor: "#E63946", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 8,
   },
   totalLabel: { fontSize: 13, color: "#ffffff88" },
   totalAmount: { fontSize: 40, color: "#fff", letterSpacing: -1.5 },

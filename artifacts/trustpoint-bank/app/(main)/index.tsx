@@ -1,7 +1,6 @@
 import React, { useCallback } from "react";
 import {
   Dimensions,
-  FlatList,
   Platform,
   Pressable,
   RefreshControl,
@@ -12,13 +11,13 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
 import { BalanceShield } from "@/components/BalanceShield";
 import { CardCarousel } from "@/components/CardCarousel";
 import { QuickActions } from "@/components/QuickActions";
 import { TransactionItem } from "@/components/TransactionItem";
+import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -70,7 +69,7 @@ export default function DashboardScreen() {
               {greeting()},
             </Text>
             <Text style={[styles.name, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-              {user?.name?.split(" ")[0] ?? "Friend"} 👋
+              {user?.name?.split(" ")[0] ?? "Friend"}
             </Text>
           </View>
           <View style={styles.headerRight}>
@@ -78,7 +77,7 @@ export default function DashboardScreen() {
               style={[styles.iconBtn, { backgroundColor: colors.surface }]}
               onPress={() => router.push("/notifications")}
             >
-              <Feather name="bell" size={20} color={colors.text} />
+              <TpIcon name="bell" size={20} color={colors.text} strokeWidth={1.8} />
               <View style={[styles.notifDot, { backgroundColor: colors.primary }]} />
             </Pressable>
             <Pressable onPress={() => router.push("/(main)/more")}>
@@ -105,7 +104,7 @@ export default function DashboardScreen() {
           <QuickActions
             actions={[
               { icon: "send", label: "Send", onPress: () => router.push("/transfer/method") },
-              { icon: "download", label: "Request", onPress: () => {} },
+              { icon: "arrow-down-left", label: "Request", onPress: () => {} },
               { icon: "zap", label: "Pay Bills", onPress: () => router.push("/(main)/payments") },
               { icon: "trending-up", label: "Invest", onPress: () => router.push("/savings") },
             ]}
@@ -145,7 +144,7 @@ export default function DashboardScreen() {
           </View>
           {recentTx.length === 0 ? (
             <View style={styles.empty}>
-              <Feather name="inbox" size={32} color={colors.mutedForeground} />
+              <TpIcon name="inbox" size={32} color={colors.mutedForeground} strokeWidth={1.5} />
               <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
                 No transactions yet
               </Text>

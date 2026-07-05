@@ -2,10 +2,10 @@ import React from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
 import { TransactionItem } from "@/components/TransactionItem";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -19,7 +19,7 @@ export default function TransfersScreen() {
   const favorites = beneficiaries.filter((b) => b.favorite);
   const recentTransfers = transactions.filter((t) => t.category === "Transfer").slice(0, 5);
 
-  const TransferOption = ({ icon, label, subtitle, color, onPress }: any) => (
+  const TransferOption = ({ icon, label, subtitle, color, onPress }: { icon: TpIconName; label: string; subtitle: string; color: string; onPress: () => void }) => (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
@@ -28,13 +28,13 @@ export default function TransfersScreen() {
       ]}
     >
       <View style={[styles.optIcon, { backgroundColor: color + "22" }]}>
-        <Feather name={icon} size={22} color={color} />
+        <TpIcon name={icon} size={22} color={color} strokeWidth={1.8} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={[styles.optLabel, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>{label}</Text>
         <Text style={[styles.optSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>{subtitle}</Text>
       </View>
-      <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+      <TpIcon name="chevron-right" size={18} color={colors.mutedForeground} strokeWidth={2} />
     </Pressable>
   );
 
@@ -47,7 +47,6 @@ export default function TransfersScreen() {
       >
         <Text style={[styles.title, { color: colors.text, fontFamily: "Inter_700Bold" }]}>Transfer</Text>
 
-        {/* Options */}
         <View style={styles.section}>
           <TransferOption
             icon="send"
@@ -79,7 +78,6 @@ export default function TransfersScreen() {
           />
         </View>
 
-        {/* Favorites */}
         {favorites.length > 0 && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
@@ -102,7 +100,6 @@ export default function TransfersScreen() {
           </View>
         )}
 
-        {/* Recent transfers */}
         {recentTransfers.length > 0 && (
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>

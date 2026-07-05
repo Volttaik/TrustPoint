@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Platform, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
 export default function SecurityScreen() {
@@ -13,10 +13,10 @@ export default function SecurityScreen() {
   const [twoFA, setTwoFA] = useState(false);
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
 
-  const MenuItem = ({ icon, label, subtitle, onPress, toggle, value, color }: any) => (
+  const MenuItem = ({ icon, label, subtitle, onPress, toggle, value, color }: { icon: TpIconName; label: string; subtitle?: string; onPress: () => void; toggle?: boolean; value?: boolean; color?: string }) => (
     <TouchableOpacity onPress={onPress} style={styles.item} activeOpacity={0.7}>
       <View style={[styles.itemIcon, { backgroundColor: (color ?? colors.primary) + "20" }]}>
-        <Feather name={icon} size={18} color={color ?? colors.primary} />
+        <TpIcon name={icon} size={18} color={color ?? colors.primary} strokeWidth={1.8} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={[styles.itemLabel, { color: colors.text, fontFamily: "Inter_500Medium" }]}>{label}</Text>
@@ -31,7 +31,7 @@ export default function SecurityScreen() {
           ios_backgroundColor={colors.border}
         />
       ) : (
-        <Feather name="chevron-right" size={16} color={colors.mutedForeground} />
+        <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2} />
       )}
     </TouchableOpacity>
   );
@@ -41,7 +41,7 @@ export default function SecurityScreen() {
       <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>Security</Text>
         <View style={{ width: 40 }} />

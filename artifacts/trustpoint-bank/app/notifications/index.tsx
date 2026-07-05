@@ -2,8 +2,8 @@ import React from "react";
 import { FlatList, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
 const NOTIFS = [
@@ -14,7 +14,7 @@ const NOTIFS = [
   { id: "5", type: "loan", title: "Loan Offer Available", body: "You are eligible for a loan of up to ₦500,000. Tap to apply.", time: "3 days ago", read: true },
 ];
 
-const ICON_MAP: Record<string, { icon: string; color: string }> = {
+const ICON_MAP: Record<string, { icon: TpIconName; color: string }> = {
   credit: { icon: "arrow-down-left", color: "#34C759" },
   security: { icon: "shield", color: "#E63946" },
   promo: { icon: "gift", color: "#FF9500" },
@@ -33,7 +33,7 @@ export default function NotificationsScreen() {
       <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_700Bold" }]}>Notifications</Text>
         <TouchableOpacity>
@@ -48,11 +48,11 @@ export default function NotificationsScreen() {
         showsVerticalScrollIndicator={false}
         ItemSeparatorComponent={() => <View style={[styles.sep, { backgroundColor: colors.border }]} />}
         renderItem={({ item }) => {
-          const meta = ICON_MAP[item.type] ?? { icon: "bell", color: colors.primary };
+          const meta = ICON_MAP[item.type] ?? { icon: "bell" as TpIconName, color: colors.primary };
           return (
             <View style={[styles.item, { backgroundColor: !item.read ? colors.primary + "08" : "transparent" }]}>
               <View style={[styles.icon, { backgroundColor: meta.color + "22" }]}>
-                <Feather name={meta.icon as any} size={20} color={meta.color} />
+                <TpIcon name={meta.icon} size={20} color={meta.color} strokeWidth={1.8} />
               </View>
               <View style={{ flex: 1, gap: 4 }}>
                 <View style={styles.itemTop}>

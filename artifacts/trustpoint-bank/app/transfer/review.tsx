@@ -2,10 +2,10 @@ import React from "react";
 import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/Button";
+import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -42,7 +42,7 @@ export default function ReviewScreen() {
 
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
           Review Transfer
@@ -51,7 +51,6 @@ export default function ReviewScreen() {
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 80 }]} showsVerticalScrollIndicator={false}>
-        {/* Transfer flow visual */}
         <View style={styles.flowRow}>
           <View style={styles.party}>
             <Avatar initials={user?.initials ?? "JD"} color={user?.avatarColor ?? colors.primary} size={60} />
@@ -70,7 +69,7 @@ export default function ReviewScreen() {
                 {formatCur(numAmount)}
               </Text>
             </View>
-            <Feather name="arrow-right" size={20} color={colors.primary} />
+            <TpIcon name="arrow-right" size={20} color={colors.primary} strokeWidth={2} />
           </View>
 
           <View style={styles.party}>
@@ -84,7 +83,6 @@ export default function ReviewScreen() {
           </View>
         </View>
 
-        {/* Details card */}
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Detail label="Recipient" value={beneficiary?.name ?? "Unknown"} />
           <View style={[styles.sep, { backgroundColor: colors.border }]} />
@@ -100,14 +98,13 @@ export default function ReviewScreen() {
         </View>
 
         <View style={[styles.notice, { backgroundColor: colors.warning + "15", borderColor: colors.warning + "44" }]}>
-          <Feather name="info" size={14} color={colors.warning} />
+          <TpIcon name="info" size={14} color={colors.warning} strokeWidth={2} />
           <Text style={[styles.noticeText, { color: colors.warning, fontFamily: "Inter_400Regular" }]}>
             Funds typically arrive instantly. For issues, contact support.
           </Text>
         </View>
       </ScrollView>
 
-      {/* CTA */}
       <View style={[styles.cta, { paddingBottom: bottomPad + 16, borderTopColor: colors.border }]}>
         <Button
           onPress={() =>
@@ -131,13 +128,7 @@ export default function ReviewScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 16 },
   backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 18, letterSpacing: -0.5 },
   content: { paddingHorizontal: 20, gap: 16, paddingTop: 8 },
@@ -147,42 +138,14 @@ const styles = StyleSheet.create({
   partySub: { fontSize: 11 },
   arrowArea: { alignItems: "center", justifyContent: "center", gap: 4 },
   arrowLine: { width: 2, height: 20 },
-  amountBubble: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    marginVertical: 4,
-  },
+  amountBubble: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12, marginVertical: 4 },
   amountBubbleText: { color: "#fff", fontSize: 12 },
   card: { borderRadius: 18, borderWidth: 1, padding: 4 },
-  detailRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-  },
+  detailRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 16, paddingVertical: 13 },
   detailLabel: { fontSize: 13 },
   detailValue: { fontSize: 14, letterSpacing: -0.2 },
   sep: { height: 0.5, marginHorizontal: 16 },
-  notice: {
-    flexDirection: "row",
-    gap: 8,
-    padding: 12,
-    borderRadius: 10,
-    borderWidth: 1,
-    alignItems: "flex-start",
-  },
+  notice: { flexDirection: "row", gap: 8, padding: 12, borderRadius: 10, borderWidth: 1, alignItems: "flex-start" },
   noticeText: { flex: 1, fontSize: 12, lineHeight: 18 },
-  cta: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    gap: 8,
-    borderTopWidth: 0.5,
-    backgroundColor: "transparent",
-  },
+  cta: { position: "absolute", bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingTop: 16, gap: 8, borderTopWidth: 0.5, backgroundColor: "transparent" },
 });

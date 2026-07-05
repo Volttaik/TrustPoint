@@ -7,7 +7,7 @@ import {
   TextInputProps,
   View,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { TpIcon } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
 interface InputProps extends Omit<TextInputProps, "style"> {
@@ -58,14 +58,7 @@ export function Input({
           {label}
         </Text>
       )}
-      <View
-        style={[
-          styles.container,
-          {
-            backgroundColor: bg,
-          },
-        ]}
-      >
+      <View style={[styles.container, { backgroundColor: bg }]}>
         {prefixIcon && <View style={styles.prefix}>{prefixIcon}</View>}
         <TextInput
           {...rest}
@@ -84,7 +77,7 @@ export function Input({
         />
         {secureToggle && (
           <Pressable onPress={() => setSecure((v) => !v)} style={styles.suffix}>
-            <Feather name={secure ? "eye-off" : "eye"} size={18} color={colors.mutedForeground} />
+            <TpIcon name={secure ? "eye-off" : "eye"} size={18} color={colors.mutedForeground} strokeWidth={1.8} />
           </Pressable>
         )}
         {suffixIcon && !secureToggle && <View style={styles.suffix}>{suffixIcon}</View>}
@@ -99,11 +92,7 @@ export function Input({
 }
 
 const styles = StyleSheet.create({
-  label: {
-    fontSize: 13,
-    marginBottom: 6,
-    marginLeft: 4,
-  },
+  label: { fontSize: 13, marginBottom: 6, marginLeft: 4 },
   container: {
     height: 52,
     borderRadius: 12,

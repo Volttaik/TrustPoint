@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Image,
   Platform,
   Pressable,
   StyleSheet,
@@ -7,7 +8,6 @@ import {
   View,
 } from "react-native";
 import { Tabs, router, usePathname } from "expo-router";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 import { useColorScheme } from "react-native";
@@ -17,13 +17,44 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
+import { TpIcon } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
-const TABS = [
-  { name: "index", label: "Home", icon: "home" as const },
-  { name: "transfers", label: "Transfer", icon: "send" as const },
-  { name: "cards", label: "Cards", icon: "credit-card" as const },
-  { name: "more", label: "More", icon: "menu" as const },
+const NAV_HOME_ACTIVE = require("@/assets/images/icons/nav_home_active.png");
+const NAV_HOME_INACTIVE = require("@/assets/images/icons/nav_home_inactive.png");
+const NAV_TRANSFER_ACTIVE = require("@/assets/images/icons/nav_transfer_active.png");
+const NAV_TRANSFER_INACTIVE = require("@/assets/images/icons/nav_transfer_inactive.png");
+const NAV_CARDS_ACTIVE = require("@/assets/images/icons/nav_cards_active.png");
+const NAV_CARDS_INACTIVE = require("@/assets/images/icons/nav_cards_inactive.png");
+const NAV_PAY_CENTER = require("@/assets/images/icons/nav_pay_center.png");
+
+type NavTab = {
+  name: string;
+  label: string;
+  getImages: () => { active: any; inactive: any } | null;
+};
+
+const TABS: NavTab[] = [
+  {
+    name: "index",
+    label: "Home",
+    getImages: () => ({ active: NAV_HOME_ACTIVE, inactive: NAV_HOME_INACTIVE }),
+  },
+  {
+    name: "transfers",
+    label: "Transfer",
+    getImages: () => ({ active: NAV_TRANSFER_ACTIVE, inactive: NAV_TRANSFER_INACTIVE }),
+  },
+  {
+    name: "cards",
+    label: "Cards",
+    getImages: () => ({ active: NAV_CARDS_ACTIVE, inactive: NAV_CARDS_INACTIVE }),
+  },
+  {
+    name: "more",
+    label: "More",
+    getImages: () => null,
+  },
 ];
 
 function CustomTabBar() {
@@ -40,10 +71,11 @@ function CustomTabBar() {
     return pathname.includes(name);
   };
 
-  const TabBtn = ({ tab }: { tab: (typeof TABS)[0] }) => {
+  const TabBtn = ({ tab }: { tab: NavTab }) => {
     const scale = useSharedValue(1);
     const active = isActive(tab.name);
     const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+    const images = tab.getImages();
 
     return (
       <Pressable
@@ -58,11 +90,20 @@ function CustomTabBar() {
         style={styles.tabBtn}
       >
         <Animated.View style={[styles.tabContent, aStyle]}>
-          <Feather
-            name={tab.icon}
-            size={22}
-            color={active ? colors.primary : colors.mutedForeground}
-          />
+          {images ? (
+            <Image
+              source={active ? images.active : images.inactive}
+              style={styles.navIcon}
+              resizeMode="contain"
+            />
+          ) : (
+            <TpIcon
+              name="more-horizontal"
+              size={22}
+              color={active ? colors.primary : colors.mutedForeground}
+              strokeWidth={2}
+            />
+          )}
           <Text
             style={[
               styles.tabLabel,
@@ -79,7 +120,6 @@ function CustomTabBar() {
     );
   };
 
-  // Center FAB (Payments)
   const PayBtn = () => {
     const scale = useSharedValue(1);
     const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
@@ -96,7 +136,7 @@ function CustomTabBar() {
         style={styles.fabWrapper}
       >
         <Animated.View style={[styles.fab, { backgroundColor: colors.primary }, aStyle]}>
-          <Feather name="zap" size={26} color="#fff" />
+          <Image source={NAV_PAY_CENTER} style={styles.fabIcon} resizeMode="contain" />
         </Animated.View>
         <Text style={[styles.tabLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium", marginTop: 2 }]}>
           Pay
@@ -166,6 +206,7 @@ const styles = StyleSheet.create({
   tabBtn: { flex: 1, alignItems: "center" },
   tabContent: { alignItems: "center", gap: 3 },
   tabLabel: { fontSize: 10.5 },
+  navIcon: { width: 26, height: 26 },
   fabWrapper: { alignItems: "center", marginTop: -20, flex: 1 },
   fab: {
     width: 56,
@@ -179,4 +220,5 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 8,
   },
+  fabIcon: { width: 30, height: 30 },
 });

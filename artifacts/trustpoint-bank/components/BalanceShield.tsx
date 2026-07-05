@@ -3,10 +3,9 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { Feather } from "@expo/vector-icons";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
 interface BalanceShieldProps {
@@ -43,28 +42,26 @@ export function BalanceShield({ balance, income, expenses, showBalance, onToggle
         },
       ]}
     >
-      {/* Header */}
       <View style={styles.header}>
         <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
           Total Balance
         </Text>
         <Pressable onPress={onToggle} style={styles.eyeBtn}>
-          <Feather
+          <TpIcon
             name={showBalance ? "eye" : "eye-off"}
             size={18}
             color={colors.mutedForeground}
+            strokeWidth={1.8}
           />
         </Pressable>
       </View>
 
-      {/* Balance */}
       <Animated.View style={[balanceStyle, styles.balanceRow]}>
         <Text style={[styles.balance, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
           {showBalance ? formatCurrency(balance) : "₦ ••••••••"}
         </Text>
       </Animated.View>
 
-      {/* Stats */}
       <View style={styles.stats}>
         <StatItem
           label="Income"
@@ -86,11 +83,11 @@ export function BalanceShield({ balance, income, expenses, showBalance, onToggle
   );
 }
 
-function StatItem({ label, value, color, icon, colors }: any) {
+function StatItem({ label, value, color, icon, colors }: { label: string; value: string; color: string; icon: TpIconName; colors: any }) {
   return (
     <View style={styles.stat}>
       <View style={[styles.statIcon, { backgroundColor: color + "22" }]}>
-        <Feather name={icon} size={14} color={color} />
+        <TpIcon name={icon} size={14} color={color} strokeWidth={2} />
       </View>
       <View>
         <Text style={[styles.statLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
@@ -115,20 +112,12 @@ const styles = StyleSheet.create({
     elevation: 8,
     gap: 12,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   label: { fontSize: 13 },
   eyeBtn: { padding: 4 },
   balanceRow: { marginVertical: 4 },
   balance: { fontSize: 34, letterSpacing: -1 },
-  stats: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-  },
+  stats: { flexDirection: "row", alignItems: "center", marginTop: 4 },
   stat: { flex: 1, flexDirection: "row", alignItems: "center", gap: 10 },
   statIcon: { width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center" },
   statLabel: { fontSize: 11, marginBottom: 2 },

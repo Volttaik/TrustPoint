@@ -2,10 +2,10 @@ import React from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/ui/Button";
+import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -51,18 +51,17 @@ export default function TransactionDetailScreen() {
 
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
           Transaction Detail
         </Text>
         <TouchableOpacity style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="share-2" size={18} color={colors.text} />
+          <TpIcon name="share-2" size={18} color={colors.text} strokeWidth={1.8} />
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: bottomPad + 80 }]} showsVerticalScrollIndicator={false}>
-        {/* Avatar + amount hero */}
         <View style={styles.hero}>
           <Avatar
             initials={tx.title.split(" ").map((w) => w[0]).join("").slice(0, 2)}
@@ -85,7 +84,6 @@ export default function TransactionDetailScreen() {
           </View>
         </View>
 
-        {/* Details */}
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Detail label="Description" value={tx.subtitle} />
           <View style={[styles.sep, { backgroundColor: colors.border }]} />
@@ -106,7 +104,7 @@ export default function TransactionDetailScreen() {
 
         {tx.status === "failed" && (
           <View style={[styles.failedBanner, { backgroundColor: colors.destructive + "15", borderColor: colors.destructive + "44" }]}>
-            <Feather name="alert-circle" size={16} color={colors.destructive} />
+            <TpIcon name="alert-circle" size={16} color={colors.destructive} strokeWidth={1.8} />
             <View style={{ flex: 1 }}>
               <Text style={[styles.failedTitle, { color: colors.destructive, fontFamily: "Inter_600SemiBold" }]}>
                 Transaction Failed
@@ -130,13 +128,7 @@ export default function TransactionDetailScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 8,
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 8 },
   backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 17, letterSpacing: -0.3 },
   content: { paddingHorizontal: 20, gap: 16, paddingTop: 12 },

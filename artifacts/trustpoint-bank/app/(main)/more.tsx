@@ -11,13 +11,13 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
-const MENU_SECTIONS = [
+const MENU_SECTIONS: { title: string; items: { icon: TpIconName; label: string; route: string | null; isTheme?: boolean }[] }[] = [
   {
     title: "Account",
     items: [
@@ -73,7 +73,7 @@ export default function MoreScreen() {
     ]);
   };
 
-  const MenuItem = ({ icon, label, route, isTheme }: any) => (
+  const MenuItem = ({ icon, label, route, isTheme }: { icon: TpIconName; label: string; route: string | null; isTheme?: boolean }) => (
     <Pressable
       onPress={() => {
         if (isTheme) { toggleTheme(); return; }
@@ -82,7 +82,7 @@ export default function MoreScreen() {
       style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
     >
       <View style={[styles.menuIcon, { backgroundColor: colors.primary + "18" }]}>
-        <Feather name={icon} size={17} color={colors.primary} />
+        <TpIcon name={icon} size={17} color={colors.primary} strokeWidth={1.8} />
       </View>
       <Text style={[styles.menuLabel, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
         {label}
@@ -97,7 +97,7 @@ export default function MoreScreen() {
             ios_backgroundColor={colors.border}
           />
         )}
-        {!isTheme && <Feather name="chevron-right" size={16} color={colors.mutedForeground} />}
+        {!isTheme && <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2} />}
       </View>
     </Pressable>
   );
@@ -126,7 +126,7 @@ export default function MoreScreen() {
             </View>
           </View>
           <Pressable onPress={() => router.push("/settings/profile")}>
-            <Feather name="edit-2" size={18} color={colors.mutedForeground} />
+            <TpIcon name="edit-2" size={18} color={colors.mutedForeground} strokeWidth={1.8} />
           </Pressable>
         </View>
 
@@ -141,7 +141,7 @@ export default function MoreScreen() {
             </Text>
           </View>
           <Pressable style={[styles.copyBtn, { backgroundColor: colors.primary + "18" }]}>
-            <Feather name="copy" size={16} color={colors.primary} />
+            <TpIcon name="copy" size={16} color={colors.primary} strokeWidth={1.8} />
             <Text style={[styles.copyText, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>Copy</Text>
           </Pressable>
         </View>
@@ -170,7 +170,7 @@ export default function MoreScreen() {
           onPress={handleLogout}
           style={[styles.logoutBtn, { backgroundColor: colors.destructive + "15", borderColor: colors.destructive + "33" }]}
         >
-          <Feather name="log-out" size={18} color={colors.destructive} />
+          <TpIcon name="log-out" size={18} color={colors.destructive} strokeWidth={1.8} />
           <Text style={[styles.logoutText, { color: colors.destructive, fontFamily: "Inter_600SemiBold" }]}>
             Logout
           </Text>

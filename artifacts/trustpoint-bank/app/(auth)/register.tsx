@@ -8,17 +8,17 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Image,
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { OTPInput } from "@/components/ui/OTPInput";
 import { PinPad } from "@/components/ui/PinPad";
+import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Image } from "react-native";
 
 const STEPS = ["Phone", "OTP", "Profile", "PIN", "Done"];
 
@@ -37,10 +37,7 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Step 0 - Phone
   const [phone, setPhone] = useState("");
-
-  // Step 2 - Profile
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [gender, setGender] = useState("");
@@ -48,7 +45,6 @@ export default function RegisterScreen() {
   const [state, setState] = useState("");
   const [showStateList, setShowStateList] = useState(false);
 
-  // Step 3 - PIN
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [pinStep, setPinStep] = useState<"set" | "confirm">("set");
@@ -73,7 +69,6 @@ export default function RegisterScreen() {
   };
 
   const handleOTP = (code: string) => {
-    // Accept any 4-digit code — OTP is mocked
     if (code.length === 4) setTimeout(() => setStep(2), 400);
   };
 
@@ -160,7 +155,7 @@ export default function RegisterScreen() {
               onChangeText={(t) => { setPhone(t); setError(""); }}
               keyboardType="phone-pad"
               placeholder="e.g. 08012345678"
-              prefixIcon={<Feather name="phone" size={18} color="#8E8E93" />}
+              prefixIcon={<TpIcon name="phone" size={18} color="#8E8E93" strokeWidth={1.8} />}
               maxLength={14}
             />
             {error ? <Text style={[styles.errorMsg, { fontFamily: "Inter_400Regular" }]}>{error}</Text> : null}
@@ -185,7 +180,7 @@ export default function RegisterScreen() {
             </Text>
             <OTPInput length={4} onComplete={handleOTP} timerSeconds={45} onResend={() => {}} />
             <Text style={[styles.devNote, { fontFamily: "Inter_400Regular" }]}>
-              💡 For now, enter any 4 digits to proceed.
+              For now, enter any 4 digits to proceed.
             </Text>
           </View>
         );
@@ -202,7 +197,7 @@ export default function RegisterScreen() {
                 value={name}
                 onChangeText={(t) => { setName(t); setError(""); }}
                 placeholder="e.g. Adaeze Okafor"
-                prefixIcon={<Feather name="user" size={18} color="#8E8E93" />}
+                prefixIcon={<TpIcon name="user" size={18} color="#8E8E93" strokeWidth={1.8} />}
               />
               <Input
                 label="Email Address"
@@ -211,10 +206,9 @@ export default function RegisterScreen() {
                 placeholder="e.g. ada@email.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
-                prefixIcon={<Feather name="mail" size={18} color="#8E8E93" />}
+                prefixIcon={<TpIcon name="mail" size={18} color="#8E8E93" strokeWidth={1.8} />}
               />
 
-              {/* Gender selector */}
               <View>
                 <Text style={[styles.fieldLabel, { fontFamily: "Inter_500Medium" }]}>Gender *</Text>
                 <View style={styles.chipRow}>
@@ -244,22 +238,21 @@ export default function RegisterScreen() {
                 onChangeText={setDob}
                 placeholder="DD/MM/YYYY"
                 keyboardType="numbers-and-punctuation"
-                prefixIcon={<Feather name="calendar" size={18} color="#8E8E93" />}
+                prefixIcon={<TpIcon name="calendar" size={18} color="#8E8E93" strokeWidth={1.8} />}
                 maxLength={10}
               />
 
-              {/* State selector */}
               <View>
                 <Text style={[styles.fieldLabel, { fontFamily: "Inter_500Medium" }]}>State of Origin</Text>
                 <Pressable
                   onPress={() => setShowStateList((v) => !v)}
                   style={[styles.stateSelector, { backgroundColor: "#181818" }]}
                 >
-                  <Feather name="map-pin" size={18} color="#8E8E93" />
+                  <TpIcon name="map-pin" size={18} color="#8E8E93" strokeWidth={1.8} />
                   <Text style={[styles.stateSelectorText, { color: state ? "#F1FAEE" : "#8E8E93", fontFamily: "Inter_400Regular" }]}>
                     {state || "Select state…"}
                   </Text>
-                  <Feather name={showStateList ? "chevron-up" : "chevron-down"} size={16} color="#8E8E93" />
+                  <TpIcon name={showStateList ? "chevron-up" : "chevron-down"} size={16} color="#8E8E93" strokeWidth={2} />
                 </Pressable>
                 {showStateList && (
                   <View style={[styles.stateList, { backgroundColor: "#1A1A1A", borderColor: "#2A2A2A" }]}>
@@ -325,7 +318,7 @@ export default function RegisterScreen() {
         return (
           <View style={styles.successContent}>
             <View style={styles.checkCircle}>
-              <Feather name="check" size={52} color="#fff" />
+              <TpIcon name="check" size={52} color="#fff" strokeWidth={2.5} />
             </View>
             <Text style={[styles.welcomeTitle, { fontFamily: "Inter_700Bold" }]}>
               Welcome, {name.split(" ")[0]}!
@@ -348,12 +341,11 @@ export default function RegisterScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
 
-      {/* Header */}
       {step < 4 && (
         <View style={styles.header}>
           {step > 0 ? (
             <TouchableOpacity onPress={back} style={styles.backBtn}>
-              <Feather name="arrow-left" size={22} color="#F1FAEE" />
+              <TpIcon name="arrow-left" size={22} color="#F1FAEE" strokeWidth={2} />
             </TouchableOpacity>
           ) : (
             <View style={{ width: 40 }} />
@@ -369,10 +361,9 @@ export default function RegisterScreen() {
         </View>
       )}
 
-      {/* Progress bar */}
       {step < 4 && (
         <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${((step + 1) / (STEPS.length - 1)) * 100}%` }]} />
+          <View style={[styles.progressFill, { width: `${((step + 1) / (STEPS.length - 1)) * 100}%` as any }]} />
         </View>
       )}
 
@@ -389,31 +380,11 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0A0A0A" },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 12,
-  },
-  backBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#1A1A1A",
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingTop: 60, paddingBottom: 12 },
+  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: "#1A1A1A", alignItems: "center", justifyContent: "center" },
   headerCenter: { alignItems: "center" },
   headerIcon: { width: 40, height: 40 },
-  progressBar: {
-    height: 3,
-    backgroundColor: "#1A1A1A",
-    marginHorizontal: 20,
-    borderRadius: 2,
-    marginBottom: 4,
-  },
+  progressBar: { height: 3, backgroundColor: "#1A1A1A", marginHorizontal: 20, borderRadius: 2, marginBottom: 4 },
   progressFill: { height: 3, backgroundColor: "#E63946", borderRadius: 2 },
   content: { padding: 24, paddingBottom: 60 },
   stepContent: { gap: 18 },
@@ -423,45 +394,16 @@ const styles = StyleSheet.create({
   stepSub: { fontSize: 15, color: "#8E8E93", lineHeight: 22 },
   fieldLabel: { fontSize: 13, color: "#8E8E93", marginBottom: 8 },
   chipRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  genderChip: {
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1.5,
-  },
+  genderChip: { paddingHorizontal: 18, paddingVertical: 10, borderRadius: 10, borderWidth: 1.5 },
   chipText: { fontSize: 14 },
-  stateSelector: {
-    height: 52,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    gap: 10,
-  },
+  stateSelector: { height: 52, borderRadius: 12, flexDirection: "row", alignItems: "center", paddingHorizontal: 16, gap: 10 },
   stateSelectorText: { flex: 1, fontSize: 15 },
-  stateList: {
-    borderRadius: 12,
-    borderWidth: 1,
-    marginTop: 4,
-    overflow: "hidden",
-  },
+  stateList: { borderRadius: 12, borderWidth: 1, marginTop: 4, overflow: "hidden" },
   stateItem: { padding: 14, borderBottomWidth: 0.5 },
   stateItemText: { fontSize: 14 },
   errorMsg: { fontSize: 13, color: "#E63946" },
   linkText: { fontSize: 14, color: "#8E8E93" },
   devNote: { fontSize: 12, color: "#555", textAlign: "center" },
-  checkCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: "#E63946",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#E63946",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    marginBottom: 8,
-  },
+  checkCircle: { width: 96, height: 96, borderRadius: 48, backgroundColor: "#E63946", alignItems: "center", justifyContent: "center", shadowColor: "#E63946", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.5, shadowRadius: 20, marginBottom: 8 },
   welcomeTitle: { fontSize: 32, color: "#F1FAEE", letterSpacing: -1 },
 });

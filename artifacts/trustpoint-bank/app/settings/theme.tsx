@@ -2,12 +2,12 @@ import React from "react";
 import { Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
-const THEMES = [
+const THEMES: { id: string; label: string; subtitle: string; icon: TpIconName }[] = [
   { id: "dark", label: "Dark", subtitle: "Red Velvet Black", icon: "moon" },
   { id: "light", label: "Light", subtitle: "Classic white mode", icon: "sun" },
 ];
@@ -23,7 +23,7 @@ export default function ThemeScreen() {
       <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>Theme</Text>
         <View style={{ width: 40 }} />
@@ -41,7 +41,7 @@ export default function ThemeScreen() {
               ]}
             >
               <View style={[styles.iconWrapper, { backgroundColor: active ? colors.primary + "22" : colors.secondary }]}>
-                <Feather name={t.icon as any} size={24} color={active ? colors.primary : colors.mutedForeground} />
+                <TpIcon name={t.icon} size={24} color={active ? colors.primary : colors.mutedForeground} strokeWidth={1.8} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.cardLabel, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>{t.label}</Text>
@@ -49,7 +49,7 @@ export default function ThemeScreen() {
               </View>
               {active && (
                 <View style={[styles.checkCircle, { backgroundColor: colors.primary }]}>
-                  <Feather name="check" size={14} color="#fff" />
+                  <TpIcon name="check" size={14} color="#fff" strokeWidth={2.5} />
                 </View>
               )}
             </Pressable>

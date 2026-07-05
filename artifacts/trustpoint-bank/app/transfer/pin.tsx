@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PinPad } from "@/components/ui/PinPad";
+import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -63,7 +63,7 @@ export default function TransferPinScreen() {
 
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
           Enter PIN
@@ -83,7 +83,7 @@ export default function TransferPinScreen() {
         )}
 
         <View style={[styles.lockIcon, { backgroundColor: colors.primary + "18" }]}>
-          <Feather name="lock" size={28} color={colors.primary} />
+          <TpIcon name="lock" size={28} color={colors.primary} strokeWidth={1.8} />
         </View>
 
         <PinPad
@@ -105,13 +105,7 @@ export default function TransferPinScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 16 },
   backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 18, letterSpacing: -0.5 },
   content: { flex: 1, alignItems: "center", gap: 24, paddingHorizontal: 20, paddingTop: 24 },

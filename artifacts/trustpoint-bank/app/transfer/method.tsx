@@ -2,11 +2,11 @@ import React from "react";
 import { Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
-const METHODS = [
+const METHODS: { id: string; label: string; subtitle: string; icon: TpIconName; badge: string; badgeColor: string }[] = [
   {
     id: "internal",
     label: "TrustPoint to TrustPoint",
@@ -43,7 +43,7 @@ export default function TransferMethodScreen() {
       <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
       <View style={[styles.header, { paddingTop: topPad + 12 }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.backBtn, { backgroundColor: colors.surface }]}>
-          <Feather name="arrow-left" size={20} color={colors.text} />
+          <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
           Transfer Money
@@ -56,7 +56,7 @@ export default function TransferMethodScreen() {
           How would you like to send money?
         </Text>
 
-        {METHODS.map((m, idx) => (
+        {METHODS.map((m) => (
           <Pressable
             key={m.id}
             onPress={() => router.push("/transfer/beneficiary")}
@@ -70,7 +70,7 @@ export default function TransferMethodScreen() {
             ]}
           >
             <View style={[styles.cardIcon, { backgroundColor: colors.primary + "20" }]}>
-              <Feather name={m.icon as any} size={22} color={colors.primary} />
+              <TpIcon name={m.icon} size={22} color={colors.primary} strokeWidth={1.8} />
             </View>
             <View style={{ flex: 1 }}>
               <Text style={[styles.cardTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
@@ -94,25 +94,12 @@ export default function TransferMethodScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20, paddingBottom: 16 },
   backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
   headerTitle: { fontSize: 18, letterSpacing: -0.5 },
   content: { flex: 1, paddingHorizontal: 20, gap: 14, paddingTop: 8 },
   subtitle: { fontSize: 15, marginBottom: 8 },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    padding: 18,
-    borderRadius: 18,
-    borderWidth: 1.5,
-  },
+  card: { flexDirection: "row", alignItems: "center", gap: 14, padding: 18, borderRadius: 18, borderWidth: 1.5 },
   cardIcon: { width: 50, height: 50, borderRadius: 25, alignItems: "center", justifyContent: "center" },
   cardTitle: { fontSize: 15, marginBottom: 3, letterSpacing: -0.3 },
   cardSub: { fontSize: 12 },
