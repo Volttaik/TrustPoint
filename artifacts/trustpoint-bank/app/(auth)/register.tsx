@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { OTPInput } from "@/components/ui/OTPInput";
@@ -42,8 +43,32 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState("");
+  const [dobDate, setDobDate] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [state, setState] = useState("");
   const [showStateList, setShowStateList] = useState(false);
+
+  const formatDob = (d: Date) => {
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
+  const maxDob = new Date();
+  maxDob.setFullYear(maxDob.getFullYear() - 16);
+  const minDob = new Date();
+  minDob.setFullYear(minDob.getFullYear() - 100);
+
+  const handleDobChange = (event: any, selected?: Date) => {
+    if (Platform.OS === "android") setShowDatePicker(false);
+    if (event.type === "dismissed") return;
+    if (selected) {
+      setDobDate(selected);
+      setDob(formatDob(selected));
+      setError("");
+    }
+  };
 
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
@@ -232,15 +257,72 @@ export default function RegisterScreen() {
                 </View>
               </View>
 
-              <Input
-                label="Date of Birth"
-                value={dob}
-                onChangeText={setDob}
-                placeholder="DD/MM/YYYY"
-                keyboardType="numbers-and-punctuation"
-                prefixIcon={<TpIcon name="calendar" size={18} color="#8E8E93" strokeWidth={1.8} />}
-                maxLength={10}
-              />
+              <View>
+                <Text style={[styles.fieldLabel, { fontFamily: "Inter_500Medium" }]}>Date of Birth</Text>
+                <Pressable
+                  onPress={() => setShowDatePicker(true)}
+                  style={[styles.stateSelector, { backgroundColor: "#181818" }]}
+                >
+                  <TpIcon name="calendar" size={18} color="#8E8E93" strokeWidth={1.8} />
+                  <Text
+                    style={{
+                      flex: 1,
+                      marginLeft: 10,
+                      fontSize: 15,
+                      fontFamily: "Inter_500Medium",
+                      color: dob ? "#fff" : "#6E6E73",
+                    }}
+                  >
+                    {dob || "DD/MM/YYYY"}
+                  </Text>
+                  <TpIcon name="chevron-right" size={16} color="#8E8E93" strokeWidth={2} />
+                </Pressable>
+              </View>
+
+              {showDatePicker && (
+                <>
+                  {Platform.OS === "ios" && (
+                    <View style={{ backgroundColor: "#181818", borderRadius: 16, overflow: "hidden" }}>
+                      <DateTimePicker
+                        value={dobDate ?? maxDob}
+                        mode="date"
+                        display="spinner"
+                        onChange={handleDobChange}
+                        maximumDate={maxDob}
+                        minimumDate={minDob}
+                        themeVariant="dark"
+                        textColor="#fff"
+                        style={{ height: 180 }}
+                      />
+                      <Pressable
+                        onPress={() => setShowDatePicker(false)}
+                        style={{ padding: 14, alignItems: "center", borderTopWidth: 1, borderTopColor: "#2A2A2A" }}
+                      >
+                        <Text style={{ color: "#E63946", fontFamily: "Inter_600SemiBold", fontSize: 15 }}>Done</Text>
+                      </Pressable>
+                    </View>
+                  )}
+                  {Platform.OS === "android" && (
+                    <DateTimePicker
+                      value={dobDate ?? maxDob}
+                      mode="date"
+                      display="default"
+                      onChange={handleDobChange}
+                      maximumDate={maxDob}
+                      minimumDate={minDob}
+                    />
+                  )}
+                  {Platform.OS === "web" && (
+                    <DateTimePicker
+                      value={dobDate ?? maxDob}
+                      mode="date"
+                      onChange={handleDobChange}
+                      maximumDate={maxDob}
+                      minimumDate={minDob}
+                    />
+                  )}
+                </>
+              )}
 
               <View>
                 <Text style={[styles.fieldLabel, { fontFamily: "Inter_500Medium" }]}>State of Origin</Text>

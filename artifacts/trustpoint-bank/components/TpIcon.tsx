@@ -73,7 +73,9 @@ export type TpIconName =
   | "droplet"
   | "activity"
   | "home"
-  | "more-horizontal";
+  | "more-horizontal"
+  | "qr-code"
+  | "headset";
 
 interface TpIconProps {
   name: TpIconName;
@@ -482,6 +484,26 @@ const ICONS: Record<TpIconName, IconRenderer> = {
       <Circle cx="12" cy="12" r="1" stroke={c} strokeWidth={sw} fill={c} />
       <Circle cx="19" cy="12" r="1" stroke={c} strokeWidth={sw} fill={c} />
       <Circle cx="5" cy="12" r="1" stroke={c} strokeWidth={sw} fill={c} />
+    </>
+  ),
+  "qr-code": (c, sw) => (
+    <>
+      <Rect x="3" y="3" width="7" height="7" rx="1" stroke={c} strokeWidth={sw} fill="none" />
+      <Rect x="14" y="3" width="7" height="7" rx="1" stroke={c} strokeWidth={sw} fill="none" />
+      <Rect x="3" y="14" width="7" height="7" rx="1" stroke={c} strokeWidth={sw} fill="none" />
+      <Line x1="14" y1="14" x2="14" y2="17" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+      <Line x1="17" y1="14" x2="21" y2="14" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+      <Line x1="14" y1="21" x2="17" y2="21" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+      <Line x1="19" y1="17" x2="21" y2="17" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+      <Line x1="19" y1="21" x2="21" y2="19" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+    </>
+  ),
+  headset: (c, sw) => (
+    <>
+      <Path d="M3 13a9 9 0 0 1 18 0" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Rect x="3" y="13" width="5" height="7" rx="2" stroke={c} strokeWidth={sw} fill="none" />
+      <Rect x="16" y="13" width="5" height="7" rx="2" stroke={c} strokeWidth={sw} fill="none" />
+      <Path d="M21 20v1a2 2 0 0 1-2 2h-3" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
     </>
   ),
 };

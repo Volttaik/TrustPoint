@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import {
-  Dimensions,
   Platform,
   Pressable,
   RefreshControl,
@@ -17,11 +16,11 @@ import { BalanceShield } from "@/components/BalanceShield";
 import { CardCarousel } from "@/components/CardCarousel";
 import { QuickActions } from "@/components/QuickActions";
 import { TransactionItem } from "@/components/TransactionItem";
+import { FinancialInsight } from "@/components/FinancialInsight";
+import { PromoBanner } from "@/components/PromoBanner";
 import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
-
-const { width } = Dimensions.get("window");
 
 export default function DashboardScreen() {
   const colors = useColors();
@@ -30,13 +29,13 @@ export default function DashboardScreen() {
   const [refreshing, setRefreshing] = React.useState(false);
 
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-  const bottomPad = 90 + (Platform.OS === "web" ? 34 : 0);
+  const bottomPad = 96 + (Platform.OS === "web" ? 34 : 0);
 
   const greeting = () => {
     const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 17) return "Good afternoon";
-    return "Good evening";
+    if (h < 12) return "Good Morning";
+    if (h < 17) return "Good Afternoon";
+    return "Good Evening";
   };
 
   const onRefresh = useCallback(() => {
@@ -44,11 +43,11 @@ export default function DashboardScreen() {
     setTimeout(() => setRefreshing(false), 1200);
   }, []);
 
-  const recentTx = transactions.slice(0, 6);
+  const recentTx = transactions.slice(0, 2);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
+      <StatusBar style={colors.background === "#08090A" ? "light" : "dark"} />
 
       <ScrollView
         style={{ flex: 1 }}
@@ -64,49 +63,63 @@ export default function DashboardScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={[styles.greeting, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              {greeting()},
-            </Text>
-            <Text style={[styles.name, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-              {user?.name?.split(" ")[0] ?? "Friend"}
-            </Text>
-          </View>
+          <Pressable onPress={() => router.push("/(main)/more")} style={styles.identity}>
+            <Avatar
+              initials={user?.initials ?? "JD"}
+              color={user?.avatarColor ?? colors.primary}
+              size={44}
+            />
+            <View>
+              <Text style={[styles.greeting, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+                {greeting()}
+              </Text>
+              <Text style={[styles.name, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+                {user?.name?.split(" ")[0] ?? "Friend"}
+              </Text>
+            </View>
+          </Pressable>
           <View style={styles.headerRight}>
-            <Pressable
-              style={[styles.iconBtn, { backgroundColor: colors.surface }]}
+            <HeaderIconButton
+              icon="qr-code"
+              colors={colors}
+              onPress={() => {}}
+            />
+            <HeaderIconButton
+              icon="headset"
+              colors={colors}
+              onPress={() => {}}
+            />
+            <HeaderIconButton
+              icon="bell"
+              colors={colors}
               onPress={() => router.push("/notifications")}
-            >
-              <TpIcon name="bell" size={20} color={colors.text} strokeWidth={1.8} />
-              <View style={[styles.notifDot, { backgroundColor: colors.primary }]} />
-            </Pressable>
-            <Pressable onPress={() => router.push("/(main)/more")}>
-              <Avatar
-                initials={user?.initials ?? "JD"}
-                color={user?.avatarColor ?? colors.primary}
-                size={40}
-              />
-            </Pressable>
+              dot
+            />
           </View>
         </View>
 
-        {/* Balance Shield */}
+        {/* Balance Card */}
         <BalanceShield
           balance={user?.balance ?? 247560}
           income={user?.income ?? 450000}
           expenses={user?.expenses ?? 76015}
           showBalance={showBalance}
           onToggle={toggleShowBalance}
+          accountNumber={user?.accountNumber ? formatAccount(user.accountNumber) : undefined}
         />
 
         {/* Quick Actions */}
         <View style={styles.section}>
           <QuickActions
             actions={[
-              { icon: "send", label: "Send", onPress: () => router.push("/transfer/method") },
-              { icon: "arrow-down-left", label: "Request", onPress: () => {} },
-              { icon: "zap", label: "Pay Bills", onPress: () => router.push("/(main)/payments") },
-              { icon: "trending-up", label: "Invest", onPress: () => router.push("/savings") },
+              { icon: "send", label: "Transfer", onPress: () => router.push("/transfer/method"), accent: true },
+              { icon: "arrow-down-left", label: "Add Money", onPress: () => {} },
+              { icon: "smartphone", label: "Airtime", onPress: () => router.push("/(main)/payments") },
+              { icon: "wifi", label: "Data", onPress: () => router.push("/(main)/payments") },
+              { icon: "zap", label: "Bills", onPress: () => router.push("/(main)/payments") },
+              { icon: "credit-card", label: "Cards", onPress: () => router.push("/(main)/cards") },
+              { icon: "pie-chart", label: "Savings", onPress: () => router.push("/savings") },
+              { icon: "more-horizontal", label: "More", onPress: () => router.push("/(main)/more") },
             ]}
           />
         </View>
@@ -136,11 +149,6 @@ export default function DashboardScreen() {
             <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
               Recent Transactions
             </Text>
-            <Pressable onPress={() => router.push("/transactions")}>
-              <Text style={[styles.seeAll, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>
-                See all
-              </Text>
-            </Pressable>
           </View>
           {recentTx.length === 0 ? (
             <View style={styles.empty}>
@@ -164,34 +172,103 @@ export default function DashboardScreen() {
               ))}
             </View>
           )}
+          <Pressable
+            onPress={() => router.push("/transactions")}
+            style={[styles.viewAllBtn, { backgroundColor: colors.surfaceHigh, borderColor: colors.border }]}
+          >
+            <Text style={[styles.viewAllText, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+              View All Transactions
+            </Text>
+            <TpIcon name="chevron-right" size={15} color={colors.mutedForeground} strokeWidth={2.2} />
+          </Pressable>
+        </View>
+
+        {/* Financial Insights */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+              Financial Insights
+            </Text>
+          </View>
+          <FinancialInsight spent={user?.expenses ?? 76015} budget={150000} />
+        </View>
+
+        {/* Promotional Banner */}
+        <View style={styles.section}>
+          <PromoBanner onPress={() => {}} />
         </View>
       </ScrollView>
     </View>
   );
 }
 
+function formatAccount(acc: string) {
+  if (acc.length < 4) return acc;
+  return `${acc.slice(0, 2)}•• •••• ${acc.slice(-4)}`;
+}
+
+function HeaderIconButton({
+  icon,
+  colors,
+  onPress,
+  dot,
+}: {
+  icon: any;
+  colors: any;
+  onPress: () => void;
+  dot?: boolean;
+}) {
+  return (
+    <Pressable
+      style={[
+        styles.iconBtn,
+        { backgroundColor: colors.surfaceHigh, borderColor: colors.borderStrong },
+      ]}
+      onPress={onPress}
+    >
+      <TpIcon name={icon} size={18} color={colors.text} strokeWidth={1.9} />
+      {dot && <View style={[styles.notifDot, { backgroundColor: colors.primary, borderColor: colors.background }]} />}
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  scroll: { paddingHorizontal: 20, gap: 24 },
+  scroll: { paddingHorizontal: 20, gap: 26 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  greeting: { fontSize: 13 },
-  name: { fontSize: 24, letterSpacing: -0.5 },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
+  identity: { flexDirection: "row", alignItems: "center", gap: 12 },
+  greeting: { fontSize: 12.5, letterSpacing: 0.1 },
+  name: { fontSize: 20, letterSpacing: -0.5, marginTop: 1 },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 8 },
   iconBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
-  notifDot: { position: "absolute", width: 8, height: 8, borderRadius: 4, top: 8, right: 8 },
+  notifDot: {
+    position: "absolute",
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    top: 6,
+    right: 6,
+    borderWidth: 1.5,
+  },
   section: { gap: 14 },
   sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   sectionTitle: { fontSize: 17, letterSpacing: -0.3 },
   seeAll: { fontSize: 13 },
   txCard: {
-    borderRadius: 16,
+    borderRadius: 18,
     borderWidth: 1,
     padding: 4,
     paddingHorizontal: 16,
@@ -199,4 +276,14 @@ const styles = StyleSheet.create({
   separator: { height: 0.5, marginHorizontal: 0 },
   empty: { alignItems: "center", gap: 8, paddingVertical: 32 },
   emptyText: { fontSize: 14 },
+  viewAllBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 13,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  viewAllText: { fontSize: 13.5 },
 });

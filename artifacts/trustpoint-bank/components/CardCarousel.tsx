@@ -1,17 +1,14 @@
-import React, { useRef, useState } from "react";
-import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { TpIcon } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 import { Card } from "@/context/AppContext";
 
-const { width: SCREEN_W } = Dimensions.get("window");
-const CARD_W = SCREEN_W - 48;
-const CARD_H = 200;
-
-const CARD_IMAGES: Record<string, any> = {
-  physical: require("@/assets/images/card_physical_new.png"),
-  virtual: require("@/assets/images/card_virtual_new.png"),
-  premium: require("@/assets/images/card_premium.png"),
+const GRADIENTS: Record<string, [string, string]> = {
+  physical: ["#2A2C31", "#101114"],
+  virtual: ["#3A1218", "#160607"],
+  premium: ["#3B2C0F", "#141006"],
 };
 
 interface CardCarouselProps {
@@ -22,150 +19,141 @@ interface CardCarouselProps {
 
 export function CardCarousel({ cards, onCardPress, onFreezeCard }: CardCarouselProps) {
   const colors = useColors();
-  const [active, setActive] = useState(0);
-  const flatRef = useRef<FlatList>(null);
-
-  const renderCard = ({ item }: { item: Card }) => {
-    const cardImage = CARD_IMAGES[item.type] ?? CARD_IMAGES.physical;
-
-    return (
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={() => onCardPress?.(item)}
-        style={[styles.card, { width: CARD_W }]}
-      >
-        <View style={[styles.cardInner, { opacity: item.frozen ? 0.65 : 1 }]}>
-          {/* AI-generated card image as background */}
-          <Image
-            source={cardImage}
-            style={styles.cardImage}
-            resizeMode="cover"
-          />
-
-          {/* Text overlay — sits on top of image */}
-          <View style={styles.overlay}>
-            {/* Top row */}
-            <View style={styles.cardTop}>
-              <Text style={[styles.bankName, { fontFamily: "Inter_700Bold" }]}>TrustPoint</Text>
-              <View style={styles.cardTopRight}>
-                {item.frozen && (
-                  <View style={styles.frozenBadge}>
-                    <TpIcon name="lock" size={9} color="#fff" strokeWidth={2.5} />
-                    <Text style={[styles.frozenText, { fontFamily: "Inter_500Medium" }]}>Frozen</Text>
-                  </View>
-                )}
-                <Text style={[styles.cardType, { fontFamily: "Inter_400Regular" }]}>
-                  {item.type === "virtual" ? "Virtual" : item.type === "premium" ? "Premium" : "Physical"}
-                </Text>
-              </View>
-            </View>
-
-            {/* Card number */}
-            <Text style={[styles.cardNumber, { fontFamily: "Inter_500Medium" }]}>
-              {item.number}
-            </Text>
-
-            {/* Bottom row */}
-            <View style={styles.cardBottom}>
-              <View>
-                <Text style={[styles.cardLabel, { fontFamily: "Inter_400Regular" }]}>CARD HOLDER</Text>
-                <Text style={[styles.cardValue, { fontFamily: "Inter_600SemiBold" }]}>
-                  {item.holder.toUpperCase()}
-                </Text>
-              </View>
-              <View>
-                <Text style={[styles.cardLabel, { fontFamily: "Inter_400Regular" }]}>EXPIRES</Text>
-                <Text style={[styles.cardValue, { fontFamily: "Inter_600SemiBold" }]}>{item.expiry}</Text>
-              </View>
-              <View style={styles.visaLogo}>
-                <Text style={[styles.visaText, { fontFamily: "Inter_700Bold" }]}>VISA</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
 
   return (
-    <View>
-      <FlatList
-        ref={flatRef}
-        data={cards}
-        keyExtractor={(c) => c.id}
-        renderItem={renderCard}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={CARD_W + 16}
-        decelerationRate="fast"
-        contentContainerStyle={{ gap: 16, paddingHorizontal: 0 }}
-        onMomentumScrollEnd={(e) => {
-          const idx = Math.round(e.nativeEvent.contentOffset.x / (CARD_W + 16));
-          setActive(idx);
-        }}
-        scrollEnabled={cards.length > 1}
-      />
-      {cards.length > 1 && (
-        <View style={styles.dots}>
-          {cards.map((_, i) => (
-            <View
-              key={i}
+    <View style={styles.stack}>
+      {cards.slice(0, 2).map((item, idx) => {
+        const gradient = GRADIENTS[item.type] ?? GRADIENTS.physical;
+        const nickname = item.type === "virtual" ? "Virtual Card" : "Physical Card";
+        const last4 = item.number.slice(-4);
+
+        return (
+          <Pressable
+            key={item.id}
+            onPress={() => onCardPress?.(item)}
+            style={({ pressed }) => [
+              styles.row,
+              { opacity: pressed ? 0.92 : 1, marginTop: idx === 0 ? 0 : 12 },
+            ]}
+          >
+            <LinearGradient
+              colors={gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.chip}
+            >
+              <View pointerEvents="none" style={styles.chipHighlight} />
+              <TpIcon
+                name="credit-card"
+                size={18}
+                color="rgba(255,255,255,0.85)"
+                strokeWidth={2}
+              />
+            </LinearGradient>
+
+            <View style={styles.info}>
+              <View style={styles.infoTopRow}>
+                <Text style={[styles.nickname, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+                  {nickname}
+                </Text>
+                {item.frozen && (
+                  <View style={styles.frozenBadge}>
+                    <TpIcon name="lock" size={9} color="#3E8BFF" strokeWidth={2.5} />
+                    <Text style={styles.frozenText}>Frozen</Text>
+                  </View>
+                )}
+              </View>
+              <View style={styles.infoBottomRow}>
+                <Text style={[styles.digits, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+                  •••• {last4}
+                </Text>
+                <View style={styles.dotSep} />
+                <Text style={[styles.network, { fontFamily: "Inter_700Bold" }]}>
+                  {item.type === "virtual" ? "Mastercard" : "VISA"}
+                </Text>
+              </View>
+            </View>
+
+            <Pressable
+              onPress={() => onFreezeCard?.(item.id)}
+              hitSlop={8}
               style={[
-                styles.dot,
-                { backgroundColor: i === active ? "#E63946" : "#555", width: i === active ? 20 : 6 },
+                styles.manageBtn,
+                { backgroundColor: colors.surfaceHigh, borderColor: colors.border },
               ]}
-            />
-          ))}
-        </View>
-      )}
+            >
+              <TpIcon
+                name={item.frozen ? "unlock" : "sliders"}
+                size={15}
+                color={colors.mutedForeground}
+                strokeWidth={2}
+              />
+            </Pressable>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { height: CARD_H },
-  cardInner: {
-    flex: 1,
-    borderRadius: 22,
+  stack: {},
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    padding: 14,
+    borderRadius: 18,
+    backgroundColor: "#131417",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  chip: {
+    width: 46,
+    height: 46,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
     overflow: "hidden",
-    shadowColor: "#E63946",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 20,
-    elevation: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
   },
-  cardImage: {
-    ...StyleSheet.absoluteFillObject,
-    width: "100%",
-    height: "100%",
+  chipHighlight: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: "50%",
+    backgroundColor: "rgba(255,255,255,0.06)",
   },
-  overlay: {
-    flex: 1,
-    padding: 20,
-    gap: 10,
-    justifyContent: "space-between",
-  },
-  cardTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  bankName: { fontSize: 16, color: "#fff", letterSpacing: 0.5 },
-  cardTopRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+  info: { flex: 1, gap: 4 },
+  infoTopRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  nickname: { fontSize: 14.5, letterSpacing: -0.2 },
   frozenBadge: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    backgroundColor: "#00000033",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 20,
+    gap: 3,
+    backgroundColor: "rgba(62,139,255,0.12)",
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
-  frozenText: { fontSize: 10, color: "#fff" },
-  cardType: { fontSize: 11, color: "#ffffff99" },
-  cardNumber: { fontSize: 16, color: "#ffffffcc", letterSpacing: 2.5 },
-  cardBottom: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" },
-  cardLabel: { fontSize: 9, color: "#ffffff66", letterSpacing: 0.5, marginBottom: 2 },
-  cardValue: { fontSize: 13, color: "#fff" },
-  visaLogo: { alignSelf: "flex-end" },
-  visaText: { fontSize: 20, color: "#fff", letterSpacing: 1 },
-  dots: { flexDirection: "row", justifyContent: "center", gap: 6, marginTop: 12 },
-  dot: { height: 6, borderRadius: 3 },
+  frozenText: { fontSize: 9.5, color: "#3E8BFF", fontFamily: "Inter_600SemiBold" },
+  infoBottomRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+  digits: { fontSize: 12.5, letterSpacing: 1, fontVariant: ["tabular-nums"] },
+  dotSep: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: "rgba(255,255,255,0.2)" },
+  network: { fontSize: 11, color: "rgba(255,255,255,0.5)", letterSpacing: 0.4 },
+  manageBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+  },
 });
