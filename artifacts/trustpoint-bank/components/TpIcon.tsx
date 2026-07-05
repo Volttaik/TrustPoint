@@ -75,7 +75,10 @@ export type TpIconName =
   | "home"
   | "more-horizontal"
   | "qr-code"
-  | "headset";
+  | "headset"
+  | "plus"
+  | "car"
+  | "shopping-bag";
 
 interface TpIconProps {
   name: TpIconName;
@@ -504,6 +507,23 @@ const ICONS: Record<TpIconName, IconRenderer> = {
       <Rect x="3" y="13" width="5" height="7" rx="2" stroke={c} strokeWidth={sw} fill="none" />
       <Rect x="16" y="13" width="5" height="7" rx="2" stroke={c} strokeWidth={sw} fill="none" />
       <Path d="M21 20v1a2 2 0 0 1-2 2h-3" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
+  plus: (c, sw) => (
+    <>
+      <Line x1="12" y1="5" x2="12" y2="19" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+      <Line x1="5" y1="12" x2="19" y2="12" stroke={c} strokeWidth={sw} strokeLinecap="round" />
+    </>
+  ),
+  car: (c, sw) => (
+    <>
+      <Path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm14 0a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM3 17V11l2-5h10l3 5h1a2 2 0 0 1 2 2v4" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </>
+  ),
+  "shopping-bag": (c, sw) => (
+    <>
+      <Path d="M6 8h12l-1 12H7L6 8z" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M9 8V6a3 3 0 0 1 6 0v2" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </>
   ),
 };

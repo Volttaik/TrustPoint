@@ -16,7 +16,7 @@ import { BalanceShield } from "@/components/BalanceShield";
 import { CardCarousel } from "@/components/CardCarousel";
 import { QuickActions } from "@/components/QuickActions";
 import { TransactionItem } from "@/components/TransactionItem";
-import { FinancialInsight } from "@/components/FinancialInsight";
+import { SpendingCashback } from "@/components/SpendingCashback";
 import { PromoBanner } from "@/components/PromoBanner";
 import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
@@ -108,6 +108,26 @@ export default function DashboardScreen() {
           accountNumber={user?.accountNumber ? formatAccount(user.accountNumber) : undefined}
         />
 
+        {/* Spending & Cash Back */}
+        <View style={styles.section}>
+          <SpendingCashback
+            spentLabel="Spent this month"
+            segments={[
+              { color: colors.primary, value: 40 },
+              { color: colors.success, value: 25 },
+              { color: colors.warning, value: 20 },
+              { color: colors.info, value: 15 },
+            ]}
+            cashbackAmount="₦2,340"
+            badges={[
+              { icon: "zap", color: colors.warning },
+              { icon: "shopping-bag", color: colors.primary },
+              { icon: "tv", color: colors.info },
+              { icon: "car", color: colors.success },
+            ]}
+          />
+        </View>
+
         {/* Quick Actions */}
         <View style={styles.section}>
           <QuickActions
@@ -181,16 +201,6 @@ export default function DashboardScreen() {
             </Text>
             <TpIcon name="chevron-right" size={15} color={colors.mutedForeground} strokeWidth={2.2} />
           </Pressable>
-        </View>
-
-        {/* Financial Insights */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
-              Financial Insights
-            </Text>
-          </View>
-          <FinancialInsight spent={user?.expenses ?? 76015} budget={150000} />
         </View>
 
         {/* Promotional Banner */}

@@ -166,7 +166,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           ]);
         if (storedUser) setUser(JSON.parse(storedUser));
         if (storedTheme) setTheme(storedTheme as "dark" | "light");
-        else setTheme(systemScheme === "light" ? "light" : "dark");
+        else setTheme("dark");
         if (storedTransactions) setTransactions(JSON.parse(storedTransactions));
         if (storedCards) setCards(JSON.parse(storedCards));
         if (storedBeneficiaries) setBeneficiaries(JSON.parse(storedBeneficiaries));

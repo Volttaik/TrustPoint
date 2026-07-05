@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -42,40 +41,38 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
     onPress();
   }, [onPress]);
 
-  const gradientColors: [string, string] = accent
-    ? ["#EF3349", "#C0142A"]
-    : [colors.charcoal, colors.graphite];
-
   return (
     <View style={styles.item}>
       <Animated.View style={aStyle}>
         <TouchableOpacity
           activeOpacity={0.9}
           onPress={handlePress}
-          onPressIn={() => { scale.value = withSpring(0.9, { damping: 14, stiffness: 220 }); }}
+          onPressIn={() => { scale.value = withSpring(0.94, { damping: 14, stiffness: 220 }); }}
           onPressOut={() => { scale.value = withSpring(1, { damping: 14, stiffness: 220 }); }}
-          style={styles.touchable}
+          style={[
+            styles.tile,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+            },
+          ]}
         >
-          <LinearGradient
-            colors={gradientColors}
-            start={{ x: 0.15, y: 0 }}
-            end={{ x: 0.9, y: 1 }}
+          <View pointerEvents="none" style={styles.topHighlight} />
+          <View
             style={[
-              styles.iconSquare,
-              {
-                shadowColor: accent ? colors.primary : "#000",
-                shadowOpacity: accent ? 0.35 : 0.3,
-              },
+              styles.iconCircle,
+              accent
+                ? { backgroundColor: colors.primary + "22", borderColor: colors.primary + "40" }
+                : { backgroundColor: colors.charcoal, borderColor: colors.borderStrong },
             ]}
           >
-            <View pointerEvents="none" style={styles.topHighlight} />
-            <TpIcon name={icon} size={21} color="#fff" strokeWidth={2} />
-          </LinearGradient>
+            <TpIcon name={icon} size={18} color={accent ? colors.primary : colors.text} strokeWidth={2} />
+          </View>
+          <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]} numberOfLines={1}>
+            {label}
+          </Text>
         </TouchableOpacity>
       </Animated.View>
-      <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]} numberOfLines={1}>
-        {label}
-      </Text>
     </View>
   );
 }
@@ -84,22 +81,24 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    rowGap: 18,
+    rowGap: 12,
+    columnGap: 12,
   },
-  item: { width: "25%", alignItems: "center", gap: 8 },
-  touchable: { borderRadius: 18 },
-  iconSquare: {
-    width: 58,
-    height: 58,
+  item: { width: "22.5%" },
+  tile: {
+    aspectRatio: 1,
     borderRadius: 18,
+    borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-    elevation: 8,
+    gap: 8,
+    paddingHorizontal: 4,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.07)",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 7,
   },
   topHighlight: {
     position: "absolute",
@@ -107,9 +106,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: "45%",
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.03)",
   },
-  label: { fontSize: 11.5, letterSpacing: -0.1 },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+  },
+  label: { fontSize: 10.5, letterSpacing: -0.1 },
 });

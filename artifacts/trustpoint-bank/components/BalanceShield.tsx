@@ -16,6 +16,7 @@ interface BalanceShieldProps {
   showBalance: boolean;
   onToggle: () => void;
   accountNumber?: string;
+  onAddMoney?: () => void;
 }
 
 export function BalanceShield({
@@ -25,6 +26,7 @@ export function BalanceShield({
   showBalance,
   onToggle,
   accountNumber = "10•• •••• 4821",
+  onAddMoney,
 }: BalanceShieldProps) {
   const colors = useColors();
   const opacity = useSharedValue(1);
@@ -43,41 +45,39 @@ export function BalanceShield({
   return (
     <View style={styles.wrapper}>
       <LinearGradient
-        colors={["#232529", "#16171B", "#0C0D0F"]}
+        colors={["#26282D", "#1A1B1F", "#111215"]}
         start={{ x: 0.1, y: 0 }}
         end={{ x: 0.95, y: 1 }}
         style={styles.card}
       >
-        {/* satin edge highlight */}
         <View pointerEvents="none" style={styles.edgeHighlight} />
-        <LinearGradient
-          pointerEvents="none"
-          colors={["rgba(225,29,51,0.16)", "rgba(225,29,51,0)"]}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0.3, y: 0.7 }}
-          style={styles.ambientLight}
-        />
+        <View pointerEvents="none" style={styles.innerBorder} />
 
-        {/* Embossed logo */}
-        <View style={styles.logoRow}>
-          <View style={styles.embossLogo}>
-            <View style={styles.embossLogoInner}>
-              <TpIcon name="shield" size={16} color="rgba(255,255,255,0.85)" strokeWidth={2} />
-            </View>
+        {/* Top row: Wallet label + add */}
+        <View style={styles.topRow}>
+          <View>
+            <Text style={[styles.walletLabel, { fontFamily: "Inter_600SemiBold" }]}>Wallet</Text>
+            <Text style={[styles.walletSub, { fontFamily: "Inter_400Regular" }]}>TrustPoints Account</Text>
           </View>
-          <View style={styles.statusPill}>
-            <View style={styles.statusDot} />
-            <Text style={[styles.statusText, { fontFamily: "Inter_500Medium" }]}>Active</Text>
+          <View style={styles.topRight}>
+            <View style={styles.statusPill}>
+              <View style={styles.statusDot} />
+              <Text style={[styles.statusText, { fontFamily: "Inter_500Medium" }]}>Active</Text>
+            </View>
+            <Pressable onPress={onAddMoney} hitSlop={8} style={styles.addBtn}>
+              <TpIcon name="plus" size={16} color="#F5F6F7" strokeWidth={2.4} />
+            </Pressable>
           </View>
         </View>
 
-        <View style={styles.header}>
+        {/* Balance */}
+        <View style={styles.balanceHeaderRow}>
           <Text style={[styles.label, { fontFamily: "Inter_500Medium" }]}>Available Balance</Text>
           <Pressable onPress={onToggle} hitSlop={10} style={styles.eyeBtn}>
             <TpIcon
               name={showBalance ? "eye" : "eye-off"}
-              size={17}
-              color="rgba(255,255,255,0.55)"
+              size={16}
+              color="rgba(255,255,255,0.5)"
               strokeWidth={1.8}
             />
           </Pressable>
@@ -93,9 +93,21 @@ export function BalanceShield({
           </Text>
         </Animated.View>
 
-        <Text style={[styles.accountNumber, { fontFamily: "Inter_500Medium" }]}>
-          {accountNumber} · TrustPoints
-        </Text>
+        <View style={styles.divider} />
+
+        {/* Bottom row: account number + card badge */}
+        <View style={styles.bottomRow}>
+          <View>
+            <Text style={[styles.bottomLabel, { fontFamily: "Inter_400Regular" }]}>Account</Text>
+            <Text style={[styles.accountNumber, { fontFamily: "Inter_600SemiBold" }]}>{accountNumber}</Text>
+          </View>
+          <View style={styles.cardBadgeWrap}>
+            <View style={[styles.cardBadge, styles.cardBadgeBack]} />
+            <View style={[styles.cardBadge, styles.cardBadgeFront]}>
+              <TpIcon name="shield" size={13} color="#FFF" strokeWidth={2.2} />
+            </View>
+          </View>
+        </View>
 
         <View style={styles.divider} />
 
@@ -137,17 +149,17 @@ const styles = StyleSheet.create({
   wrapper: {
     borderRadius: 28,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.45,
-    shadowRadius: 30,
-    elevation: 14,
+    shadowOffset: { width: 0, height: 22 },
+    shadowOpacity: 0.55,
+    shadowRadius: 36,
+    elevation: 18,
   },
   card: {
     borderRadius: 28,
     padding: 22,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
+    borderColor: "rgba(255,255,255,0.07)",
   },
   edgeHighlight: {
     position: "absolute",
@@ -155,39 +167,22 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    backgroundColor: "rgba(255,255,255,0.14)",
+    backgroundColor: "rgba(255,255,255,0.16)",
   },
-  ambientLight: {
+  innerBorder: {
     position: "absolute",
-    top: -40,
-    right: -40,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-  },
-  logoRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 18,
-  },
-  embossLogo: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    alignItems: "center",
-    justifyContent: "center",
+    top: 1,
+    left: 1,
+    right: 1,
+    bottom: 1,
+    borderRadius: 27,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
+    borderColor: "rgba(0,0,0,0.25)",
   },
-  embossLogoInner: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 },
+  topRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+  walletLabel: { fontSize: 16, color: "#F5F6F7", letterSpacing: -0.2 },
+  walletSub: { fontSize: 11.5, color: "rgba(255,255,255,0.4)", marginTop: 2 },
   statusPill: {
     flexDirection: "row",
     alignItems: "center",
@@ -201,8 +196,18 @@ const styles = StyleSheet.create({
   },
   statusDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#2FBE73" },
   statusText: { fontSize: 11, color: "#8FE3B7", letterSpacing: 0.2 },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  label: { fontSize: 13, color: "rgba(255,255,255,0.55)", letterSpacing: 0.1 },
+  addBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  balanceHeaderRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  label: { fontSize: 12.5, color: "rgba(255,255,255,0.5)", letterSpacing: 0.1 },
   eyeBtn: { padding: 4 },
   balanceRow: { marginTop: 8, marginBottom: 4 },
   balance: {
@@ -211,8 +216,32 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontVariant: ["tabular-nums"],
   },
-  accountNumber: { fontSize: 12.5, color: "rgba(255,255,255,0.4)", letterSpacing: 0.3 },
-  divider: { height: 1, backgroundColor: "rgba(255,255,255,0.07)", marginVertical: 18 },
+  divider: { height: 1, backgroundColor: "rgba(255,255,255,0.07)", marginVertical: 16 },
+  bottomRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  bottomLabel: { fontSize: 10.5, color: "rgba(255,255,255,0.4)", marginBottom: 3 },
+  accountNumber: { fontSize: 13, color: "#E8E9EB", letterSpacing: 0.4 },
+  cardBadgeWrap: { width: 42, height: 28, position: "relative" },
+  cardBadge: {
+    position: "absolute",
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1.5,
+  },
+  cardBadgeBack: {
+    right: 0,
+    top: 2,
+    backgroundColor: "#8F1220",
+    borderColor: "#26282D",
+  },
+  cardBadgeFront: {
+    right: 14,
+    top: 2,
+    backgroundColor: "#E11D33",
+    borderColor: "#26282D",
+  },
   stats: { flexDirection: "row", alignItems: "center" },
   stat: { flex: 1, flexDirection: "row", alignItems: "center", gap: 10 },
   statIcon: {
