@@ -30,3 +30,27 @@ id = "2GCLhhikOhNED4hMo_vXF"
 uri = "file://artifacts/trustpoint-bank/assets/images/onboard_control.png"
 type = "image"
 title = "control card phone illustration"
+
+[[generated]]
+id = "UDsa_fI_FXxA1pyjxBzKb"
+uri = "file://artifacts/trustpoint-bank/assets/images/card_physical.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "skGZNCgwqqnie7NEPflPa"
+uri = "file://artifacts/trustpoint-bank/assets/images/card_virtual.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "Db_GRwW69m5wai_MwH0NX"
+uri = "file://artifacts/trustpoint-bank/assets/images/bg_success.png"
+type = "image"
+title = "generated_image"
+
+[[generated]]
+id = "L1qht9hb_OOAScnMrWkGZ"
+uri = "file://artifacts/trustpoint-bank/assets/images/bg_dark_surface.png"
+type = "image"
+title = "generated_image"
