@@ -50,6 +50,7 @@ export default function DashboardScreen() {
     <ImageBackground
       source={require("@/assets/images/dashboard-bg.png")}
       style={styles.container}
+      imageStyle={styles.bgImage}
       resizeMode="cover"
     >
       <StatusBar style="light" />
@@ -249,6 +250,9 @@ function HeaderIconButton({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  bgImage: {
+    transform: [{ scale: 1.18 }, { translateY: -70 }],
+  },
   scroll: { paddingHorizontal: 20, gap: 26 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   identity: { flexDirection: "row", alignItems: "center", gap: 12 },

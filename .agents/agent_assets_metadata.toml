@@ -114,3 +114,9 @@ id = "iOogS17PV89HaputXh0nF"
 uri = "file://artifacts/trustpoint-bank/assets/images/icons/nav_cards_active.png"
 type = "image"
 title = "cards icon red active"
+
+[[generated]]
+id = "4OQfNdi9BZsuBgBIy6gKA"
+uri = "file://artifacts/trustpoint-bank/assets/images/dashboard-bg.png"
+type = "image"
+title = "dashboard red wave bg hires"
