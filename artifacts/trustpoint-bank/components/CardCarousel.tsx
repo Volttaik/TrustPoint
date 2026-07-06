@@ -40,11 +40,6 @@ const styles = StyleSheet.create({
     aspectRatio: 780 / 1000,
     width: "95%",
     alignSelf: "center",
-    shadowColor: "#E11D33",
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.35,
-    shadowRadius: 30,
-    elevation: 14,
   },
   fullImage: {
     width: "100%",

@@ -68,19 +68,18 @@ const BANK_ICON_SET = new Set<BankIconName>([
   "transfer", "deposit", "airtime", "data", "bills", "cards", "savings", "more",
 ]);
 
-const ICON_SIZE = 24;
+const ICON_SIZE = 34;
 
-function BankIconRenderer({ name, color, accent }: { name: BankIconName; color: string; accent: boolean }) {
-  const iconColor = accent ? "#fff" : color;
+function BankIconRenderer({ name }: { name: BankIconName }) {
   switch (name) {
-    case "transfer": return <TransferIcon size={ICON_SIZE} color={iconColor} />;
-    case "deposit":  return <DepositIcon  size={ICON_SIZE} color={iconColor} />;
-    case "airtime":  return <AirtimeIcon  size={ICON_SIZE} color={iconColor} />;
-    case "data":     return <DataIcon     size={ICON_SIZE} color={iconColor} />;
-    case "bills":    return <BillsIcon    size={ICON_SIZE} color={iconColor} />;
-    case "cards":    return <CardsIcon    size={ICON_SIZE} color={iconColor} />;
-    case "savings":  return <SavingsIcon  size={ICON_SIZE} color={iconColor} />;
-    case "more":     return <MoreIcon     size={ICON_SIZE} color={iconColor} />;
+    case "transfer": return <TransferIcon size={ICON_SIZE} />;
+    case "deposit":  return <DepositIcon  size={ICON_SIZE} />;
+    case "airtime":  return <AirtimeIcon  size={ICON_SIZE} />;
+    case "data":     return <DataIcon     size={ICON_SIZE} />;
+    case "bills":    return <BillsIcon    size={ICON_SIZE} />;
+    case "cards":    return <CardsIcon    size={ICON_SIZE} />;
+    case "savings":  return <SavingsIcon  size={ICON_SIZE} />;
+    case "more":     return <MoreIcon     size={ICON_SIZE} />;
   }
 }
 
@@ -131,7 +130,7 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
             ]}
           >
             {isBankIcon ? (
-              <BankIconRenderer name={icon as BankIconName} color={colors.text} accent={!!accent} />
+              <BankIconRenderer name={icon as BankIconName} />
             ) : (
               <TpIcon
                 name={icon as TpIconName}

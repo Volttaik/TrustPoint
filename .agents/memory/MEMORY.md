@@ -1,3 +1,2 @@
-# Memory Index
-
-- [Expo artifact workflows](expo-artifact-workflows.md) — registered Expo artifacts already own a dev workflow; don't hand-create a duplicate one.
+- [Black icon on dark circle](icon-contrast-black-on-dark.md) — solid black glyphs need a light rim stroke to stay visible on dark circle backgrounds; opacity-faded fills look "ashy/washed" instead of true black.
+  

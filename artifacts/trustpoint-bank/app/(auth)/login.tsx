@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { BlurView } from "expo-blur";
 import { PinPad } from "@/components/ui/PinPad";
 import { useApp } from "@/context/AppContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -164,6 +165,7 @@ export default function LoginScreen() {
       </View>
 
       <Modal visible={isVisible} transparent animationType="none">
+        <BlurView intensity={45} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
         <View style={styles.modalBg} pointerEvents="none">
           <Animated.View
             style={[
@@ -174,7 +176,7 @@ export default function LoginScreen() {
             {verifyState === "spinning" && (
               <>
                 <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
-                  <Svg width={112} height={112} viewBox="0 0 112 112" fill="none">
+                  <Svg width={winWidth * 0.62} height={winWidth * 0.62} viewBox="0 0 112 112" fill="none">
                     <Circle cx="56" cy="56" r="48" stroke="rgba(255,255,255,0.12)" strokeWidth="7" />
                     <Path
                       d="M56 8a48 48 0 0 1 48 48"
@@ -249,11 +251,11 @@ const styles = StyleSheet.create({
   verifyCard: {
     backgroundColor: "transparent",
     alignItems: "center",
-    gap: 22,
+    gap: 30,
     minWidth: 200,
   },
   verifyLabel: {
-    fontSize: 19,
+    fontSize: 24,
     color: "#F1FAEE",
     letterSpacing: -0.2,
   },
