@@ -82,6 +82,58 @@ export function DashboardBackground() {
           fill="none"
           opacity={0.5}
         />
+
+        <Path
+          d="M 430 100 C 380 180, 490 280, 360 340 C 230 400, 280 480, 120 540"
+          stroke="url(#wave2)"
+          strokeWidth={11}
+          strokeLinecap="round"
+          fill="none"
+          opacity={0.1}
+        />
+        <Path
+          d="M 430 100 C 380 180, 490 280, 360 340 C 230 400, 280 480, 120 540"
+          stroke="url(#wave2)"
+          strokeWidth={3}
+          strokeLinecap="round"
+          fill="none"
+          opacity={0.7}
+        />
+
+        <Path
+          d="M 430 140 C 390 220, 500 320, 370 380 C 240 440, 290 520, 130 580"
+          stroke="url(#wave1)"
+          strokeWidth={8}
+          strokeLinecap="round"
+          fill="none"
+          opacity={0.1}
+        />
+        <Path
+          d="M 430 140 C 390 220, 500 320, 370 380 C 240 440, 290 520, 130 580"
+          stroke="url(#wave1)"
+          strokeWidth={2}
+          strokeLinecap="round"
+          fill="none"
+          opacity={0.6}
+        />
+
+        <Path
+          d="M 430 180 C 400 260, 510 360, 380 420 C 250 480, 300 560, 140 620"
+          stroke="url(#wave2)"
+          strokeWidth={4}
+          strokeLinecap="round"
+          fill="none"
+          opacity={0.45}
+        />
+
+        <Path
+          d="M 430 -80 C 400 -20, 470 60, 380 100 C 290 140, 320 190, 200 230"
+          stroke="url(#wave1)"
+          strokeWidth={3.5}
+          strokeLinecap="round"
+          fill="none"
+          opacity={0.4}
+        />
       </Svg>
     </View>
   );
