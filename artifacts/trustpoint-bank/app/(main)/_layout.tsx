@@ -17,7 +17,14 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import Svg, { Path, Circle, G, Defs, LinearGradient as SvgGradient, Stop } from "react-native-svg";
+import Svg, {
+  Path,
+  Circle,
+  G,
+  Defs,
+  LinearGradient as SvgGradient,
+  Stop,
+} from "react-native-svg";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { TransferIcon, CardsIcon } from "@/components/BankIcons";
@@ -25,43 +32,45 @@ import { TransferIcon, CardsIcon } from "@/components/BankIcons";
 const TP_LOGO = require("@/assets/images/icon_transparent.png");
 
 const BAR_H = 64;
-const BUMP_H = 30;
-const BUMP_W = 38;
-const CR = 26;
-const LOGO_SIZE = 54;
+const BUMP_H = 34;
+const BUMP_W = 54;
+const BCR = 26;   // bottom corner radius
+const CR = 26;    // top corner radius
+const LOGO_SIZE = 56;
 
-function NavBarShape({ width, isDark }: { width: number; height: number; isDark: boolean }) {
+function NavBarShape({ width, isDark }: { width: number; isDark: boolean }) {
   const W = width;
-  const H = BAR_H;
   const bh = BUMP_H;
   const bw = BUMP_W;
   const cr = CR;
+  const bcr = BCR;
   const mid = W / 2;
-  const total = H + bh;
+  const total = BAR_H + bh;
 
+  /* Smooth bell-curve bump: CP1 hugs the bar level (55% out),
+     CP2 comes in close to peak (10% from centre) so the top is
+     wide and round instead of triangular. */
   const d = [
     `M ${cr} ${bh}`,
     `L ${mid - bw} ${bh}`,
-    `C ${mid - bw * 0.55} ${bh} ${mid - bw * 0.3} 0 ${mid} 0`,
-    `C ${mid + bw * 0.3} 0 ${mid + bw * 0.55} ${bh} ${mid + bw} ${bh}`,
+    `C ${mid - bw * 0.55} ${bh} ${mid - bw * 0.1} 0 ${mid} 0`,
+    `C ${mid + bw * 0.1} 0 ${mid + bw * 0.55} ${bh} ${mid + bw} ${bh}`,
     `L ${W - cr} ${bh}`,
     `Q ${W} ${bh} ${W} ${bh + cr}`,
-    `L ${W} ${total}`,
-    `L 0 ${total}`,
+    `L ${W} ${total - bcr}`,
+    `Q ${W} ${total} ${W - bcr} ${total}`,
+    `L ${bcr} ${total}`,
+    `Q 0 ${total} 0 ${total - bcr}`,
     `L 0 ${bh + cr}`,
     `Q 0 ${bh} ${cr} ${bh}`,
     `Z`,
   ].join(" ");
 
-  const fill = isDark ? "#131417" : "#FFFFFF";
+  const fill    = isDark ? "#131417" : "#FFFFFF";
   const fillAlt = isDark ? "#0C0D0F" : "#F4F5F7";
 
   return (
-    <Svg
-      width={W}
-      height={total}
-      style={{ position: "absolute", top: 0, left: 0 }}
-    >
+    <Svg width={W} height={total} style={{ position: "absolute", top: 0, left: 0 }}>
       <Defs>
         <SvgGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0" stopColor={fill} />
@@ -73,53 +82,45 @@ function NavBarShape({ width, isDark }: { width: number; height: number; isDark:
   );
 }
 
-function HomeIcon({ size = 22, color = "#fff" }: { size?: number; color?: string }) {
+/* ─── Nav icons ─────────────────────────────────────── */
+
+function HomeIcon({ size = 28, active }: { size?: number; active: boolean }) {
+  const fill = active ? "#1A1A1F" : "#6B6B72";
+  const rim  = active ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)";
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Defs>
-        <SvgGradient id="homeBlk" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#3A3A3F" />
-          <Stop offset="1" stopColor="#000000" />
-        </SvgGradient>
-      </Defs>
       <Path
-        d="M3.2 10.8L12 3.5L20.8 10.8V20.5H15.2V15.2H8.8V20.5H3.2Z"
-        fill={color === "active" ? "url(#homeBlk)" : color}
-        stroke="rgba(255,255,255,0.45)"
-        strokeWidth="0.6"
+        d="M3.4 11.2L12 4.2L20.6 11.2V20.8H14.8V15H9.2V20.8H3.4Z"
+        fill={fill}
+        stroke={rim}
+        strokeWidth="0.7"
         strokeLinejoin="round"
       />
-      <Path
-        d="M8.8 15.2H15.2V17H8.8Z"
-        fill="rgba(255,255,255,0.1)"
-      />
-      <Path
-        d="M4.4 11.6L12 5.2L19.6 11.6"
-        stroke="rgba(255,255,255,0.18)"
-        strokeWidth="0.5"
-        fill="none"
-      />
+      <Path d="M9.2 15H14.8V17H9.2Z" fill="rgba(255,255,255,0.12)" />
+      <Path d="M4.8 12.1L12 5.8L19.2 12.1" stroke="rgba(255,255,255,0.18)" strokeWidth="0.5" fill="none" />
     </Svg>
   );
 }
 
-function MoreIcon({ size = 22, color = "#fff" }: { size?: number; color?: string }) {
+function SettingsIcon({ size = 28, active }: { size?: number; active: boolean }) {
+  const fill = active ? "#1A1A1F" : "#6B6B72";
+  const rim  = active ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)";
+  /* 8-tooth gear path */
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Defs>
-        <SvgGradient id="moreBlk" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#3A3A3F" />
-          <Stop offset="1" stopColor="#000000" />
-        </SvgGradient>
-      </Defs>
-      <G>
-        <Circle cx="5.5" cy="12" r="2.2" fill={color === "active" ? "url(#moreBlk)" : color} stroke="rgba(255,255,255,0.45)" strokeWidth="0.5" />
-        <Circle cx="12" cy="12" r="2.2" fill={color === "active" ? "url(#moreBlk)" : color} stroke="rgba(255,255,255,0.45)" strokeWidth="0.5" />
-        <Circle cx="18.5" cy="12" r="2.2" fill={color === "active" ? "url(#moreBlk)" : color} stroke="rgba(255,255,255,0.45)" strokeWidth="0.5" />
-      </G>
+      <Path
+        d="M12 2.4L13.6 5.1A7.2 7.2 0 0 1 15.6 5.8L18.5 4.6L19.4 6.3L17 8.1A7.3 7.3 0 0 1 17.2 10L19.6 11.5L18.8 13.3L16.1 12.6A7.3 7.3 0 0 1 14.5 14.1L14.8 17H12.8L12.4 14.1A7.3 7.3 0 0 1 10.8 12.9L8.1 14.1L6.9 12.5L9.2 10.9A7.3 7.3 0 0 1 9 9.2L6.5 7.7L7.5 6L10.2 7.3A7.2 7.2 0 0 1 12 6.6L12 2.4Z"
+        fill={fill}
+        stroke={rim}
+        strokeWidth="0.5"
+        strokeLinejoin="round"
+      />
+      <Circle cx="12" cy="10" r="2.6" fill="rgba(255,255,255,0.18)" stroke={rim} strokeWidth="0.5" />
     </Svg>
   );
 }
+
+/* ─── Tab definitions ───────────────────────────────── */
 
 type NavTab = {
   name: string;
@@ -131,19 +132,12 @@ const LEFT_TABS: NavTab[] = [
   {
     name: "index",
     label: "Home",
-    icon: (active, colors) => (
-      <HomeIcon
-        size={22}
-        color={active ? "active" : colors.mutedForeground}
-      />
-    ),
+    icon: (active) => <HomeIcon size={27} active={active} />,
   },
   {
     name: "transfers",
     label: "Transfer",
-    icon: (active, colors) => (
-      <TransferIcon size={22} />
-    ),
+    icon: () => <TransferIcon size={27} />,
   },
 ];
 
@@ -151,32 +145,27 @@ const RIGHT_TABS: NavTab[] = [
   {
     name: "cards",
     label: "Cards",
-    icon: (active, colors) => (
-      <CardsIcon size={22} />
-    ),
+    icon: () => <CardsIcon size={27} />,
   },
   {
     name: "more",
-    label: "More",
-    icon: (active, colors) => (
-      <MoreIcon
-        size={22}
-        color={active ? "active" : colors.mutedForeground}
-      />
-    ),
+    label: "Settings",
+    icon: (active) => <SettingsIcon size={27} active={active} />,
   },
 ];
 
+/* ─── Custom tab bar ────────────────────────────────── */
+
 function CustomTabBar() {
-  const colors = useColors();
-  const insets = useSafeAreaInsets();
+  const colors  = useColors();
+  const insets  = useSafeAreaInsets();
   const pathname = usePathname();
-  const isDark = useColorScheme() === "dark";
+  const isDark  = useColorScheme() === "dark";
   const bottomH = Math.max(insets.bottom, Platform.OS === "web" ? 16 : 0);
   const screenW = Dimensions.get("window").width;
-  const MARGIN = 16;
-  const barW = screenW - MARGIN * 2;
-  const totalH = BAR_H + BUMP_H;
+  const MARGIN  = 16;
+  const barW    = screenW - MARGIN * 2;
+  const totalH  = BAR_H + BUMP_H;
 
   const isActive = (name: string) => {
     if (name === "index") return pathname === "/(main)" || pathname === "/";
@@ -184,7 +173,7 @@ function CustomTabBar() {
   };
 
   const TabBtn = ({ tab }: { tab: NavTab }) => {
-    const scale = useSharedValue(1);
+    const scale  = useSharedValue(1);
     const active = isActive(tab.name);
     const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -221,7 +210,7 @@ function CustomTabBar() {
   };
 
   const LogoBtn = () => {
-    const scale = useSharedValue(1);
+    const scale  = useSharedValue(1);
     const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
     return (
@@ -264,7 +253,7 @@ function CustomTabBar() {
         },
       ]}
     >
-      <NavBarShape width={barW} height={BAR_H} isDark={isDark} />
+      <NavBarShape width={barW} isDark={isDark} />
 
       <View style={[styles.bar, { paddingTop: BUMP_H }]}>
         {LEFT_TABS.map((t) => (
@@ -313,9 +302,9 @@ const styles = StyleSheet.create({
   tabBtn: { flex: 1, alignItems: "center" },
   tabContent: { alignItems: "center", gap: 3 },
   iconSlot: {
-    width: 38,
-    height: 30,
-    borderRadius: 10,
+    width: 42,
+    height: 34,
+    borderRadius: 11,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -323,7 +312,7 @@ const styles = StyleSheet.create({
   logoWrapper: {
     flex: 1,
     alignItems: "center",
-    marginTop: -(BUMP_H + 8),
+    marginTop: -(BUMP_H + 6),
   },
   logoRing: {
     width: LOGO_SIZE,
@@ -349,12 +338,12 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.07)",
   },
   logoInner: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
-  logoImg: { width: 30, height: 30 },
+  logoImg: { width: 32, height: 32 },
 });
