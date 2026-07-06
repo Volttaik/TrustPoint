@@ -50,7 +50,7 @@ export default function DashboardScreen() {
     <ImageBackground
       source={require("@/assets/images/dashboard-bg.png")}
       style={styles.container}
-      resizeMode="contain"
+      resizeMode="cover"
     >
       <StatusBar style="light" />
 
