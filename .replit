@@ -9,6 +9,28 @@ args = ["pnpm", "store", "prune"]
 env = { "CI" = "true" }
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "TrustPoint Bank"
+
+[[workflows.workflow]]
+name = "TrustPoint Bank"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "PORT=23415 pnpm --filter @workspace/trustpoint-bank run dev"
+waitForPort = 23415
 
 [agent]
 stack = "PNPM_WORKSPACE"

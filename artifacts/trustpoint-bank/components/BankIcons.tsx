@@ -258,11 +258,11 @@ export function BillsIcon({ size = 24 }: BankIconProps) {
         <Rect x="6.4" y="8" width="6.2" height="1" rx="0.5" fill="rgba(255,255,255,0.14)" />
         <Rect x="6.4" y="1.9" width="9.2" height="0.8" rx="0.4" fill={W} fillOpacity="0.3" />
 
-        {/* checkmark badge — separate 3D disc, clear of paper */}
-        <Circle cx="17.8" cy="18.4" r="5.1" fill={`url(#${id}-stamp)`} stroke={R_DARK} strokeWidth="0.4" />
-        <Path d="M14.9 17.9L15.6 20.1C15.9 20.4 16.4 20.4 16.7 20.1" stroke={W} strokeOpacity="0.28" strokeWidth="0.5" fill="none" />
+        {/* checkmark badge — top-right corner of the paper */}
+        <Circle cx="17.5" cy="4.2" r="4.5" fill={`url(#${id}-stamp)`} stroke={R_DARK} strokeWidth="0.4" />
+        <Path d="M14.8 3.8L15.4 5.8C15.7 6.1 16.1 6.1 16.4 5.8" stroke={W} strokeOpacity="0.28" strokeWidth="0.5" fill="none" />
         <Path
-          d="M15.2 18.5L17 20.3L20.5 16.4"
+          d="M14.9 4.4L16.7 6.2L20.2 2.1"
           stroke={W}
           strokeWidth="1.7"
           strokeLinecap="round"
