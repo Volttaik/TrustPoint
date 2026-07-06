@@ -32,20 +32,20 @@ import { TransferIcon, CardsIcon } from "@/components/BankIcons";
 const TP_LOGO = require("@/assets/images/icon_transparent.png");
 
 const BAR_H = 64;
-const BUMP_H = 36;
-const BUMP_W = 62;
-const BCR = 36;   // bottom corner radius
-const CR = 36;    // top corner radius
-const LOGO_SIZE = 56;
+const BUMP_H = 16;
+const BUMP_W = 44;
+const BCR = 0;    // bottom corner radius — flush to screen edge
+const CR = 16;    // top corner radius
+const LOGO_SIZE = 40;
 
-function NavBarShape({ width, isDark }: { width: number; isDark: boolean }) {
+function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boolean; extraH?: number }) {
   const W = width;
   const bh = BUMP_H;
   const bw = BUMP_W;
   const cr = CR;
   const bcr = BCR;
   const mid = W / 2;
-  const total = BAR_H + bh;
+  const total = BAR_H + bh + extraH;
 
   /* True ellipse-arc approximation using κ = 0.5523.
      CP1 is at the outer edge partway up, CP2 is wide from the peak —
@@ -164,8 +164,7 @@ function CustomTabBar() {
   const isDark  = useColorScheme() === "dark";
   const bottomH = Math.max(insets.bottom, Platform.OS === "web" ? 16 : 0);
   const screenW = Dimensions.get("window").width;
-  const MARGIN  = 16;
-  const barW    = screenW - MARGIN * 2;
+  const barW    = screenW;
   const totalH  = BAR_H + BUMP_H;
 
   const isActive = (name: string) => {
@@ -247,14 +246,12 @@ function CustomTabBar() {
       style={[
         styles.outerWrapper,
         {
-          bottom: bottomH + 12,
-          left: MARGIN,
-          right: MARGIN,
-          height: totalH,
+          height: totalH + bottomH,
+          width: "100%",
         },
       ]}
     >
-      <NavBarShape width={barW} isDark={isDark} />
+      <NavBarShape width={barW} isDark={isDark} extraH={bottomH} />
 
       <View style={[styles.bar, { paddingTop: BUMP_H }]}>
         {LEFT_TABS.map((t) => (
@@ -286,12 +283,11 @@ export default function MainLayout() {
 
 const styles = StyleSheet.create({
   outerWrapper: {
-    position: "absolute",
     overflow: "visible",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.22,
-    shadowRadius: 24,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 20,
   },
   bar: {
@@ -313,7 +309,7 @@ const styles = StyleSheet.create({
   logoWrapper: {
     flex: 1,
     alignItems: "center",
-    marginTop: -(BUMP_H + 6),
+    marginTop: -(BUMP_H / 2 + LOGO_SIZE / 2),
   },
   logoRing: {
     width: LOGO_SIZE,
