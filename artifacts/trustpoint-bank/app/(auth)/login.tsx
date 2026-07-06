@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { PinPad } from "@/components/ui/PinPad";
@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
   const { login, user } = useApp();
+  const { width: winWidth, height: winHeight } = useWindowDimensions();
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
   const [attempts, setAttempts] = useState(0);
@@ -47,7 +48,7 @@ export default function LoginScreen() {
       <StatusBar style="light" />
       <Image
         source={require("@/assets/images/splash_bg.png")}
-        style={StyleSheet.absoluteFill}
+        style={{ position: "absolute", top: 0, left: 0, width: winWidth, height: winHeight }}
         resizeMode="cover"
       />
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />

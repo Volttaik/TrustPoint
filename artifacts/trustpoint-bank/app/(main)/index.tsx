@@ -51,7 +51,7 @@ export default function DashboardScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/images/splash_bg.png")}
+        source={require("@/assets/images/dashboard_bg_new.png")}
         style={{ position: "absolute", top: 0, left: 0, width: winWidth, height: winHeight }}
         resizeMode="cover"
       />
