@@ -251,7 +251,7 @@ function HeaderIconButton({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   bgImage: {
-    transform: [{ scale: 1.18 }, { translateY: -70 }],
+    top: 0,
   },
   scroll: { paddingHorizontal: 20, gap: 26 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
