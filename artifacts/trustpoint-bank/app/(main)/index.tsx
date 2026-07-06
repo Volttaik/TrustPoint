@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import {
-  Image,
   Platform,
   Pressable,
   RefreshControl,
@@ -8,7 +7,7 @@ import {
   StyleSheet,
   Text,
   View,
-  useWindowDimensions,
+  Image,
   useColorScheme,
 } from "react-native";
 import { router } from "expo-router";
@@ -29,12 +28,11 @@ import { useColors } from "@/hooks/useColors";
 export default function DashboardScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { width: winWidth, height: winHeight } = useWindowDimensions();
   const { user, transactions, cards, showBalance, toggleShowBalance, freezeCard } = useApp();
   const [refreshing, setRefreshing] = React.useState(false);
 
-  const isDark  = useColorScheme() === "dark";
-  const topPad  = insets.top + (Platform.OS === "web" ? 67 : 0);
+  const isDark    = useColorScheme() === "dark";
+  const topPad    = insets.top;
   const bottomPad = 96 + (Platform.OS === "web" ? 34 : 0);
 
   const greeting = () => {

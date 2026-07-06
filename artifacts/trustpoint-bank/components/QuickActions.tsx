@@ -92,7 +92,7 @@ function BankIconRenderer({ name }: { name: BankIconName }) {
     case "deposit":  return <DepositIcon  size={ICON_SIZE} />;
     case "airtime":  return <AirtimeIcon  size={ICON_SIZE} />;
     case "data":     return <DataIcon     size={ICON_SIZE} />;
-    case "bills":    return <BillsIcon    size={ICON_SIZE} />;
+    case "bills":    return <BillsIcon    size={40} />;
     case "cards":    return <CardsIcon    size={ICON_SIZE} />;
     case "savings":  return <SavingsIcon  size={ICON_SIZE} />;
     case "more":     return <MoreIcon     size={ICON_SIZE} />;

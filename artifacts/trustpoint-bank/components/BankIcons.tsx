@@ -245,7 +245,7 @@ export function BillsIcon({ size = 24 }: BankIconProps) {
         </LinearGradient>
       </Defs>
 
-      <G transform="translate(-1.75, 0)">
+      <G transform="translate(-1.75, 3.5)">
         <Path
           d="M4.6 1.2H17.4V13.6L16 12.5L14.6 13.6L13.2 12.5L11.8 13.6L10.4 12.5L9 13.6L7.6 12.5L6.2 13.6L4.6 12.4Z"
           fill={`url(#${id}-paper)`}
