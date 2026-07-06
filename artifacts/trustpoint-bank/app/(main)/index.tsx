@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useWindowDimensions,
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -26,6 +27,7 @@ import { useColors } from "@/hooks/useColors";
 export default function DashboardScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { width: winWidth, height: winHeight } = useWindowDimensions();
   const { user, transactions, cards, showBalance, toggleShowBalance, freezeCard } = useApp();
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -50,7 +52,7 @@ export default function DashboardScreen() {
     <View style={styles.container}>
       <Image
         source={require("@/assets/images/splash_bg.png")}
-        style={StyleSheet.absoluteFill}
+        style={{ position: "absolute", top: 0, left: 0, width: winWidth, height: winHeight }}
         resizeMode="cover"
       />
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
