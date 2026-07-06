@@ -9,6 +9,7 @@ import {
   Text,
   View,
   useWindowDimensions,
+  useColorScheme,
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -32,7 +33,8 @@ export default function DashboardScreen() {
   const { user, transactions, cards, showBalance, toggleShowBalance, freezeCard } = useApp();
   const [refreshing, setRefreshing] = React.useState(false);
 
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+  const isDark  = useColorScheme() === "dark";
+  const topPad  = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = 96 + (Platform.OS === "web" ? 34 : 0);
 
   const greeting = () => {
@@ -52,15 +54,20 @@ export default function DashboardScreen() {
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/images/dashboard_bg_new.png")}
+        source={require("@/assets/images/dashboard_bg_new_2.png")}
         style={{ position: "absolute", top: 0, left: 0, width: winWidth, height: winHeight }}
         resizeMode="cover"
       />
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
       <StatusBar style="light" />
 
-      {/* Fixed header — lives outside the ScrollView so it never scrolls */}
-      <View style={[styles.fixedHeader, { paddingTop: topPad + 8 }]}>
+      {/* Fixed header bar — same style as bottom nav, only branding inside */}
+      <LinearGradient
+        colors={isDark ? ["#131417", "#0C0D0F"] : ["#FFFFFF", "#F4F5F7"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={[styles.headerBar, { paddingTop: topPad }]}
+      >
         <View style={styles.brandRow}>
           <Image
             source={require("@/assets/images/icon_transparent.png")}
@@ -71,7 +78,21 @@ export default function DashboardScreen() {
             Welcome to Trust Point
           </Text>
         </View>
+      </LinearGradient>
 
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={[styles.scroll, { paddingTop: 16, paddingBottom: bottomPad }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+          />
+        }
+      >
+        {/* User greeting + action buttons */}
         <View style={styles.header}>
           <Pressable onPress={() => router.push("/(main)/more")} style={styles.identity}>
             <Avatar
@@ -89,38 +110,12 @@ export default function DashboardScreen() {
             </View>
           </Pressable>
           <View style={styles.headerRight}>
-            <HeaderIconButton
-              icon="qr-code"
-              colors={colors}
-              onPress={() => {}}
-            />
-            <HeaderIconButton
-              icon="headset"
-              colors={colors}
-              onPress={() => {}}
-            />
-            <HeaderIconButton
-              icon="bell"
-              colors={colors}
-              onPress={() => router.push("/notifications")}
-              dot
-            />
+            <HeaderIconButton icon="qr-code" colors={colors} onPress={() => {}} />
+            <HeaderIconButton icon="headset" colors={colors} onPress={() => {}} />
+            <HeaderIconButton icon="bell" colors={colors} onPress={() => router.push("/notifications")} dot />
           </View>
         </View>
-      </View>
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={[styles.scroll, { paddingTop: 8, paddingBottom: bottomPad }]}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-          />
-        }
-      >
         {/* Balance Card */}
         <BalanceShield
           balance={user?.balance ?? 247560}
@@ -260,10 +255,21 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   overlay: { backgroundColor: "rgba(0,0,0,0.25)" },
   scroll: { paddingHorizontal: 20, gap: 26 },
-  fixedHeader: { paddingHorizontal: 20, gap: 26, paddingBottom: 14 },
-  brandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: -4 },
-  brandLogo: { width: 44, height: 44 },
-  brandText: { fontSize: 22, letterSpacing: -0.4 },
+  headerBar: {
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 12,
+  },
+  brandRow: { flexDirection: "row", alignItems: "center", gap: 10 },
+  brandLogo: { width: 28, height: 28 },
+  brandText: { fontSize: 16, letterSpacing: -0.3 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   identity: { flexDirection: "row", alignItems: "center", gap: 12 },
   greeting: { fontSize: 12.5, letterSpacing: 0.1 },
