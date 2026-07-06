@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useId, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -11,194 +11,194 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Path, Circle, Rect } from "react-native-svg";
-import { TpIcon } from "@/components/TpIcon";
+import Svg, {
+  Circle,
+  Defs,
+  G,
+  LinearGradient as SvgGrad,
+  Path,
+  Rect,
+  Stop,
+} from "react-native-svg";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
-import type { Beneficiary } from "@/context/AppContext";
+import { TpIcon } from "@/components/TpIcon";
 
-/* ─── Small inline SVGs ──────────────────────────────────────────────── */
+/* ─────────────── colour vocabulary matching BankIcons ─── */
+const R       = "#E11D33";
+const R_LIGHT = "#FF5D6C";
+const R_DARK  = "#8E0E1E";
+const W       = "#FFFFFF";
+const RIM     = "rgba(255,255,255,0.55)";
+const BLK_LT  = "#3A3A3F";
+const BLK_DK  = "#000000";
 
-function HistoryIcon({ size = 22, color = "#fff" }: { size?: number; color?: string }) {
+/* ─── Lightning bolt — used in blue instant-transfer banner ─ */
+function InstantBadgeIcon({ size = 22 }: { size?: number }) {
+  const id = useId();
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M3 12A9 9 0 1 0 5.8 5.3"
-        stroke={color}
-        strokeWidth={1.9}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M3 7V3M3 7H7"
-        stroke={color}
-        strokeWidth={1.9}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M12 7v5l3 2"
-        stroke={color}
-        strokeWidth={1.9}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <Defs>
+        <SvgGrad id={`${id}-bg`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#2563EB" />
+          <Stop offset="1" stopColor="#1040B0" />
+        </SvgGrad>
+        <SvgGrad id={`${id}-bolt`} x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#FFFFFF" />
+          <Stop offset="1" stopColor="rgba(255,255,255,0.7)" />
+        </SvgGrad>
+      </Defs>
+      {/* rounded-square base plate */}
+      <Rect x="1" y="1" width="22" height="22" rx="6" fill={`url(#${id}-bg)`} stroke="rgba(255,255,255,0.18)" strokeWidth="0.6" />
+      <Rect x="1" y="1" width="22" height="6" rx="3" fill={W} fillOpacity="0.08" />
+      {/* bolt */}
+      <Path d="M13.2 3.4L7.6 12.8H11.8L10.8 20.6L16.4 11.2H12.2Z" fill={`url(#${id}-bolt)`} />
+      <Path d="M13.2 3.4L7.6 12.8H11.8" stroke={W} strokeOpacity="0.3" strokeWidth="0.4" fill="none" />
     </Svg>
   );
 }
 
-function InstantTransferIcon({ size = 28 }: { size?: number }) {
+/* ─── Money-stack — cashback promo card icon ─────────── */
+function CashbackIcon({ size = 34 }: { size?: number }) {
+  const id = useId();
   return (
-    <Svg width={size} height={size} viewBox="0 0 28 28" fill="none">
-      <Rect width="28" height="28" rx="7" fill="#1A6BFF" />
-      <Path
-        d="M15 6L8 15h7l-2 7 9-10h-7l2-6z"
-        fill="#FFFFFF"
-        stroke="rgba(255,255,255,0.3)"
-        strokeWidth="0.5"
-        strokeLinejoin="round"
-      />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Defs>
+        <SvgGrad id={`${id}-note`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={R_LIGHT} />
+          <Stop offset="1" stopColor={R_DARK} />
+        </SvgGrad>
+        <SvgGrad id={`${id}-stack`} x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor="#1A5C2A" />
+          <Stop offset="1" stopColor="#0A2F14" />
+        </SvgGrad>
+        <SvgGrad id={`${id}-coin`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#F5C842" />
+          <Stop offset="1" stopColor="#B8860B" />
+        </SvgGrad>
+      </Defs>
+      {/* back note stack — dark green */}
+      <Rect x="2.5" y="9" width="16" height="9" rx="1.8" fill={`url(#${id}-stack)`} stroke="rgba(255,255,255,0.14)" strokeWidth="0.6" />
+      <Rect x="2.5" y="9" width="16" height="3" rx="1.2" fill={W} fillOpacity="0.06" />
+      {/* front red note — main feature */}
+      <Rect x="1.4" y="6.4" width="17" height="9.8" rx="2" fill={`url(#${id}-note)`} stroke={R_DARK} strokeWidth="0.4" />
+      <Rect x="1.4" y="6.4" width="17" height="3.2" rx="1.4" fill={W} fillOpacity="0.22" />
+      <Circle cx="9.9" cy="11.3" r="2.4" fill={W} fillOpacity="0.9" />
+      <Circle cx="9.9" cy="11.3" r="1.1" fill={R_DARK} />
+      <Rect x="3.2" y="7.3" width="4" height="0.9" rx="0.45" fill={W} fillOpacity="0.3" />
+      <Rect x="12.8" y="14.2" width="3.8" height="0.9" rx="0.45" fill={W} fillOpacity="0.3" />
+      {/* gold coin — top right */}
+      <Circle cx="18.8" cy="8.4" r="4.5" fill={`url(#${id}-coin)`} stroke="#8B6400" strokeWidth="0.4" />
+      <Circle cx="17.8" cy="7.4" r="1.6" fill={W} fillOpacity="0.22" />
+      <Path d="M17.2 8.6L18.8 10.2L21.2 6.8" stroke={W} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </Svg>
   );
 }
 
-function CashbackIcon({ size = 36 }: { size?: number }) {
+/* ─── Bank circle avatar for recipients ──────────────── */
+function BankAvatar({ initials, color = "#0D3530", size = 44 }: { initials: string; color?: string; size?: number }) {
+  const id = useId();
+  const isDark = color.startsWith("#0") || color.startsWith("#1") || color.startsWith("#2");
   return (
-    <Svg width={size} height={size} viewBox="0 0 36 36" fill="none">
-      <Path
-        d="M6 22h24v3a3 3 0 0 1-3 3H9a3 3 0 0 1-3-3v-3z"
-        fill="rgba(47,190,115,0.25)"
-        stroke="rgba(47,190,115,0.4)"
-        strokeWidth="1"
-      />
-      <Path
-        d="M9 16h18v7H9z"
-        fill="rgba(47,190,115,0.2)"
-        stroke="rgba(47,190,115,0.35)"
-        strokeWidth="1"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M12 10h12v7H12z"
-        fill="rgba(47,190,115,0.2)"
-        stroke="rgba(47,190,115,0.35)"
-        strokeWidth="1"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M20 4l-3 4"
-        stroke="#2FBE73"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-      <Path
-        d="M16 4l3 4"
-        stroke="#2FBE73"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
+    <Svg width={size} height={size} viewBox="0 0 44 44" fill="none">
+      <Defs>
+        <SvgGrad id={`${id}-bg`} x1="0.2" y1="0" x2="0.8" y2="1">
+          <Stop offset="0" stopColor={color} stopOpacity="1" />
+          <Stop offset="1" stopColor={color} stopOpacity="0.6" />
+        </SvgGrad>
+      </Defs>
+      <Circle cx="22" cy="22" r="21" fill={`url(#${id}-bg)`} stroke={isDark ? RIM : "rgba(0,0,0,0.12)"} strokeWidth="0.8" />
+      <Circle cx="16" cy="20" r="2.5" fill={W} fillOpacity="0.12" />
     </Svg>
   );
 }
 
-function RecipientBankAvatar({ size = 48 }: { size?: number }) {
+/* ─── History clock icon (inline, no TpIcon needed) ──── */
+function HistoryIcon({ size = 20, color }: { size?: number; color: string }) {
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        backgroundColor: "#0D3530",
-        alignItems: "center",
-        justifyContent: "center",
-        borderWidth: 1.5,
-        borderColor: "#1A5548",
-      }}
-    >
-      <Svg width={size * 0.52} height={size * 0.52} viewBox="0 0 24 24" fill="none">
-        <Circle cx="12" cy="12" r="9" stroke="rgba(47,190,115,0.6)" strokeWidth="1.5" />
-        <Path
-          d="M8 12h8M14 9l3 3-3 3"
-          stroke="#FFFFFF"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </Svg>
-    </View>
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="12" cy="12" r="8.5" stroke={color} strokeWidth="1.8" fill="none" />
+      <Path d="M12 7.5V12.5L15 14.5" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M3.6 6L6.4 9M3.6 6L6.8 5.2M3.6 6L4.4 9.2" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </Svg>
   );
 }
 
-/* ─── formatAccountNumber ────────────────────────────────────────────── */
-function formatAccountNumber(raw: string) {
+/* ─── Search magnifier ───────────────────────────────── */
+function SearchIcon({ size = 16, color }: { size?: number; color: string }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx="10.5" cy="10.5" r="6.5" stroke={color} strokeWidth="1.8" fill="none" />
+      <Path d="M15.5 15.5L20 20" stroke={color} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+    </Svg>
+  );
+}
+
+/* ─── Account-number formatter ───────────────────────── */
+function formatAccount(raw: string) {
   const digits = raw.replace(/\D/g, "").slice(0, 10);
-  if (digits.length <= 3) return digits;
-  if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
-  return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+  const a = digits.slice(0, 3);
+  const b = digits.slice(3, 6);
+  const c = digits.slice(6, 10);
+  return [a, b, c].filter(Boolean).join(" ");
 }
 
-/* ─── Screen ─────────────────────────────────────────────────────────── */
-export default function StartTransferScreen() {
-  const colors = useColors();
-  const insets = useSafeAreaInsets();
+/* ═══════════════════════════════════════════════════════
+   MAIN SCREEN
+══════════════════════════════════════════════════════════ */
+export default function TransferIndexScreen() {
+  const colors  = useColors();
+  const insets  = useSafeAreaInsets();
   const { user, beneficiaries } = useApp();
 
-  const [accountInput, setAccountInput] = useState("");
+  const [raw, setRaw]           = useState("");
   const [activeTab, setActiveTab] = useState<"recent" | "saved">("recent");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [search, setSearch]     = useState("");
 
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
-  const bottomPad = insets.bottom + 24;
+  const topPad    = insets.top + (Platform.OS === "web" ? 67 : 0);
+  const bottomPad = insets.bottom + 120 + (Platform.OS === "web" ? 34 : 0);
+  const isDark    = colors.background !== "#F4F5F7";
 
-  const isDark = colors.background === "#08090A";
+  const filtered  = beneficiaries.filter(
+    (b) =>
+      search === "" ||
+      b.name.toLowerCase().includes(search.toLowerCase()) ||
+      b.account.includes(search),
+  );
 
-  /* filter beneficiaries */
-  const allFiltered = beneficiaries.filter((b) => {
-    if (!searchQuery) return true;
-    return (
-      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.bank.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      b.account.includes(searchQuery)
-    );
-  });
-
-  const displayed =
-    activeTab === "saved"
-      ? allFiltered.filter((b) => b.favorite)
-      : allFiltered;
-
-  const rawDigits = accountInput.replace(/\D/g, "");
-  const canProceedWithAccount = rawDigits.length === 10;
+  /* colours that are always dark-mode regardless of system theme
+     because the reference design is a premium dark-panel */
+  const bannerBg   = "#071F42";
+  const bannerBdr  = "#1A4FA0";
+  const promoBg    = "#061A0F";
+  const promoBdr   = "#0F4E24";
+  const cardBg     = isDark ? "#111318" : colors.surface;
+  const cardBdr    = isDark ? "#252830" : colors.border;
+  const inputBg    = isDark ? "#181B21" : colors.surfaceElevated ?? "#ECEDF0";
 
   function handleAccountChange(text: string) {
     const digits = text.replace(/\D/g, "").slice(0, 10);
-    setAccountInput(formatAccountNumber(digits));
+    setRaw(digits);
   }
 
-  function handleSelectBeneficiary(b: Beneficiary) {
+  function handleProceed() {
+    if (raw.length < 10) return;
     router.push({
       pathname: "/transfer/amount",
-      params: { beneficiaryId: b.id },
+      params: { accountNumber: raw },
     });
   }
 
-  function handleAccountProceed() {
-    if (!canProceedWithAccount) return;
+  function handleBeneficiary(id: string) {
     router.push({
       pathname: "/transfer/amount",
-      params: { accountNumber: rawDigits },
+      params: { beneficiaryId: id },
     });
   }
 
-  /* format user balance */
-  const balanceDisplay = user
-    ? `₦${user.balance.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`
-    : "₦0.00";
-
-  const userPhone = user?.phone
-    ? user.phone.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3")
-    : "";
+  const accountDisplay = raw.length > 0 ? formatAccount(raw) : "";
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -208,9 +208,13 @@ export default function StartTransferScreen() {
       <View style={[styles.header, { paddingTop: topPad + 10 }]}>
         <TouchableOpacity
           onPress={() => router.back()}
-          style={[styles.iconBtn, { backgroundColor: colors.surfaceElevated }]}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={[styles.iconBtn, { backgroundColor: cardBg, borderColor: cardBdr }]}
         >
+          <LinearGradient
+            pointerEvents="none"
+            colors={isDark ? ["rgba(255,255,255,0.05)", "transparent"] : ["rgba(0,0,0,0.04)", "transparent"]}
+            style={StyleSheet.absoluteFill}
+          />
           <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
 
@@ -219,482 +223,500 @@ export default function StartTransferScreen() {
         </Text>
 
         <View style={styles.headerRight}>
-          <TouchableOpacity
-            style={[styles.iconBtn, { backgroundColor: colors.surfaceElevated }]}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
+          <TouchableOpacity style={[styles.iconBtn, { backgroundColor: cardBg, borderColor: cardBdr }]}>
+            <LinearGradient
+              pointerEvents="none"
+              colors={isDark ? ["rgba(255,255,255,0.05)", "transparent"] : ["rgba(0,0,0,0.04)", "transparent"]}
+              style={StyleSheet.absoluteFill}
+            />
             <HistoryIcon size={19} color={colors.text} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.iconBtn, { backgroundColor: colors.surfaceElevated }]}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
+          <TouchableOpacity style={[styles.iconBtn, { backgroundColor: cardBg, borderColor: cardBdr }]}>
+            <LinearGradient
+              pointerEvents="none"
+              colors={isDark ? ["rgba(255,255,255,0.05)", "transparent"] : ["rgba(0,0,0,0.04)", "transparent"]}
+              style={StyleSheet.absoluteFill}
+            />
             <TpIcon name="more-horizontal" size={20} color={colors.text} strokeWidth={2} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* ── Blue info banner ── */}
-      <View style={styles.blueBanner}>
-        <InstantTransferIcon size={26} />
-        <Text style={[styles.bannerText, { fontFamily: "Inter_400Regular" }]}>
-          TrustPoint to TrustPoint transfers are{" "}
-          <Text style={[styles.bannerBold, { fontFamily: "Inter_600SemiBold" }]}>
-            free &amp; instant
-          </Text>
-        </Text>
-      </View>
-
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]}
         keyboardShouldPersistTaps="handled"
       >
+        {/* ── Instant-transfer banner ── */}
+        <View style={[styles.banner, { backgroundColor: bannerBg, borderColor: bannerBdr }]}>
+          {/* left accent bar */}
+          <LinearGradient
+            colors={["#3B82F6", "#1D4ED8"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.bannerAccent}
+          />
+          <InstantBadgeIcon size={24} />
+          <Text style={[styles.bannerText, { fontFamily: "Inter_500Medium" }]}>
+            TrustPoint to TrustPoint transfers are{" "}
+            <Text style={{ color: "#60A5FA", fontFamily: "Inter_700Bold" }}>free & instant</Text>
+          </Text>
+        </View>
+
         {/* ── Cashback promo card ── */}
-        <View style={styles.promoCard}>
-          <CashbackIcon size={40} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={[styles.promoText, { fontFamily: "Inter_400Regular" }]}>
-              You've made{" "}
-              <Text style={[styles.promoHighlight, { fontFamily: "Inter_600SemiBold" }]}>0</Text>
-              {" "}of{" "}
-              <Text style={[styles.promoHighlight, { fontFamily: "Inter_600SemiBold" }]}>50</Text>
-              {" "}interbank transfers today.
+        <LinearGradient
+          colors={[promoBg, "#0A2318"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.promoCard, { borderColor: promoBdr }]}
+        >
+          {/* top shine */}
+          <LinearGradient
+            pointerEvents="none"
+            colors={["rgba(255,255,255,0.06)", "transparent"]}
+            style={styles.promoShine}
+          />
+          <View style={styles.promoLeft}>
+            <Text style={[styles.promoLabel, { fontFamily: "Inter_500Medium" }]}>
+              You've completed{" "}
+              <Text style={{ color: "#4ADE80", fontFamily: "Inter_700Bold" }}>23 interbank</Text>
             </Text>
-            <Text style={[styles.promoText, { fontFamily: "Inter_400Regular" }]}>
-              Transfer now to get{" "}
-              <Text style={[styles.promoHighlight, { fontFamily: "Inter_600SemiBold" }]}>₦10</Text>
-              {" "}cashback.
+            <Text style={[styles.promoSub, { fontFamily: "Inter_400Regular" }]}>
+              transfers this month 🎉
             </Text>
+            <View style={styles.cashbackRow}>
+              <View style={styles.cashbackBadge}>
+                <Text style={[styles.cashbackAmt, { fontFamily: "Inter_700Bold" }]}>₦10 cashback</Text>
+              </View>
+              <Text style={[styles.cashbackMeta, { fontFamily: "Inter_400Regular" }]}>per transfer today</Text>
+            </View>
+          </View>
+          <View style={styles.promoRight}>
+            <CashbackIcon size={62} />
+          </View>
+        </LinearGradient>
+
+        {/* ── Paying from ── */}
+        <View style={styles.sectionGap}>
+          <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+            Paying from
+          </Text>
+          <View style={[styles.card, { backgroundColor: cardBg, borderColor: cardBdr }]}>
+            <LinearGradient
+              pointerEvents="none"
+              colors={isDark ? ["rgba(255,255,255,0.04)", "transparent"] : ["rgba(0,0,0,0.025)", "transparent"]}
+              style={styles.cardShine}
+            />
+            {/* amber account avatar — matches dashboard quick-action tile style */}
+            <LinearGradient
+              colors={["#7A5A1A", "#3D2A08"]}
+              start={{ x: 0.2, y: 0 }}
+              end={{ x: 0.9, y: 1 }}
+              style={styles.accountAvatar}
+            >
+              <LinearGradient
+                pointerEvents="none"
+                colors={["rgba(255,255,255,0.28)", "transparent"]}
+                style={styles.avatarShine}
+              />
+              <Text style={[styles.accountInitial, { fontFamily: "Inter_700Bold" }]}>
+                {user?.initials?.slice(0, 1) ?? "T"}
+              </Text>
+            </LinearGradient>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.accountName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+                {user?.name ?? "TrustPoint Account"}
+              </Text>
+              <Text style={[styles.accountNum, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                {user?.accountNumber
+                  ? formatAccount(user.accountNumber) + " · TrustPoint"
+                  : "0000 000 0000 · TrustPoint"}
+              </Text>
+            </View>
+            <View style={styles.balancePill}>
+              <Text style={[styles.balanceAmt, { color: "#4ADE80", fontFamily: "Inter_700Bold" }]}>
+                ₦{((user?.balance ?? 0) / 1000).toFixed(1)}k
+              </Text>
+            </View>
           </View>
         </View>
 
-        {/* ── Paying from ── */}
-        <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-          Paying from
-        </Text>
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.payingFromCard,
-            {
-              backgroundColor: colors.surface,
-              borderColor: pressed ? colors.borderStrong : colors.border,
-              opacity: pressed ? 0.9 : 1,
-            },
-          ]}
-        >
-          {/* Avatar — amber square */}
-          <View style={styles.avatarSquare}>
-            <Text style={[styles.avatarInitials, { fontFamily: "Inter_700Bold" }]}>
-              {user?.initials ?? "TP"}
-            </Text>
-          </View>
-
-          <View style={{ flex: 1, gap: 3 }}>
-            <View style={styles.payingFromRow}>
-              <Text
-                style={[styles.payingFromName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}
-                numberOfLines={1}
-              >
-                {user?.name ?? "Account Holder"}
-              </Text>
-              {userPhone ? (
-                <>
-                  <View style={[styles.dot, { backgroundColor: colors.mutedForeground }]} />
-                  <Text style={[styles.payingFromPhone, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    {userPhone}
-                  </Text>
-                </>
-              ) : null}
-            </View>
-            <Text style={[styles.payingFromBalance, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-              {balanceDisplay}
-            </Text>
-          </View>
-
-          <TpIcon name="chevron-right" size={18} color={colors.mutedForeground} strokeWidth={2} />
-        </Pressable>
-
         {/* ── Account number input ── */}
-        <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-          Enter recipient's account number
-        </Text>
-
-        <View style={[styles.accountInputWrap, { backgroundColor: colors.surfaceElevated, borderColor: canProceedWithAccount ? colors.success : colors.border }]}>
-          <TextInput
-            style={[styles.accountInput, { color: colors.text, fontFamily: "Inter_400Regular" }]}
-            placeholder="000 000 0000"
-            placeholderTextColor={colors.placeholder}
-            value={accountInput}
-            onChangeText={handleAccountChange}
-            keyboardType="number-pad"
-            returnKeyType="done"
-            onSubmitEditing={handleAccountProceed}
-            maxLength={12} /* 10 digits + 2 spaces */
-            selectionColor={colors.primary}
-          />
-          {canProceedWithAccount && (
-            <TouchableOpacity
-              style={[styles.accountProceedBtn, { backgroundColor: colors.primary }]}
-              onPress={handleAccountProceed}
-            >
-              <TpIcon name="arrow-right" size={18} color="#fff" strokeWidth={2.2} />
-            </TouchableOpacity>
+        <View style={styles.sectionGap}>
+          <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+            Enter account number
+          </Text>
+          <View style={[styles.inputCard, { backgroundColor: cardBg, borderColor: raw.length === 10 ? colors.primary : cardBdr }]}>
+            <LinearGradient
+              pointerEvents="none"
+              colors={isDark ? ["rgba(255,255,255,0.04)", "transparent"] : ["rgba(0,0,0,0.025)", "transparent"]}
+              style={styles.cardShine}
+            />
+            <View style={[styles.inputInner, { backgroundColor: inputBg }]}>
+              {raw.length === 0 ? (
+                <Text style={[styles.inputPlaceholder, { color: isDark ? "#3A3E4A" : "#B0B3BC", fontFamily: "Inter_400Regular" }]}>
+                  000  000  0000
+                </Text>
+              ) : (
+                <Text style={[styles.inputValue, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+                  {accountDisplay}
+                </Text>
+              )}
+              <TextInput
+                value={raw}
+                onChangeText={handleAccountChange}
+                keyboardType="number-pad"
+                maxLength={10}
+                style={styles.hiddenInput}
+                caretHidden
+              />
+            </View>
+            {raw.length === 10 && (
+              <TouchableOpacity
+                onPress={handleProceed}
+                style={[styles.proceedBtn, { backgroundColor: colors.primary }]}
+                activeOpacity={0.85}
+              >
+                <LinearGradient
+                  pointerEvents="none"
+                  colors={[R_LIGHT, R_DARK]}
+                  start={{ x: 0.2, y: 0 }}
+                  end={{ x: 0.9, y: 1 }}
+                  style={StyleSheet.absoluteFill}
+                />
+                <TpIcon name="arrow-right" size={18} color={W} strokeWidth={2.2} />
+              </TouchableOpacity>
+            )}
+          </View>
+          {raw.length > 0 && raw.length < 10 && (
+            <Text style={[styles.inputHint, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              {10 - raw.length} more digit{10 - raw.length !== 1 ? "s" : ""}
+            </Text>
           )}
         </View>
 
         {/* ── Select recipient ── */}
-        <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-          Select recipient
-        </Text>
-
-        <View style={[styles.recipientBlock, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          {/* Search bar */}
-          <View style={[styles.searchBar, { backgroundColor: colors.surfaceElevated }]}>
-            <TpIcon name="search" size={17} color={colors.placeholder} strokeWidth={1.8} />
-            <TextInput
-              style={[styles.searchInput, { color: colors.text, fontFamily: "Inter_400Regular" }]}
-              placeholder="Search accounts"
-              placeholderTextColor={colors.placeholder}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              returnKeyType="search"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery("")} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-                <TpIcon name="x" size={14} color={colors.mutedForeground} strokeWidth={2} />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Tabs row */}
-          <View style={styles.tabsRow}>
-            <View style={styles.tabsLeft}>
-              <TouchableOpacity
-                onPress={() => setActiveTab("recent")}
-                style={[
-                  styles.tabPill,
-                  activeTab === "recent"
-                    ? styles.tabPillActive
-                    : { backgroundColor: "transparent" },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.tabText,
-                    {
-                      fontFamily: activeTab === "recent" ? "Inter_700Bold" : "Inter_400Regular",
-                      color: activeTab === "recent" ? "#1A0A00" : colors.mutedForeground,
-                    },
-                  ]}
-                >
-                  Recent
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => setActiveTab("saved")}
-                style={[
-                  styles.tabPill,
-                  activeTab === "saved"
-                    ? styles.tabPillActive
-                    : { backgroundColor: "transparent" },
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.tabText,
-                    {
-                      fontFamily: activeTab === "saved" ? "Inter_700Bold" : "Inter_400Regular",
-                      color: activeTab === "saved" ? "#1A0A00" : colors.mutedForeground,
-                    },
-                  ]}
-                >
-                  Saved
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-              <Text style={[styles.viewAll, { fontFamily: "Inter_600SemiBold" }]}>
-                View All
+        <View style={styles.sectionGap}>
+          <View style={styles.recipientHeader}>
+            <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+              Select recipient
+            </Text>
+            <TouchableOpacity>
+              <Text style={[styles.viewAll, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>
+                View all
               </Text>
             </TouchableOpacity>
           </View>
 
-          {/* Recipient list */}
-          {displayed.length === 0 ? (
-            <View style={styles.emptyState}>
-              <TpIcon name="users" size={28} color={colors.mutedForeground} strokeWidth={1.5} />
-              <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                {activeTab === "saved" ? "No saved recipients" : "No recent recipients"}
-              </Text>
+          <View style={[styles.colCard, { backgroundColor: cardBg, borderColor: cardBdr }]}>
+            <LinearGradient
+              pointerEvents="none"
+              colors={isDark ? ["rgba(255,255,255,0.04)", "transparent"] : ["rgba(0,0,0,0.025)", "transparent"]}
+              style={styles.cardShine}
+            />
+            {/* search bar */}
+            <View style={[styles.searchBar, { backgroundColor: inputBg, borderColor: isDark ? "#252830" : colors.border }]}>
+              <SearchIcon size={15} color={colors.mutedForeground} />
+              <TextInput
+                value={search}
+                onChangeText={setSearch}
+                placeholder="Search name or account number"
+                placeholderTextColor={colors.mutedForeground}
+                style={[styles.searchInput, { color: colors.text, fontFamily: "Inter_400Regular" }]}
+              />
+              {search.length > 0 && (
+                <TouchableOpacity onPress={() => setSearch("")}>
+                  <TpIcon name="x" size={14} color={colors.mutedForeground} strokeWidth={2} />
+                </TouchableOpacity>
+              )}
             </View>
-          ) : (
-            displayed.map((b, idx) => (
-              <Pressable
-                key={b.id}
-                onPress={() => handleSelectBeneficiary(b)}
-                style={({ pressed }) => [
-                  styles.recipientItem,
-                  {
-                    borderTopWidth: idx === 0 ? 0 : StyleSheet.hairlineWidth,
-                    borderTopColor: colors.border,
-                    backgroundColor: pressed ? colors.surfaceElevated : "transparent",
-                  },
-                ]}
-              >
-                <RecipientBankAvatar size={48} />
-                <View style={{ flex: 1, gap: 3 }}>
-                  <Text style={[styles.recipientName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
-                    {b.name}
-                  </Text>
-                  <Text style={[styles.recipientMeta, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    {b.bank}
-                    {"  ·  "}
-                    {b.account}
-                  </Text>
-                </View>
-              </Pressable>
-            ))
-          )}
+
+            {/* tabs */}
+            <View style={styles.tabs}>
+              {(["recent", "saved"] as const).map((tab) => {
+                const active = activeTab === tab;
+                return (
+                  <TouchableOpacity
+                    key={tab}
+                    onPress={() => setActiveTab(tab)}
+                    style={[
+                      styles.tabPill,
+                      active
+                        ? { backgroundColor: colors.primary }
+                        : { backgroundColor: "transparent" },
+                    ]}
+                  >
+                    {active && (
+                      <LinearGradient
+                        pointerEvents="none"
+                        colors={[R_LIGHT, R_DARK]}
+                        start={{ x: 0.2, y: 0 }}
+                        end={{ x: 0.9, y: 1 }}
+                        style={StyleSheet.absoluteFill}
+                      />
+                    )}
+                    <Text
+                      style={[
+                        styles.tabLabel,
+                        {
+                          color: active ? W : colors.mutedForeground,
+                          fontFamily: active ? "Inter_600SemiBold" : "Inter_400Regular",
+                        },
+                      ]}
+                    >
+                      {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* beneficiary list */}
+            {filtered.length === 0 ? (
+              <View style={styles.emptyRow}>
+                <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                  No recipients found
+                </Text>
+              </View>
+            ) : (
+              filtered.map((b, idx) => (
+                <React.Fragment key={b.id}>
+                  {idx > 0 && <View style={[styles.divider, { backgroundColor: cardBdr }]} />}
+                  <Pressable
+                    onPress={() => handleBeneficiary(b.id)}
+                    style={({ pressed }) => [styles.benefRow, pressed && { opacity: 0.75 }]}
+                  >
+                    {/* avatar with gradient + initials overlay */}
+                    <View style={styles.avatarWrap}>
+                      <BankAvatar initials={b.initials} color={b.avatarColor} size={44} />
+                      <View style={[styles.avatarText]}>
+                        <Text style={[styles.avatarInitials, { color: W, fontFamily: "Inter_700Bold" }]}>
+                          {b.initials.slice(0, 2).toUpperCase()}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.benefName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+                        {b.name}
+                      </Text>
+                      <Text style={[styles.benefSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                        {b.account} · {b.bank}
+                      </Text>
+                    </View>
+                    <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2} />
+                  </Pressable>
+                </React.Fragment>
+              ))
+            )}
+          </View>
         </View>
       </ScrollView>
     </View>
   );
 }
 
-/* ─── Styles ─────────────────────────────────────────────────────────── */
+/* ═══════ Styles ═══════════════════════════════════════════ */
 const styles = StyleSheet.create({
   root: { flex: 1 },
 
-  /* Header */
+  /* header */
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingBottom: 12,
     justifyContent: "space-between",
+    paddingHorizontal: 18,
+    paddingBottom: 14,
   },
-  headerTitle: {
-    fontSize: 17,
-    letterSpacing: -0.4,
-    flex: 1,
-    textAlign: "center",
-    marginHorizontal: 8,
-  },
+  headerTitle: { fontSize: 17, letterSpacing: -0.4 },
   headerRight: { flexDirection: "row", gap: 8 },
   iconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 13,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 4,
   },
 
-  /* Blue banner */
-  blueBanner: {
+  /* scroll */
+  scroll: { paddingHorizontal: 18, gap: 16 },
+
+  /* instant-transfer banner */
+  banner: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: "#0D2E5A",
-    paddingHorizontal: 16,
-    paddingVertical: 11,
-  },
-  bannerText: {
-    color: "#C8D8F0",
-    fontSize: 13,
-    flex: 1,
-    lineHeight: 18,
-  },
-  bannerBold: {
-    color: "#FFFFFF",
-  },
-
-  /* Scroll */
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    gap: 0,
-  },
-
-  /* Promo card */
-  promoCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    backgroundColor: "#0A2318",
-    borderWidth: 1,
-    borderColor: "#1A4A2E",
     borderRadius: 14,
-    padding: 14,
-    marginBottom: 20,
+    borderWidth: 1,
+    paddingVertical: 13,
+    paddingHorizontal: 14,
+    overflow: "hidden",
   },
-  promoText: {
-    color: "#A8D4B8",
-    fontSize: 13.5,
-    lineHeight: 20,
+  bannerAccent: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 3,
+    borderRadius: 2,
   },
-  promoHighlight: {
-    color: "#2FBE73",
-  },
+  bannerText: { flex: 1, fontSize: 13, color: "#93C5FD", lineHeight: 18 },
 
-  /* Section label */
-  sectionLabel: {
-    fontSize: 13,
-    letterSpacing: 0.1,
-    marginBottom: 8,
-    marginTop: 2,
-  },
-
-  /* Paying from */
-  payingFromCard: {
+  /* promo card */
+  promoCard: {
+    borderRadius: 18,
+    borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 18,
+    overflow: "hidden",
     gap: 12,
-    padding: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    marginBottom: 20,
   },
-  avatarSquare: {
+  promoShine: {
+    position: "absolute",
+    top: 0, left: 0, right: 0,
+    height: 40,
+    borderRadius: 18,
+  },
+  promoLeft: { flex: 1, gap: 6 },
+  promoLabel: { fontSize: 13.5, color: "#D1FAE5", lineHeight: 18 },
+  promoSub: { fontSize: 13, color: "#6EE7B7" },
+  cashbackRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 2 },
+  cashbackBadge: { backgroundColor: "rgba(74,222,128,0.18)", paddingHorizontal: 9, paddingVertical: 4, borderRadius: 20 },
+  cashbackAmt: { fontSize: 12, color: "#4ADE80" },
+  cashbackMeta: { fontSize: 12, color: "#6EE7B7" },
+  promoRight: { alignItems: "center", justifyContent: "center" },
+
+  /* row card — for paying-from */
+  card: {
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 14,
+    overflow: "hidden",
+    gap: 14,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  /* column card — for recipient section */
+  colCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    paddingBottom: 6,
+    overflow: "hidden",
+    gap: 12,
+    flexDirection: "column",
+  },
+  cardShine: {
+    position: "absolute",
+    top: 0, left: 0, right: 0,
+    height: 36,
+    borderRadius: 18,
+  },
+
+  /* section */
+  sectionGap: { gap: 10 },
+  sectionLabel: { fontSize: 12, letterSpacing: 0.4, textTransform: "uppercase" },
+
+  /* paying-from */
+  accountAvatar: {
     width: 44,
     height: 44,
-    borderRadius: 10,
-    backgroundColor: "#7A4A0A",
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-  },
-  avatarInitials: {
-    color: "#F5D080",
-    fontSize: 15,
-  },
-  payingFromRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    flexWrap: "wrap",
-  },
-  dot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-  },
-  payingFromName: {
-    fontSize: 14,
-    letterSpacing: -0.2,
-  },
-  payingFromPhone: {
-    fontSize: 12.5,
-  },
-  payingFromBalance: {
-    fontSize: 17,
-    letterSpacing: -0.5,
-  },
-
-  /* Account number input */
-  accountInputWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    marginBottom: 20,
-    minHeight: 64,
-  },
-  accountInput: {
-    flex: 1,
-    fontSize: 26,
-    letterSpacing: 2,
-    paddingVertical: 12,
-  },
-  accountProceedBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 8,
-  },
-
-  /* Recipient block */
-  recipientBlock: {
-    borderRadius: 16,
-    borderWidth: 1,
     overflow: "hidden",
-    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
+  },
+  avatarShine: { position: "absolute", top: 0, left: 0, right: 0, height: 22 },
+  accountInitial: { fontSize: 18, color: "#FFD580" },
+  accountName: { fontSize: 14, letterSpacing: -0.2 },
+  accountNum: { fontSize: 12, marginTop: 2 },
+  balancePill: { backgroundColor: "rgba(74,222,128,0.12)", borderRadius: 12, paddingHorizontal: 10, paddingVertical: 5 },
+  balanceAmt: { fontSize: 12 },
+
+  /* account input */
+  inputCard: {
+    borderRadius: 18,
+    borderWidth: 1.5,
+    padding: 12,
+    overflow: "hidden",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  inputInner: { flex: 1, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 14 },
+  inputPlaceholder: { fontSize: 26, letterSpacing: 8 },
+  inputValue: { fontSize: 26, letterSpacing: 5 },
+  hiddenInput: {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    opacity: 0,
+  },
+  inputHint: { fontSize: 12, paddingHorizontal: 4 },
+  proceedBtn: {
+    width: 46,
+    height: 46,
+    borderRadius: 13,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
 
-  /* Search bar */
+  /* recipient */
+  recipientHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  viewAll: { fontSize: 13 },
+
+  /* search */
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    margin: 12,
+    borderRadius: 12,
+    borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 10,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 14.5,
-    paddingVertical: 0,
-  },
+  searchInput: { flex: 1, fontSize: 13.5, padding: 0, margin: 0 },
 
-  /* Tabs */
-  tabsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 12,
-    paddingBottom: 10,
-  },
-  tabsLeft: {
-    flexDirection: "row",
-    gap: 6,
-  },
+  /* tabs */
+  tabs: { flexDirection: "row", gap: 8 },
   tabPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
     borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    overflow: "hidden",
   },
-  tabPillActive: {
-    backgroundColor: "#E3A008",
-  },
-  tabText: {
-    fontSize: 13.5,
-  },
-  viewAll: {
-    fontSize: 13.5,
-    color: "#E3A008",
-  },
+  tabLabel: { fontSize: 13 },
 
-  /* Recipient items */
-  recipientItem: {
+  /* beneficiary row */
+  benefRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
+    paddingVertical: 12,
+    paddingHorizontal: 2,
   },
-  recipientName: {
-    fontSize: 14.5,
-    letterSpacing: -0.2,
-  },
-  recipientMeta: {
-    fontSize: 12.5,
-  },
-
-  /* Empty state */
-  emptyState: {
+  avatarWrap: { width: 44, height: 44, position: "relative" },
+  avatarText: {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
     alignItems: "center",
-    gap: 8,
-    paddingVertical: 32,
+    justifyContent: "center",
   },
-  emptyText: {
-    fontSize: 14,
-  },
+  avatarInitials: { fontSize: 14 },
+  benefName: { fontSize: 14.5, letterSpacing: -0.2 },
+  benefSub: { fontSize: 12, marginTop: 2 },
+  divider: { height: StyleSheet.hairlineWidth, marginHorizontal: 2 },
+  emptyRow: { paddingVertical: 24, alignItems: "center" },
+  emptyText: { fontSize: 13 },
 });

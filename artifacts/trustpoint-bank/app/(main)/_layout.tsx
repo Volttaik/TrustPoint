@@ -11,7 +11,6 @@ import {
 import { Tabs, router, usePathname } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { useColorScheme } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -79,38 +78,38 @@ function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boo
 
 /* ─── Nav icons ─────────────────────────────────────── */
 
-function HomeIcon({ size = 28, active }: { size?: number; active: boolean }) {
-  const fill = active ? "#1A1A1F" : "#6B6B72";
-  const rim  = active ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)";
+function HomeIcon({ size = 28, active, isDark = true }: { size?: number; active: boolean; isDark?: boolean }) {
+  const fill      = isDark ? (active ? "#D4D6DC" : "#6B6B72") : (active ? "#1E2028" : "#8A8C96");
+  const rimColor  = isDark ? (active ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)") : (active ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.08)");
+  const shimmer   = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.05)";
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
         d="M3.4 11.2L12 4.2L20.6 11.2V20.8H14.8V15H9.2V20.8H3.4Z"
         fill={fill}
-        stroke={rim}
+        stroke={rimColor}
         strokeWidth="0.7"
         strokeLinejoin="round"
       />
-      <Path d="M9.2 15H14.8V17H9.2Z" fill="rgba(255,255,255,0.12)" />
-      <Path d="M4.8 12.1L12 5.8L19.2 12.1" stroke="rgba(255,255,255,0.18)" strokeWidth="0.5" fill="none" />
+      <Path d="M9.2 15H14.8V17H9.2Z" fill={shimmer} />
+      <Path d="M4.8 12.1L12 5.8L19.2 12.1" stroke={rimColor} strokeWidth="0.5" fill="none" />
     </Svg>
   );
 }
 
-function SettingsIcon({ size = 28, active }: { size?: number; active: boolean }) {
-  const fill = active ? "#1A1A1F" : "#6B6B72";
-  const rim  = active ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.2)";
-  /* 8-tooth gear path */
+function SettingsIcon({ size = 28, active, isDark = true }: { size?: number; active: boolean; isDark?: boolean }) {
+  const fill     = isDark ? (active ? "#D4D6DC" : "#6B6B72") : (active ? "#1E2028" : "#8A8C96");
+  const rimColor = isDark ? (active ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)") : (active ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.08)");
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path
         d="M12 2.4L13.6 5.1A7.2 7.2 0 0 1 15.6 5.8L18.5 4.6L19.4 6.3L17 8.1A7.3 7.3 0 0 1 17.2 10L19.6 11.5L18.8 13.3L16.1 12.6A7.3 7.3 0 0 1 14.5 14.1L14.8 17H12.8L12.4 14.1A7.3 7.3 0 0 1 10.8 12.9L8.1 14.1L6.9 12.5L9.2 10.9A7.3 7.3 0 0 1 9 9.2L6.5 7.7L7.5 6L10.2 7.3A7.2 7.2 0 0 1 12 6.6L12 2.4Z"
         fill={fill}
-        stroke={rim}
+        stroke={rimColor}
         strokeWidth="0.5"
         strokeLinejoin="round"
       />
-      <Circle cx="12" cy="10" r="2.6" fill="rgba(255,255,255,0.18)" stroke={rim} strokeWidth="0.5" />
+      <Circle cx="12" cy="10" r="2.6" fill={rimColor} stroke={rimColor} strokeWidth="0.5" />
     </Svg>
   );
 }
@@ -127,7 +126,7 @@ const LEFT_TABS: NavTab[] = [
   {
     name: "index",
     label: "Home",
-    icon: (active) => <HomeIcon size={27} active={active} />,
+    icon: (active, colors) => <HomeIcon size={27} active={active} isDark={colors.background !== "#F4F5F7"} />,
   },
   {
     name: "transfers",
@@ -145,7 +144,7 @@ const RIGHT_TABS: NavTab[] = [
   {
     name: "more",
     label: "Settings",
-    icon: (active) => <SettingsIcon size={27} active={active} />,
+    icon: (active, colors) => <SettingsIcon size={27} active={active} isDark={colors.background !== "#F4F5F7"} />,
   },
 ];
 
@@ -155,7 +154,9 @@ function CustomTabBar() {
   const colors  = useColors();
   const insets  = useSafeAreaInsets();
   const pathname = usePathname();
-  const isDark  = useColorScheme() === "dark";
+  // Derive isDark from the actual theme colours so that a user-toggled dark/light
+  // preference always matches the nav bar shape — not just the system colour scheme.
+  const isDark  = colors.background !== "#F4F5F7";
   const bottomH = Math.max(insets.bottom, Platform.OS === "web" ? 16 : 0);
   const screenW = Dimensions.get("window").width;
   const barW    = screenW;
@@ -220,10 +221,13 @@ function CustomTabBar() {
       >
         <Animated.View style={aStyle}>
           <LinearGradient
-            colors={["#2E3036", "#131417"]}
+            colors={isDark ? ["#2E3036", "#131417"] : ["#ECEDF0", "#D8DADF"]}
             start={{ x: 0.2, y: 0 }}
             end={{ x: 0.9, y: 1 }}
-            style={styles.logoRing}
+            style={[
+              styles.logoRing,
+              { borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)" },
+            ]}
           >
             <View pointerEvents="none" style={styles.logoTopHighlight} />
             <View style={styles.logoInner}>
@@ -244,6 +248,8 @@ function CustomTabBar() {
           left: 0,
           right: 0,
           height: totalH + bottomH,
+          borderTopWidth: isDark ? 0 : StyleSheet.hairlineWidth,
+          borderTopColor: isDark ? "transparent" : "rgba(0,0,0,0.14)",
         },
       ]}
     >

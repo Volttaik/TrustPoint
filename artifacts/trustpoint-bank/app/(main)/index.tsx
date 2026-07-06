@@ -60,7 +60,7 @@ export default function DashboardScreen() {
         resizeMode="cover"
       />
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
-      <StatusBar style="light" />
+      <StatusBar style={isDark ? "light" : "dark"} />
 
       {/* Fixed header bar — same style as bottom nav, only branding inside */}
       <LinearGradient
