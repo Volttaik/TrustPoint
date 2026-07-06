@@ -32,11 +32,11 @@ import { TransferIcon, CardsIcon } from "@/components/BankIcons";
 const TP_LOGO = require("@/assets/images/icon_transparent.png");
 
 const BAR_H = 64;
-const BUMP_H = 16;
-const BUMP_W = 44;
+const BUMP_H = 10;
+const BUMP_W = 36;
 const BCR = 0;    // bottom corner radius — flush to screen edge
 const CR = 16;    // top corner radius
-const LOGO_SIZE = 40;
+const LOGO_SIZE = 36;
 
 function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boolean; extraH?: number }) {
   const W = width;
@@ -47,15 +47,13 @@ function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boo
   const mid = W / 2;
   const total = BAR_H + bh + extraH;
 
-  /* True ellipse-arc approximation using κ = 0.5523.
-     CP1 is at the outer edge partway up, CP2 is wide from the peak —
-     this gives a genuine smooth semicircle instead of a triangle. */
-  const k = 0.5523;
+  /* Smooth cosine-like hill: outer CP stays at base, inner CP near peak.
+     This gives a very gradual, rounded rise rather than an ellipse arc. */
   const d = [
     `M ${cr} ${bh}`,
     `L ${mid - bw} ${bh}`,
-    `C ${mid - bw} ${bh * (1 - k)} ${mid - bw * k} 0 ${mid} 0`,
-    `C ${mid + bw * k} 0 ${mid + bw} ${bh * (1 - k)} ${mid + bw} ${bh}`,
+    `C ${mid - bw * 0.55} ${bh} ${mid - bw * 0.18} 0 ${mid} 0`,
+    `C ${mid + bw * 0.18} 0 ${mid + bw * 0.55} ${bh} ${mid + bw} ${bh}`,
     `L ${W - cr} ${bh}`,
     `Q ${W} ${bh} ${W} ${bh + cr}`,
     `L ${W} ${total - bcr}`,
@@ -246,8 +244,10 @@ function CustomTabBar() {
       style={[
         styles.outerWrapper,
         {
+          bottom: 0,
+          left: 0,
+          right: 0,
           height: totalH + bottomH,
-          width: "100%",
         },
       ]}
     >
@@ -283,6 +283,7 @@ export default function MainLayout() {
 
 const styles = StyleSheet.create({
   outerWrapper: {
+    position: "absolute",
     overflow: "visible",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
