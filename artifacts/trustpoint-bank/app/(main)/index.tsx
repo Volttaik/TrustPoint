@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import {
+  ImageBackground,
   Platform,
   Pressable,
   RefreshControl,
@@ -46,8 +47,12 @@ export default function DashboardScreen() {
   const recentTx = transactions.slice(0, 2);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar style={colors.background === "#08090A" ? "light" : "dark"} />
+    <ImageBackground
+      source={require("@/assets/images/dashboard-bg.png")}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <StatusBar style="light" />
 
       <ScrollView
         style={{ flex: 1 }}
@@ -208,7 +213,7 @@ export default function DashboardScreen() {
           <PromoBanner onPress={() => {}} />
         </View>
       </ScrollView>
-    </View>
+    </ImageBackground>
   );
 }
 
