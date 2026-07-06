@@ -1,6 +1,5 @@
 import React, { useCallback } from "react";
 import {
-  ImageBackground,
   Platform,
   Pressable,
   RefreshControl,
@@ -20,6 +19,7 @@ import { TransactionItem } from "@/components/TransactionItem";
 import { SpendingCashback } from "@/components/SpendingCashback";
 import { PromoBanner } from "@/components/PromoBanner";
 import { TpIcon } from "@/components/TpIcon";
+import { DashboardBackground } from "@/components/DashboardBackground";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -48,11 +48,7 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={require("@/assets/images/dashboard-bg.png")}
-        style={styles.bgLayer}
-        resizeMode="cover"
-      />
+      <DashboardBackground />
       <StatusBar style="light" />
 
       <ScrollView
@@ -250,9 +246,6 @@ function HeaderIconButton({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
-  bgLayer: {
-    ...StyleSheet.absoluteFillObject,
-  },
   scroll: { paddingHorizontal: 20, gap: 26 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   identity: { flexDirection: "row", alignItems: "center", gap: 12 },
