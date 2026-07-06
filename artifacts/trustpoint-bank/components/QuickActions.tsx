@@ -21,10 +21,21 @@ interface QuickActionsProps {
 }
 
 export function QuickActions({ actions }: QuickActionsProps) {
+  const rows: Action[][] = [];
+  for (let i = 0; i < actions.length; i += 4) {
+    rows.push(actions.slice(i, i + 4));
+  }
+
   return (
     <View style={styles.grid}>
-      {actions.map((action, idx) => (
-        <ActionButton key={idx} {...action} />
+      {rows.map((row, rowIdx) => (
+        <View key={rowIdx} style={styles.row}>
+          {row.map((action, idx) => (
+            <View key={idx} style={[styles.item, idx < 3 && styles.itemGap]}>
+              <ActionButton {...action} />
+            </View>
+          ))}
+        </View>
       ))}
     </View>
   );
@@ -52,23 +63,22 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
           style={[
             styles.tile,
             {
-              backgroundColor: colors.card,
-              borderColor: colors.border,
+              backgroundColor: accent ? colors.primaryDeep : colors.card,
+              borderColor: accent ? colors.primary : colors.borderStrong,
             },
           ]}
         >
-          <View pointerEvents="none" style={styles.topHighlight} />
           <View
             style={[
               styles.iconCircle,
               accent
-                ? { backgroundColor: colors.primary + "22", borderColor: colors.primary + "40" }
+                ? { backgroundColor: "#000000", borderColor: colors.primary }
                 : { backgroundColor: colors.charcoal, borderColor: colors.borderStrong },
             ]}
           >
             <TpIcon name={icon} size={18} color={accent ? colors.primary : colors.text} strokeWidth={2} />
           </View>
-          <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]} numberOfLines={1}>
+          <Text style={[styles.label, { color: accent ? "#FFFFFF" : colors.mutedForeground, fontFamily: "Inter_500Medium" }]} numberOfLines={1}>
             {label}
           </Text>
         </TouchableOpacity>
@@ -79,34 +89,26 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
 
 const styles = StyleSheet.create({
   grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
     rowGap: 12,
-    columnGap: 12,
   },
-  item: { width: "22.5%" },
+  row: {
+    flexDirection: "row",
+  },
+  item: { flex: 1 },
+  itemGap: { marginRight: 12 },
   tile: {
     aspectRatio: 1,
     borderRadius: 18,
-    borderWidth: 1,
+    borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
     paddingHorizontal: 4,
-    overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.28,
-    shadowRadius: 12,
-    elevation: 7,
-  },
-  topHighlight: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: "45%",
-    backgroundColor: "rgba(255,255,255,0.03)",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.45,
+    shadowRadius: 14,
+    elevation: 9,
   },
   iconCircle: {
     width: 36,
@@ -114,7 +116,7 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
+    borderWidth: 1.5,
   },
   label: { fontSize: 10.5, letterSpacing: -0.1 },
 });

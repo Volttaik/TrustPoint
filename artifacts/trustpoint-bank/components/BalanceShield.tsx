@@ -45,14 +45,11 @@ export function BalanceShield({
   return (
     <View style={styles.wrapper}>
       <LinearGradient
-        colors={["#26282D", "#1A1B1F", "#111215"]}
+        colors={["#0F1012", "#0A0B0C", "#000000"]}
         start={{ x: 0.1, y: 0 }}
         end={{ x: 0.95, y: 1 }}
         style={styles.card}
       >
-        <View pointerEvents="none" style={styles.edgeHighlight} />
-        <View pointerEvents="none" style={styles.innerBorder} />
-
         {/* Top row: Wallet label + add */}
         <View style={styles.topRow}>
           <View>
@@ -158,26 +155,8 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     padding: 22,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.07)",
-  },
-  edgeHighlight: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 1,
-    backgroundColor: "rgba(255,255,255,0.16)",
-  },
-  innerBorder: {
-    position: "absolute",
-    top: 1,
-    left: 1,
-    right: 1,
-    bottom: 1,
-    borderRadius: 27,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.25)",
+    borderWidth: 1.5,
+    borderColor: "#3A0D14",
   },
   topRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 },
   topRight: { flexDirection: "row", alignItems: "center", gap: 8 },
@@ -200,9 +179,9 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 10,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
+    backgroundColor: "#000000",
+    borderWidth: 1.5,
+    borderColor: "#E11D33",
     alignItems: "center",
     justifyContent: "center",
   },
