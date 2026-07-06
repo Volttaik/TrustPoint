@@ -185,40 +185,20 @@ export default function LoginScreen() {
             {verifyState === "spinning" && (
               <>
                 <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
-                  <Svg width={winWidth * 0.58} height={winWidth * 0.58} viewBox="0 0 112 112" fill="none">
+                  <Svg width={winWidth * 0.62} height={winWidth * 0.62} viewBox="0 0 112 112" fill="none">
                     <Defs>
-                      <RadialGradient id="spinHead" cx="0.5" cy="0.5" r="0.5">
-                        <Stop offset="0"   stopColor="#FF9AA0" />
-                        <Stop offset="0.4" stopColor="#E63946" />
-                        <Stop offset="1"   stopColor="#E63946" stopOpacity="0" />
+                      <RadialGradient id="spinnerHead" cx="0.5" cy="0.5" r="0.5">
+                        <Stop offset="0" stopColor="#FF7A85" />
+                        <Stop offset="1" stopColor="#E63946" />
                       </RadialGradient>
                     </Defs>
-
-                    {/* track ring */}
-                    <Circle cx="56" cy="56" r="48" stroke="rgba(255,255,255,0.07)" strokeWidth="7" fill="none" />
-
-                    {/* tail — faintest, 90° top→right */}
                     <Path
-                      d="M56 8 A48 48 0 0 1 104 56"
-                      stroke="#E63946" strokeWidth="7" strokeOpacity="0.12"
-                      strokeLinecap="butt" fill="none"
+                      d="M56 8a48 48 0 0 1 48 48"
+                      stroke="#E63946"
+                      strokeWidth="7"
+                      strokeLinecap="round"
                     />
-                    {/* tail — medium, 90° right→bottom */}
-                    <Path
-                      d="M104 56 A48 48 0 0 1 56 104"
-                      stroke="#E63946" strokeWidth="7" strokeOpacity="0.3"
-                      strokeLinecap="butt" fill="none"
-                    />
-                    {/* tail — strong, 90° bottom→left (head end) */}
-                    <Path
-                      d="M56 104 A48 48 0 0 1 8 56"
-                      stroke="#E63946" strokeWidth="7" strokeOpacity="0.75"
-                      strokeLinecap="butt" fill="none"
-                    />
-
-                    {/* glowing head dot at left (8, 56) */}
-                    <Circle cx="8" cy="56" r="9" fill="url(#spinHead)" />
-                    <Circle cx="8" cy="56" r="5" fill="#FF5A65" />
+                    <Circle cx="104" cy="56" r="7.5" fill="url(#spinnerHead)" />
                   </Svg>
                 </Animated.View>
                 <Text style={[styles.verifyLabel, { fontFamily: "Inter_500Medium" }]}>Verifying…</Text>

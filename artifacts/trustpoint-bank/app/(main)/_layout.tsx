@@ -34,8 +34,8 @@ const TP_LOGO = require("@/assets/images/icon_transparent.png");
 const BAR_H = 64;
 const BUMP_H = 34;
 const BUMP_W = 54;
-const BCR = 26;   // bottom corner radius
-const CR = 26;    // top corner radius
+const BCR = 32;   // bottom corner radius
+const CR = 32;    // top corner radius
 const LOGO_SIZE = 56;
 
 function NavBarShape({ width, isDark }: { width: number; isDark: boolean }) {
