@@ -52,13 +52,29 @@ export function QuickActions({ actions }: QuickActionsProps) {
   return (
     <View style={styles.grid}>
       {rows.map((row, rowIdx) => (
-        <View key={rowIdx} style={styles.row}>
-          {row.map((action, idx) => (
-            <View key={idx} style={[styles.item, idx < 3 && styles.itemGap]}>
-              <ActionButton {...action} />
-            </View>
-          ))}
-        </View>
+        <React.Fragment key={rowIdx}>
+          {rowIdx > 0 && (
+            <LinearGradient
+              pointerEvents="none"
+              colors={[
+                "rgba(255,255,255,0)",
+                "rgba(255,255,255,0.28)",
+                "rgba(255,255,255,0)",
+              ]}
+              locations={[0, 0.5, 1]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.rowSeparator}
+            />
+          )}
+          <View style={styles.row}>
+            {row.map((action, idx) => (
+              <View key={idx} style={[styles.item, idx < 3 && styles.itemGap]}>
+                <ActionButton {...action} />
+              </View>
+            ))}
+          </View>
+        </React.Fragment>
       ))}
     </View>
   );
@@ -125,8 +141,8 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
             style={[
               styles.iconCircle,
               accent
-                ? { backgroundColor: "rgba(0,0,0,0.35)", borderColor: "rgba(225,29,51,0.4)" }
-                : { backgroundColor: colors.charcoal, borderColor: colors.borderStrong },
+                ? { backgroundColor: "rgba(0,0,0,0.35)" }
+                : { backgroundColor: colors.charcoal },
             ]}
           >
             {isBankIcon ? (
@@ -158,6 +174,7 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
 const styles = StyleSheet.create({
   grid: { rowGap: 12 },
   row: { flexDirection: "row" },
+  rowSeparator: { height: 1, marginVertical: 2 },
   item: { flex: 1 },
   itemGap: { marginRight: 10 },
   tile: {
@@ -181,7 +198,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1.5,
+    overflow: "hidden",
   },
   label: { fontSize: 11, letterSpacing: -0.1 },
 });

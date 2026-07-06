@@ -19,7 +19,6 @@ import { BalanceShield } from "@/components/BalanceShield";
 import { CardCarousel } from "@/components/CardCarousel";
 import { QuickActions } from "@/components/QuickActions";
 import { TransactionItem } from "@/components/TransactionItem";
-import { SpendingCashback } from "@/components/SpendingCashback";
 import { PromoBanner } from "@/components/PromoBanner";
 import { TpIcon } from "@/components/TpIcon";
 import { QRIcon, SupportIcon, BellIcon } from "@/components/BankIcons";
@@ -129,26 +128,6 @@ export default function DashboardScreen() {
           onToggle={toggleShowBalance}
           accountNumber={user?.accountNumber ? formatAccount(user.accountNumber) : undefined}
         />
-
-        {/* Spending & Cash Back */}
-        <View style={styles.section}>
-          <SpendingCashback
-            spentLabel="Spent this month"
-            segments={[
-              { color: colors.primary, value: 40 },
-              { color: colors.success, value: 25 },
-              { color: colors.warning, value: 20 },
-              { color: colors.info, value: 15 },
-            ]}
-            cashbackAmount="₦2,340"
-            badges={[
-              { icon: "zap", color: colors.warning },
-              { icon: "shopping-bag", color: colors.primary },
-              { icon: "tv", color: colors.info },
-              { icon: "car", color: colors.success },
-            ]}
-          />
-        </View>
 
         {/* Quick Actions */}
         <View style={styles.section}>

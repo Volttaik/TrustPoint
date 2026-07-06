@@ -177,7 +177,6 @@ export default function LoginScreen() {
               <>
                 <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
                   <Svg width={winWidth * 0.62} height={winWidth * 0.62} viewBox="0 0 112 112" fill="none">
-                    <Circle cx="56" cy="56" r="48" stroke="rgba(255,255,255,0.12)" strokeWidth="7" />
                     <Path
                       d="M56 8a48 48 0 0 1 48 48"
                       stroke="#E63946"
