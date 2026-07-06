@@ -6,6 +6,7 @@ import Svg, {
   Ellipse,
   Line,
   Defs,
+  G,
   LinearGradient,
   RadialGradient,
   Stop,
@@ -141,27 +142,29 @@ export function AirtimeIcon({ size = 24 }: BankIconProps) {
         </LinearGradient>
       </Defs>
 
-      <Path
-        d="M8.2 2.4H10.6L11.7 5.4L9.7 7C10.7 9.5 12.6 11.4 15.1 12.4L16.7 10.4L19.7 11.5V13.9C19.7 15 18.8 15.8 17.7 15.7C11.2 15.1 6 9.9 5.4 3.4C5.3 2.3 6.1 1.4 7.2 1.4H8.2Z"
-        fill={`url(#${id}-body)`}
-        stroke={RIM}
-        strokeWidth="0.7"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M8.4 3.1L9.3 5.2L8.1 6.2C8 6.6 8.1 7 8.4 7.3"
-        stroke={W}
-        strokeOpacity="0.4"
-        strokeWidth="0.6"
-        strokeLinecap="round"
-        fill="none"
-      />
+      <G transform="translate(-1.5, 2.6)">
+        <Path
+          d="M8.2 2.4H10.6L11.7 5.4L9.7 7C10.7 9.5 12.6 11.4 15.1 12.4L16.7 10.4L19.7 11.5V13.9C19.7 15 18.8 15.8 17.7 15.7C11.2 15.1 6 9.9 5.4 3.4C5.3 2.3 6.1 1.4 7.2 1.4H8.2Z"
+          fill={`url(#${id}-body)`}
+          stroke={RIM}
+          strokeWidth="0.7"
+          strokeLinejoin="round"
+        />
+        <Path
+          d="M8.4 3.1L9.3 5.2L8.1 6.2C8 6.6 8.1 7 8.4 7.3"
+          stroke={W}
+          strokeOpacity="0.4"
+          strokeWidth="0.6"
+          strokeLinecap="round"
+          fill="none"
+        />
 
-      {/* graduated 3D signal bars, clear of handset */}
-      <Rect x="15.6" y="4.6" width="1.9" height="3.4" rx="0.5" fill={`url(#${id}-bar)`} />
-      <Rect x="18.1" y="2.8" width="1.9" height="5.2" rx="0.5" fill={`url(#${id}-bar)`} opacity="0.78" />
-      <Rect x="20.6" y="1" width="1.9" height="7" rx="0.5" fill={`url(#${id}-bar)`} opacity="0.55" />
-      <Rect x="15.85" y="4.85" width="1.4" height="0.7" rx="0.35" fill={W} fillOpacity="0.35" />
+        {/* graduated 3D signal bars, clear of handset */}
+        <Rect x="15.6" y="4.6" width="1.9" height="3.4" rx="0.5" fill={`url(#${id}-bar)`} />
+        <Rect x="18.1" y="2.8" width="1.9" height="5.2" rx="0.5" fill={`url(#${id}-bar)`} opacity="0.78" />
+        <Rect x="20.6" y="1" width="1.9" height="7" rx="0.5" fill={`url(#${id}-bar)`} opacity="0.55" />
+        <Rect x="15.85" y="4.85" width="1.4" height="0.7" rx="0.35" fill={W} fillOpacity="0.35" />
+      </G>
     </Svg>
   );
 }
@@ -209,12 +212,14 @@ export function DataIcon({ size = 24 }: BankIconProps) {
         </LinearGradient>
       </Defs>
 
-      <Circle cx="12" cy="19.5" r="2" fill={`url(#${id}-dot)`} />
-      <Circle cx="11.3" cy="18.8" r="0.6" fill={W} fillOpacity="0.5" />
+      <G transform="translate(0, -2.2)">
+        <Circle cx="12" cy="19.5" r="2" fill={`url(#${id}-dot)`} />
+        <Circle cx="11.3" cy="18.8" r="0.6" fill={W} fillOpacity="0.5" />
 
-      {ring(7.2, 5.4, 1, `url(#${id}-ring1)`)}
-      {ring(11.4, 9.6, 1, `url(#${id}-ring2)`)}
-      {ring(15.6, 13.8, 1, `url(#${id}-ring2)`)}
+        {ring(7.2, 5.4, 1, `url(#${id}-ring1)`)}
+        {ring(11.4, 9.6, 1, `url(#${id}-ring2)`)}
+        {ring(15.6, 13.8, 1, `url(#${id}-ring2)`)}
+      </G>
     </Svg>
   );
 }
@@ -240,29 +245,31 @@ export function BillsIcon({ size = 24 }: BankIconProps) {
         </LinearGradient>
       </Defs>
 
-      <Path
-        d="M4.6 1.2H17.4V13.6L16 12.5L14.6 13.6L13.2 12.5L11.8 13.6L10.4 12.5L9 13.6L7.6 12.5L6.2 13.6L4.6 12.4Z"
-        fill={`url(#${id}-paper)`}
-        stroke={RIM}
-        strokeWidth="0.6"
-        strokeLinejoin="round"
-      />
-      <Rect x="6.4" y="3.4" width="9.2" height="1" rx="0.5" fill="rgba(255,255,255,0.22)" />
-      <Rect x="6.4" y="5.7" width="9.2" height="1" rx="0.5" fill="rgba(255,255,255,0.22)" />
-      <Rect x="6.4" y="8" width="6.2" height="1" rx="0.5" fill="rgba(255,255,255,0.14)" />
-      <Rect x="6.4" y="1.9" width="9.2" height="0.8" rx="0.4" fill={W} fillOpacity="0.3" />
+      <G transform="translate(-1.75, 0)">
+        <Path
+          d="M4.6 1.2H17.4V13.6L16 12.5L14.6 13.6L13.2 12.5L11.8 13.6L10.4 12.5L9 13.6L7.6 12.5L6.2 13.6L4.6 12.4Z"
+          fill={`url(#${id}-paper)`}
+          stroke={RIM}
+          strokeWidth="0.6"
+          strokeLinejoin="round"
+        />
+        <Rect x="6.4" y="3.4" width="9.2" height="1" rx="0.5" fill="rgba(255,255,255,0.22)" />
+        <Rect x="6.4" y="5.7" width="9.2" height="1" rx="0.5" fill="rgba(255,255,255,0.22)" />
+        <Rect x="6.4" y="8" width="6.2" height="1" rx="0.5" fill="rgba(255,255,255,0.14)" />
+        <Rect x="6.4" y="1.9" width="9.2" height="0.8" rx="0.4" fill={W} fillOpacity="0.3" />
 
-      {/* checkmark badge — separate 3D disc, clear of paper */}
-      <Circle cx="17.8" cy="18.4" r="5.1" fill={`url(#${id}-stamp)`} stroke={R_DARK} strokeWidth="0.4" />
-      <Path d="M14.9 17.9L15.6 20.1C15.9 20.4 16.4 20.4 16.7 20.1" stroke={W} strokeOpacity="0.28" strokeWidth="0.5" fill="none" />
-      <Path
-        d="M15.2 18.5L17 20.3L20.5 16.4"
-        stroke={W}
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
+        {/* checkmark badge — separate 3D disc, clear of paper */}
+        <Circle cx="17.8" cy="18.4" r="5.1" fill={`url(#${id}-stamp)`} stroke={R_DARK} strokeWidth="0.4" />
+        <Path d="M14.9 17.9L15.6 20.1C15.9 20.4 16.4 20.4 16.7 20.1" stroke={W} strokeOpacity="0.28" strokeWidth="0.5" fill="none" />
+        <Path
+          d="M15.2 18.5L17 20.3L20.5 16.4"
+          stroke={W}
+          strokeWidth="1.7"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </G>
     </Svg>
   );
 }
@@ -334,18 +341,20 @@ export function SavingsIcon({ size = 24 }: BankIconProps) {
         </RadialGradient>
       </Defs>
 
-      {coin(16.2, 0.62)}
-      {coin(13, 0.8)}
-      {coin(9.8, 1)}
+      <G transform="translate(0, -1.4)">
+        {coin(16.2, 0.62)}
+        {coin(13, 0.8)}
+        {coin(9.8, 1)}
 
-      {/* vault sphere — radial gradient for true ball-like 3D */}
-      <Circle cx="17.7" cy="14" r="5.8" fill={`url(#${id}-vault)`} stroke={R_DARK} strokeWidth="0.4" />
-      <Ellipse cx="16" cy="11.4" rx="2.1" ry="1.3" fill={W} fillOpacity="0.25" />
-      <Circle cx="17.7" cy="14" r="2.9" fill="none" stroke={W} strokeOpacity="0.75" strokeWidth="1.3" />
-      <Line x1="17.7" y1="11.4" x2="17.7" y2="12.5" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
-      <Line x1="17.7" y1="15.5" x2="17.7" y2="16.6" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
-      <Line x1="15.1" y1="14" x2="16.2" y2="14" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
-      <Line x1="19.2" y1="14" x2="20.3" y2="14" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
+        {/* vault sphere — radial gradient for true ball-like 3D */}
+        <Circle cx="17.7" cy="14" r="5.8" fill={`url(#${id}-vault)`} stroke={R_DARK} strokeWidth="0.4" />
+        <Ellipse cx="16" cy="11.4" rx="2.1" ry="1.3" fill={W} fillOpacity="0.25" />
+        <Circle cx="17.7" cy="14" r="2.9" fill="none" stroke={W} strokeOpacity="0.75" strokeWidth="1.3" />
+        <Line x1="17.7" y1="11.4" x2="17.7" y2="12.5" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
+        <Line x1="17.7" y1="15.5" x2="17.7" y2="16.6" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
+        <Line x1="15.1" y1="14" x2="16.2" y2="14" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
+        <Line x1="19.2" y1="14" x2="20.3" y2="14" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
+      </G>
     </Svg>
   );
 }
@@ -445,14 +454,16 @@ export function BellIcon({ size = 20, color = W }: BankIconProps) {
           <Stop offset="1" stopColor={BLK_DARK} />
         </LinearGradient>
       </Defs>
-      <Path
-        d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9Z"
-        fill={`url(#${id}-blk)`}
-        stroke={RIM}
-        strokeWidth="0.6"
-      />
-      <Path d="M6.6 8.6a5.4 5.4 0 0 1 2.6-4" stroke={W} strokeOpacity="0.35" strokeWidth="0.9" strokeLinecap="round" fill="none" />
-      <Path d="M13.73 21a2 2 0 0 1-3.46 0" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <G transform="translate(0, 1.3)">
+        <Path
+          d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9Z"
+          fill={`url(#${id}-blk)`}
+          stroke={RIM}
+          strokeWidth="0.6"
+        />
+        <Path d="M6.6 8.6a5.4 5.4 0 0 1 2.6-4" stroke={W} strokeOpacity="0.35" strokeWidth="0.9" strokeLinecap="round" fill="none" />
+        <Path d="M13.73 21a2 2 0 0 1-3.46 0" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      </G>
     </Svg>
   );
 }

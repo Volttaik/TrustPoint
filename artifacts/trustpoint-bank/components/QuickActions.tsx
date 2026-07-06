@@ -119,29 +119,13 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
           onPress={handlePress}
           onPressIn={() => { scale.value = withSpring(0.93, { damping: 14, stiffness: 220 }); }}
           onPressOut={() => { scale.value = withSpring(1, { damping: 14, stiffness: 220 }); }}
-          style={[
-            styles.tile,
-            {
-              backgroundColor: accent ? colors.primaryDeep : colors.card,
-              borderColor: accent ? "rgba(225,29,51,0.55)" : colors.borderStrong,
-            },
-          ]}
+          style={styles.tile}
         >
-          <LinearGradient
-            pointerEvents="none"
-            colors={
-              accent
-                ? ["rgba(255,255,255,0.07)", "rgba(0,0,0,0)", "rgba(0,0,0,0.2)"]
-                : ["rgba(255,255,255,0.05)", "rgba(0,0,0,0)", "rgba(0,0,0,0.15)"]
-            }
-            locations={[0, 0.45, 1]}
-            style={StyleSheet.absoluteFill}
-          />
           <View
             style={[
               styles.iconCircle,
               accent
-                ? { backgroundColor: "rgba(0,0,0,0.35)" }
+                ? { backgroundColor: colors.primary }
                 : { backgroundColor: colors.charcoal },
             ]}
           >
@@ -159,7 +143,7 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
           <Text
             style={[
               styles.label,
-              { color: accent ? "#FFFFFF" : colors.mutedForeground, fontFamily: "Inter_500Medium" },
+              { color: accent ? colors.primary : colors.mutedForeground, fontFamily: "Inter_500Medium" },
             ]}
             numberOfLines={1}
           >
@@ -172,33 +156,24 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
 }
 
 const styles = StyleSheet.create({
-  grid: { rowGap: 12 },
+  grid: { rowGap: 22 },
   row: { flexDirection: "row" },
-  rowSeparator: { height: 1, marginVertical: 2 },
+  rowSeparator: { height: 2, marginVertical: 8, borderRadius: 1 },
   item: { flex: 1 },
   itemGap: { marginRight: 10 },
   tile: {
     aspectRatio: 1,
-    borderRadius: 20,
-    borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
-    gap: 9,
-    paddingHorizontal: 4,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    elevation: 8,
+    gap: 8,
   },
   iconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
   },
-  label: { fontSize: 11, letterSpacing: -0.1 },
+  label: { fontSize: 10, letterSpacing: -0.1 },
 });

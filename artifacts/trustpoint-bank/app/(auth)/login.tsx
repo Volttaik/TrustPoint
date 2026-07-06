@@ -14,9 +14,10 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { BlurView } from "expo-blur";
 import { PinPad } from "@/components/ui/PinPad";
+import { Avatar } from "@/components/Avatar";
 import { useApp } from "@/context/AppContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Svg, { Circle, Path } from "react-native-svg";
+import Svg, { Circle, Defs, Path, RadialGradient, Stop } from "react-native-svg";
 
 type VerifyState = "idle" | "spinning" | "success" | "error";
 
@@ -124,12 +125,25 @@ export default function LoginScreen() {
       />
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
 
+      <View style={styles.header}>
+        <View style={styles.headerBrand}>
+          <Image
+            source={require("@/assets/images/icon_transparent.png")}
+            style={styles.headerLogo}
+            resizeMode="contain"
+          />
+          <Text style={[styles.headerTitle, { fontFamily: "Inter_700Bold" }]}>TrustPoint</Text>
+        </View>
+        <TouchableOpacity onPress={() => router.replace("/(auth)/register")}>
+          <Text style={[styles.headerLink, { fontFamily: "Inter_400Regular" }]}>
+            Are you new?{"\n"}
+            <Text style={{ color: "#E63946", fontFamily: "Inter_600SemiBold" }}>Create Account</Text>
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.top}>
-        <Image
-          source={require("@/assets/images/icon_transparent.png")}
-          style={styles.icon}
-          resizeMode="contain"
-        />
+        <Avatar initials={user?.initials ?? "?"} color={user?.avatarColor ?? "#E63946"} size={64} />
         <Text style={[styles.greeting, { fontFamily: "Inter_400Regular" }]}>Welcome back,</Text>
         <Text style={[styles.name, { fontFamily: "Inter_700Bold" }]}>{displayName}</Text>
         {displayPhone ? (
@@ -153,13 +167,8 @@ export default function LoginScreen() {
 
       <View style={styles.bottom}>
         <TouchableOpacity onPress={() => {}}>
-          <Text style={[styles.linkText, { fontFamily: "Inter_400Regular" }]}>
+          <Text style={[styles.linkTextSmall, { fontFamily: "Inter_400Regular" }]}>
             Forgot PIN? <Text style={{ color: "#E63946" }}>Reset</Text>
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.replace("/(auth)/register")}>
-          <Text style={[styles.linkText, { fontFamily: "Inter_400Regular" }]}>
-            New user? <Text style={{ color: "#E63946" }}>Create account</Text>
           </Text>
         </TouchableOpacity>
       </View>
@@ -177,12 +186,19 @@ export default function LoginScreen() {
               <>
                 <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
                   <Svg width={winWidth * 0.62} height={winWidth * 0.62} viewBox="0 0 112 112" fill="none">
+                    <Defs>
+                      <RadialGradient id="spinnerHead" cx="0.5" cy="0.5" r="0.5">
+                        <Stop offset="0" stopColor="#FF7A85" />
+                        <Stop offset="1" stopColor="#E63946" />
+                      </RadialGradient>
+                    </Defs>
                     <Path
                       d="M56 8a48 48 0 0 1 48 48"
                       stroke="#E63946"
                       strokeWidth="7"
                       strokeLinecap="round"
                     />
+                    <Circle cx="104" cy="56" r="7.5" fill="url(#spinnerHead)" />
                   </Svg>
                 </Animated.View>
                 <Text style={[styles.verifyLabel, { fontFamily: "Inter_500Medium" }]}>Verifying…</Text>
@@ -222,25 +238,37 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0A0A0A" },
   overlay: { backgroundColor: "rgba(0,0,0,0.72)" },
+  header: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    paddingTop: 58,
+    paddingHorizontal: 22,
+  },
+  headerBrand: { flexDirection: "row", alignItems: "center", gap: 8 },
+  headerLogo: { width: 34, height: 34 },
+  headerTitle: { fontSize: 22, color: "#F1FAEE", letterSpacing: -0.5 },
+  headerLink: { fontSize: 11.5, color: "#8E8E93", textAlign: "right", lineHeight: 15 },
   top: {
     alignItems: "center",
-    paddingTop: 100,
-    paddingBottom: 32,
-    gap: 6,
+    paddingTop: 28,
+    paddingBottom: 20,
+    gap: 5,
   },
   icon: { width: 72, height: 72, marginBottom: 10 },
-  greeting: { fontSize: 14, color: "#8E8E93" },
-  name: { fontSize: 28, color: "#F1FAEE", letterSpacing: -1 },
-  phone: { fontSize: 13, color: "#8E8E93" },
+  greeting: { fontSize: 12.5, color: "#8E8E93" },
+  name: { fontSize: 22, color: "#F1FAEE", letterSpacing: -0.6 },
+  phone: { fontSize: 12, color: "#8E8E93" },
   padArea: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: 16,
   },
-  errorText: { fontSize: 13, color: "#E63946" },
-  bottom: { paddingBottom: 52, alignItems: "center", gap: 14 },
+  errorText: { fontSize: 12.5, color: "#E63946" },
+  bottom: { paddingBottom: 40, alignItems: "center", gap: 10 },
   linkText: { fontSize: 14, color: "#8E8E93" },
+  linkTextSmall: { fontSize: 12, color: "#6E6E73" },
   modalBg: {
     flex: 1,
     backgroundColor: "transparent",
