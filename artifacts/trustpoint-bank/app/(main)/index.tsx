@@ -69,6 +69,17 @@ export default function DashboardScreen() {
         }
       >
         {/* Header */}
+        <View style={styles.brandRow}>
+          <Image
+            source={require("@/assets/images/icon_transparent.png")}
+            style={styles.brandLogo}
+            resizeMode="contain"
+          />
+          <Text style={[styles.brandText, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+            Welcome to Trust Point
+          </Text>
+        </View>
+
         <View style={styles.header}>
           <Pressable onPress={() => router.push("/(main)/more")} style={styles.identity}>
             <Avatar
@@ -251,8 +262,11 @@ function HeaderIconButton({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
-  overlay: { backgroundColor: "rgba(0,0,0,0.72)" },
+  overlay: { backgroundColor: "rgba(0,0,0,0.25)" },
   scroll: { paddingHorizontal: 20, gap: 26 },
+  brandRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: -8 },
+  brandLogo: { width: 28, height: 28 },
+  brandText: { fontSize: 16, letterSpacing: -0.3 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   identity: { flexDirection: "row", alignItems: "center", gap: 12 },
   greeting: { fontSize: 12.5, letterSpacing: 0.1 },

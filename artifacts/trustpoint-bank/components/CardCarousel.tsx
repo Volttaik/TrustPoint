@@ -27,6 +27,25 @@ export function CardCarousel({ cards, onCardPress, onFreezeCard }: CardCarouselP
         const nickname = item.type === "virtual" ? "Virtual Card" : "Physical Card";
         const last4 = item.number.slice(-4);
 
+        if (item.type === "virtual") {
+          return (
+            <Pressable
+              key={item.id}
+              onPress={() => onCardPress?.(item)}
+              style={({ pressed }) => [
+                styles.imageRow,
+                { opacity: pressed ? 0.92 : 1, marginTop: idx === 0 ? 0 : 12 },
+              ]}
+            >
+              <Image
+                source={require("@/assets/images/virtual-card-thumb.png")}
+                style={styles.fullImage}
+                resizeMode="cover"
+              />
+            </Pressable>
+          );
+        }
+
         return (
           <Pressable
             key={item.id}
@@ -36,30 +55,20 @@ export function CardCarousel({ cards, onCardPress, onFreezeCard }: CardCarouselP
               { opacity: pressed ? 0.92 : 1, marginTop: idx === 0 ? 0 : 12 },
             ]}
           >
-            {item.type === "virtual" ? (
-              <View style={styles.chip}>
-                <Image
-                  source={require("@/assets/images/virtual-card-thumb.png")}
-                  style={styles.chipImage}
-                  resizeMode="cover"
-                />
-              </View>
-            ) : (
-              <LinearGradient
-                colors={gradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.chip}
-              >
-                <View pointerEvents="none" style={styles.chipHighlight} />
-                <TpIcon
-                  name="credit-card"
-                  size={18}
-                  color="rgba(255,255,255,0.85)"
-                  strokeWidth={2}
-                />
-              </LinearGradient>
-            )}
+            <LinearGradient
+              colors={gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.chip}
+            >
+              <View pointerEvents="none" style={styles.chipHighlight} />
+              <TpIcon
+                name="credit-card"
+                size={18}
+                color="rgba(255,255,255,0.85)"
+                strokeWidth={2}
+              />
+            </LinearGradient>
 
             <View style={styles.info}>
               <View style={styles.infoTopRow}>
@@ -108,6 +117,16 @@ export function CardCarousel({ cards, onCardPress, onFreezeCard }: CardCarouselP
 
 const styles = StyleSheet.create({
   stack: {},
+  imageRow: {
+    borderRadius: 18,
+    overflow: "hidden",
+    aspectRatio: 1024 / 645,
+    width: "100%",
+  },
+  fullImage: {
+    width: "100%",
+    height: "100%",
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
