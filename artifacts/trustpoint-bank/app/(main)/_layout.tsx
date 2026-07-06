@@ -32,10 +32,10 @@ import { TransferIcon, CardsIcon } from "@/components/BankIcons";
 const TP_LOGO = require("@/assets/images/icon_transparent.png");
 
 const BAR_H = 64;
-const BUMP_H = 34;
-const BUMP_W = 54;
-const BCR = 32;   // bottom corner radius
-const CR = 32;    // top corner radius
+const BUMP_H = 36;
+const BUMP_W = 62;
+const BCR = 36;   // bottom corner radius
+const CR = 36;    // top corner radius
 const LOGO_SIZE = 56;
 
 function NavBarShape({ width, isDark }: { width: number; isDark: boolean }) {
@@ -47,14 +47,15 @@ function NavBarShape({ width, isDark }: { width: number; isDark: boolean }) {
   const mid = W / 2;
   const total = BAR_H + bh;
 
-  /* Smooth bell-curve bump: CP1 hugs the bar level (55% out),
-     CP2 comes in close to peak (10% from centre) so the top is
-     wide and round instead of triangular. */
+  /* True ellipse-arc approximation using κ = 0.5523.
+     CP1 is at the outer edge partway up, CP2 is wide from the peak —
+     this gives a genuine smooth semicircle instead of a triangle. */
+  const k = 0.5523;
   const d = [
     `M ${cr} ${bh}`,
     `L ${mid - bw} ${bh}`,
-    `C ${mid - bw * 0.55} ${bh} ${mid - bw * 0.1} 0 ${mid} 0`,
-    `C ${mid + bw * 0.1} 0 ${mid + bw * 0.55} ${bh} ${mid + bw} ${bh}`,
+    `C ${mid - bw} ${bh * (1 - k)} ${mid - bw * k} 0 ${mid} 0`,
+    `C ${mid + bw * k} 0 ${mid + bw} ${bh * (1 - k)} ${mid + bw} ${bh}`,
     `L ${W - cr} ${bh}`,
     `Q ${W} ${bh} ${W} ${bh + cr}`,
     `L ${W} ${total - bcr}`,

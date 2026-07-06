@@ -198,10 +198,9 @@ export default function LoginScreen() {
                       strokeWidth="7"
                       strokeLinecap="round"
                     />
-                    <Circle cx="104" cy="56" r="7.5" fill="url(#spinnerHead)" />
                   </Svg>
                 </Animated.View>
-                <Text style={[styles.verifyLabel, { fontFamily: "Inter_500Medium" }]}>Verifying…</Text>
+                <Text style={[styles.verifyLabel, { fontFamily: "Inter_500Medium" }]}>Login</Text>
               </>
             )}
             {(verifyState === "success" || verifyState === "error") && (
@@ -214,12 +213,42 @@ export default function LoginScreen() {
                   },
                 ]}>
                   {verifyState === "success" ? (
-                    <Svg width={52} height={52} viewBox="0 0 24 24" fill="none">
-                      <Path d="M20 6L9 17l-5-5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <Svg width={58} height={58} viewBox="0 0 58 58" fill="none">
+                      {/* outer glow ring */}
+                      <Path
+                        d="M11 29L23 43L47 16"
+                        stroke="rgba(255,255,255,0.2)"
+                        strokeWidth="9"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      {/* main thick stem — bottom-left to kink */}
+                      <Path
+                        d="M11 29L23 43"
+                        stroke="#fff"
+                        strokeWidth="5.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      {/* main long arm — kink to top-right */}
+                      <Path
+                        d="M23 43L47 16"
+                        stroke="#fff"
+                        strokeWidth="5.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </Svg>
                   ) : (
-                    <Svg width={52} height={52} viewBox="0 0 24 24" fill="none">
-                      <Path d="M18 6L6 18M6 6l12 12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
+                    <Svg width={58} height={58} viewBox="0 0 58 58" fill="none">
+                      <Path
+                        d="M16 16L42 42"
+                        stroke="#fff" strokeWidth="5.5" strokeLinecap="round"
+                      />
+                      <Path
+                        d="M42 16L16 42"
+                        stroke="#fff" strokeWidth="5.5" strokeLinecap="round"
+                      />
                     </Svg>
                   )}
                 </Animated.View>
