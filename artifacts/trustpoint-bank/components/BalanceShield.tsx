@@ -19,7 +19,7 @@ export function BalanceShield(_props: BalanceShieldProps) {
   return (
     <View style={styles.wrapper}>
       <Image
-        source={require("@/assets/images/card-bg.png")}
+        source={require("@/assets/images/card-bg-new-transparent.png")}
         style={styles.card}
         resizeMode="cover"
       />
