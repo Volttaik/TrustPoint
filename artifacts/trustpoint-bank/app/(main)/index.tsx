@@ -47,12 +47,12 @@ export default function DashboardScreen() {
   const recentTx = transactions.slice(0, 2);
 
   return (
-    <ImageBackground
-      source={require("@/assets/images/dashboard-bg.png")}
-      style={styles.container}
-      imageStyle={styles.bgImage}
-      resizeMode="cover"
-    >
+    <View style={styles.container}>
+      <ImageBackground
+        source={require("@/assets/images/dashboard-bg.png")}
+        style={styles.bgLayer}
+        resizeMode="cover"
+      />
       <StatusBar style="light" />
 
       <ScrollView
@@ -214,7 +214,7 @@ export default function DashboardScreen() {
           <PromoBanner onPress={() => {}} />
         </View>
       </ScrollView>
-    </ImageBackground>
+    </View>
   );
 }
 
@@ -249,9 +249,9 @@ function HeaderIconButton({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  bgImage: {
-    top: 0,
+  container: { flex: 1, backgroundColor: "#000" },
+  bgLayer: {
+    ...StyleSheet.absoluteFillObject,
   },
   scroll: { paddingHorizontal: 20, gap: 26 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
