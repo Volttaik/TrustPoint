@@ -53,14 +53,14 @@ export default function TransfersScreen() {
             label="TrustPoint to TrustPoint"
             subtitle="Instant, free transfer"
             color={colors.primary}
-            onPress={() => router.push("/transfer/method")}
+            onPress={() => router.push("/transfer")}
           />
           <TransferOption
             icon="shuffle"
             label="Other Banks"
             subtitle="Transfer to any Nigerian bank"
             color={colors.success}
-            onPress={() => router.push("/transfer/method")}
+            onPress={() => router.push("/transfer")}
           />
           <TransferOption
             icon="globe"
@@ -87,7 +87,7 @@ export default function TransfersScreen() {
               {favorites.map((b) => (
                 <Pressable
                   key={b.id}
-                  onPress={() => router.push("/transfer/method")}
+                  onPress={() => router.push("/transfer")}
                   style={styles.favItem}
                 >
                   <Avatar initials={b.initials} color={b.avatarColor} size={52} />

@@ -24,7 +24,7 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1000));
-    await registerUser({ name, email, phone });
+    await registerUser({ name, email, phone, rawPin: "" });
     setLoading(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);

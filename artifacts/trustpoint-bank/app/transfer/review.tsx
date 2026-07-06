@@ -12,12 +12,22 @@ import { useColors } from "@/hooks/useColors";
 export default function ReviewScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { beneficiaryId, amount } = useLocalSearchParams<{ beneficiaryId: string; amount: string }>();
+  const { beneficiaryId, accountNumber, amount } = useLocalSearchParams<{
+    beneficiaryId?: string;
+    accountNumber?: string;
+    amount: string;
+  }>();
   const { beneficiaries, user } = useApp();
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = insets.bottom + (Platform.OS === "web" ? 34 : 0);
 
-  const beneficiary = beneficiaries.find((b) => b.id === beneficiaryId) ?? beneficiaries[0];
+  const beneficiary = beneficiaries.find((b) => b.id === beneficiaryId) ?? null;
+  // Recipient display values — works for both saved-beneficiary and manual account-number flows
+  const recipientName = beneficiary?.name ?? "New Recipient";
+  const recipientAccount = beneficiary?.account ?? accountNumber ?? "N/A";
+  const recipientBank = beneficiary?.bank ?? "Interbank";
+  const recipientInitials = beneficiary?.initials ?? (accountNumber ? "NR" : "??");
+  const recipientAvatarColor = beneficiary?.avatarColor ?? "#457B9D";
   const numAmount = parseFloat(amount ?? "0") || 0;
   const fee = numAmount > 0 ? 10 : 0;
   const total = numAmount + fee;
@@ -73,22 +83,22 @@ export default function ReviewScreen() {
           </View>
 
           <View style={styles.party}>
-            <Avatar initials={beneficiary?.initials ?? "??"} color={beneficiary?.avatarColor ?? "#888"} size={60} />
+            <Avatar initials={recipientInitials} color={recipientAvatarColor} size={60} />
             <Text style={[styles.partyName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
-              {beneficiary?.name?.split(" ")[0] ?? "Recipient"}
+              {recipientName.split(" ")[0]}
             </Text>
             <Text style={[styles.partySub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              {beneficiary?.bank ?? "Bank"}
+              {recipientBank}
             </Text>
           </View>
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Detail label="Recipient" value={beneficiary?.name ?? "Unknown"} />
+          <Detail label="Recipient" value={recipientName} />
           <View style={[styles.sep, { backgroundColor: colors.border }]} />
-          <Detail label="Account Number" value={beneficiary?.account ?? "N/A"} />
+          <Detail label="Account Number" value={recipientAccount} />
           <View style={[styles.sep, { backgroundColor: colors.border }]} />
-          <Detail label="Bank" value={beneficiary?.bank ?? "N/A"} />
+          <Detail label="Bank" value={recipientBank} />
           <View style={[styles.sep, { backgroundColor: colors.border }]} />
           <Detail label="Amount" value={formatCur(numAmount)} />
           <View style={[styles.sep, { backgroundColor: colors.border }]} />
@@ -110,7 +120,12 @@ export default function ReviewScreen() {
           onPress={() =>
             router.push({
               pathname: "/transfer/pin",
-              params: { beneficiaryId: beneficiary?.id, amount: numAmount, total },
+              params: {
+              ...(beneficiary ? { beneficiaryId: beneficiary.id } : {}),
+              ...(accountNumber ? { accountNumber } : {}),
+              amount: numAmount,
+              total,
+            },
             })
           }
           fullWidth

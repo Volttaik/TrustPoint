@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  text: {},
   online: {
     position: "absolute",
     backgroundColor: "#34C759",

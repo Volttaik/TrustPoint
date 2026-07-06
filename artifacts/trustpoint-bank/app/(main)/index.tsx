@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 import {
+  Dimensions,
   Platform,
   Pressable,
   RefreshControl,
@@ -10,6 +11,8 @@ import {
   Image,
   useColorScheme,
 } from "react-native";
+
+const { width: winWidth, height: winHeight } = Dimensions.get("window");
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
@@ -128,7 +131,7 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <QuickActions
             actions={[
-              { icon: "transfer", label: "Transfer", onPress: () => router.push("/transfer/method"), accent: true },
+              { icon: "transfer", label: "Transfer", onPress: () => router.push("/transfer"), accent: true },
               { icon: "deposit", label: "Add Money", onPress: () => {} },
               { icon: "airtime", label: "Airtime", onPress: () => router.push("/(main)/payments") },
               { icon: "data", label: "Data", onPress: () => router.push("/(main)/payments") },

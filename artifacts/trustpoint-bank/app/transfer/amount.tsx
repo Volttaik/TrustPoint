@@ -14,13 +14,20 @@ const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "⌫"];
 export default function AmountScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { beneficiaryId } = useLocalSearchParams<{ beneficiaryId: string }>();
+  const { beneficiaryId, accountNumber } = useLocalSearchParams<{ beneficiaryId?: string; accountNumber?: string }>();
   const { beneficiaries, user } = useApp();
   const [amount, setAmount] = useState("0");
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = insets.bottom + (Platform.OS === "web" ? 34 : 0);
 
-  const beneficiary = beneficiaries.find((b) => b.id === beneficiaryId) ?? beneficiaries[0];
+  // Support both flows: saved beneficiary (beneficiaryId) or manual account number entry
+  const beneficiary = beneficiaries.find((b) => b.id === beneficiaryId) ?? null;
+  const recipientLabel = beneficiary?.name ?? (accountNumber ? `Account ${accountNumber}` : "Recipient");
+  const recipientSub = beneficiary
+    ? `${beneficiary.bank} · ${beneficiary.account}`
+    : accountNumber
+    ? "New recipient"
+    : "";
 
   const handleKey = (key: string) => {
     if (key === "⌫") {
@@ -56,7 +63,7 @@ export default function AmountScreen() {
             Send to
           </Text>
           <Text style={[styles.headerSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-            {beneficiary?.name ?? "Beneficiary"}
+            {recipientLabel}
           </Text>
         </View>
         <View style={{ width: 40 }} />
@@ -132,7 +139,11 @@ export default function AmountScreen() {
           onPress={() =>
             router.push({
               pathname: "/transfer/review",
-              params: { beneficiaryId: beneficiary?.id, amount: amount },
+              params: {
+                ...(beneficiary ? { beneficiaryId: beneficiary.id } : {}),
+                ...(accountNumber ? { accountNumber } : {}),
+                amount,
+              },
             })
           }
           disabled={!hasEnough}

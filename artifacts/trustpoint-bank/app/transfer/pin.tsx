@@ -11,8 +11,9 @@ import { useColors } from "@/hooks/useColors";
 export default function TransferPinScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { beneficiaryId, amount, total } = useLocalSearchParams<{
-    beneficiaryId: string;
+  const { beneficiaryId, accountNumber, amount, total } = useLocalSearchParams<{
+    beneficiaryId?: string;
+    accountNumber?: string;
     amount: string;
     total: string;
   }>();
@@ -21,7 +22,10 @@ export default function TransferPinScreen() {
   const [error, setError] = useState(false);
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
 
-  const beneficiary = beneficiaries.find((b) => b.id === beneficiaryId) ?? beneficiaries[0];
+  const beneficiary = beneficiaries.find((b) => b.id === beneficiaryId) ?? null;
+  const recipientName = beneficiary?.name ?? (accountNumber ? `Account ${accountNumber}` : "Recipient");
+  const recipientBank = beneficiary?.bank ?? "Interbank";
+  const recipientAvatarColor = beneficiary?.avatarColor ?? "#457B9D";
   const numAmount = parseFloat(amount ?? "0") || 0;
 
   const handleKey = (key: string) => {
@@ -29,22 +33,27 @@ export default function TransferPinScreen() {
     const newPin = pin + key;
     setPin(newPin);
     if (newPin.length === 4) {
-      setTimeout(() => {
-        const correct = login(newPin);
+      setTimeout(async () => {
+        const correct = await login(newPin);
         if (correct) {
           addTransaction({
-            title: beneficiary?.name ?? "Transfer",
-            subtitle: `Money sent to ${beneficiary?.bank ?? "account"}`,
+            title: recipientName,
+            subtitle: `Money sent to ${recipientBank}`,
             amount: numAmount,
             type: "debit",
             status: "success",
             category: "Transfer",
-            bank: beneficiary?.bank,
-            avatarColor: beneficiary?.avatarColor ?? "#888",
+            bank: recipientBank,
+            avatarColor: recipientAvatarColor,
           });
           router.replace({
             pathname: "/transfer/success",
-            params: { beneficiaryId, amount, total },
+            params: {
+              ...(beneficiary ? { beneficiaryId: beneficiary.id } : {}),
+              ...(accountNumber ? { accountNumber } : {}),
+              amount,
+              total,
+            },
           });
         } else {
           setError(true);

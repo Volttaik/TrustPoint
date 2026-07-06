@@ -19,12 +19,18 @@ import { useColors } from "@/hooks/useColors";
 export default function TransferSuccessScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { beneficiaryId, amount } = useLocalSearchParams<{ beneficiaryId: string; amount: string }>();
+  const { beneficiaryId, accountNumber, amount } = useLocalSearchParams<{
+    beneficiaryId?: string;
+    accountNumber?: string;
+    amount: string;
+  }>();
   const { beneficiaries } = useApp();
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = insets.bottom + (Platform.OS === "web" ? 34 : 0);
 
-  const beneficiary = beneficiaries.find((b) => b.id === beneficiaryId) ?? beneficiaries[0];
+  const beneficiary = beneficiaries.find((b) => b.id === beneficiaryId) ?? null;
+  const recipientName = beneficiary?.name ?? (accountNumber ? `Account ${accountNumber}` : "Recipient");
+  const recipientBank = beneficiary?.bank ?? "Interbank";
   const numAmount = parseFloat(amount ?? "0") || 0;
 
   const checkScale = useSharedValue(0);
@@ -61,7 +67,7 @@ export default function TransferSuccessScreen() {
             ₦{numAmount.toLocaleString("en-NG", { minimumFractionDigits: 2 })}
           </Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-            Sent to {beneficiary?.name ?? "recipient"} · {beneficiary?.bank ?? "Bank"}
+            Sent to {recipientName} · {recipientBank}
           </Text>
 
           <View style={[styles.receiptCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
