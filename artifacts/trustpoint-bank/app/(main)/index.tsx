@@ -22,6 +22,7 @@ import { TransactionItem } from "@/components/TransactionItem";
 import { SpendingCashback } from "@/components/SpendingCashback";
 import { PromoBanner } from "@/components/PromoBanner";
 import { TpIcon } from "@/components/TpIcon";
+import { QRIcon, SupportIcon, BellIcon } from "@/components/BankIcons";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -153,14 +154,14 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <QuickActions
             actions={[
-              { icon: "send", label: "Transfer", onPress: () => router.push("/transfer/method"), accent: true },
-              { icon: "arrow-down-left", label: "Add Money", onPress: () => {} },
-              { icon: "smartphone", label: "Airtime", onPress: () => router.push("/(main)/payments") },
-              { icon: "wifi", label: "Data", onPress: () => router.push("/(main)/payments") },
-              { icon: "zap", label: "Bills", onPress: () => router.push("/(main)/payments") },
-              { icon: "credit-card", label: "Cards", onPress: () => router.push("/(main)/cards") },
-              { icon: "pie-chart", label: "Savings", onPress: () => router.push("/savings") },
-              { icon: "more-horizontal", label: "More", onPress: () => router.push("/(main)/more") },
+              { icon: "transfer", label: "Transfer", onPress: () => router.push("/transfer/method"), accent: true },
+              { icon: "deposit", label: "Add Money", onPress: () => {} },
+              { icon: "airtime", label: "Airtime", onPress: () => router.push("/(main)/payments") },
+              { icon: "data", label: "Data", onPress: () => router.push("/(main)/payments") },
+              { icon: "bills", label: "Bills", onPress: () => router.push("/(main)/payments") },
+              { icon: "cards", label: "Cards", onPress: () => router.push("/(main)/cards") },
+              { icon: "savings", label: "Savings", onPress: () => router.push("/savings") },
+              { icon: "more", label: "More", onPress: () => router.push("/(main)/more") },
             ]}
           />
         </View>
@@ -263,7 +264,12 @@ function HeaderIconButton({
         locations={[0, 0.5, 1]}
         style={StyleSheet.absoluteFill}
       />
-      <TpIcon name={icon} size={18} color={colors.text} strokeWidth={1.9} />
+      {icon === "qr-code" && <QRIcon size={18} color={colors.text} />}
+      {icon === "headset" && <SupportIcon size={18} color={colors.text} />}
+      {icon === "bell" && <BellIcon size={18} color={colors.text} />}
+      {icon !== "qr-code" && icon !== "headset" && icon !== "bell" && (
+        <TpIcon name={icon} size={18} color={colors.text} strokeWidth={1.9} />
+      )}
       {dot && <View style={[styles.notifDot, { backgroundColor: colors.primary, borderColor: colors.background }]} />}
     </Pressable>
   );

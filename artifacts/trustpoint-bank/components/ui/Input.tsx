@@ -33,6 +33,8 @@ export function Input({
   const [focused, setFocused] = useState(false);
   const [secure, setSecure] = useState(secureTextEntry ?? false);
 
+  const isDark = colors.background === "#08090A" || colors.background === "#0A0A0A";
+
   const handleFocus = useCallback((e: any) => {
     setFocused(true);
     onFocusProp?.(e);
@@ -44,12 +46,8 @@ export function Input({
   }, [onBlurProp]);
 
   const bg = focused
-    ? colors.background === "#0A0A0A"
-      ? "#222222"
-      : "#F0F0F0"
-    : colors.background === "#0A0A0A"
-    ? "#181818"
-    : "#F5F5F5";
+    ? isDark ? "#252729" : "#EBEBED"
+    : isDark ? "#1B1D21" : "#F2F3F5";
 
   return (
     <View style={{ width: "100%" }}>
@@ -58,7 +56,18 @@ export function Input({
           {label}
         </Text>
       )}
-      <View style={[styles.container, { backgroundColor: bg }]}>
+      <View
+        style={[
+          styles.container,
+          {
+            backgroundColor: bg,
+            borderWidth: 1.5,
+            borderColor: focused
+              ? isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)"
+              : isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
+          },
+        ]}
+      >
         {prefixIcon && <View style={styles.prefix}>{prefixIcon}</View>}
         <TextInput
           {...rest}

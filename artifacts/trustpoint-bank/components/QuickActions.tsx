@@ -7,11 +7,33 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
+import {
+  TransferIcon,
+  DepositIcon,
+  AirtimeIcon,
+  DataIcon,
+  BillsIcon,
+  CardsIcon,
+  SavingsIcon,
+  MoreIcon,
+} from "@/components/BankIcons";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
+
+export type BankIconName =
+  | "transfer"
+  | "deposit"
+  | "airtime"
+  | "data"
+  | "bills"
+  | "cards"
+  | "savings"
+  | "more";
+
+export type ActionIconName = BankIconName | TpIconName;
 
 interface Action {
-  icon: TpIconName;
+  icon: ActionIconName;
   label: string;
   onPress: () => void;
   accent?: boolean;
@@ -42,6 +64,24 @@ export function QuickActions({ actions }: QuickActionsProps) {
   );
 }
 
+const BANK_ICONS = new Set<BankIconName>(["transfer", "deposit", "airtime", "data", "bills", "cards", "savings", "more"]);
+
+function renderBankIcon(name: BankIconName, colors: any, accent: boolean) {
+  const iconColor = accent ? colors.primary : colors.text;
+  const iconAccent = accent ? "#fff" : colors.primary;
+  const size = 22;
+  switch (name) {
+    case "transfer": return <TransferIcon size={size} color={iconColor} accent={iconAccent} />;
+    case "deposit": return <DepositIcon size={size} color={iconColor} accent={accent ? "#fff" : "#2FBE73"} />;
+    case "airtime": return <AirtimeIcon size={size} color={iconColor} accent={iconAccent} />;
+    case "data": return <DataIcon size={size} color={iconColor} accent={accent ? "#fff" : "#3E8BFF"} />;
+    case "bills": return <BillsIcon size={size} color={iconColor} accent={accent ? "#fff" : "#E3A008"} />;
+    case "cards": return <CardsIcon size={size} color={iconColor} accent={accent ? "#fff" : "#3E8BFF"} />;
+    case "savings": return <SavingsIcon size={size} color={iconColor} accent={accent ? "#fff" : "#2FBE73"} />;
+    case "more": return <MoreIcon size={size} color={iconColor} accent={iconAccent} />;
+  }
+}
+
 function ActionButton({ icon, label, onPress, accent }: Action) {
   const colors = useColors();
   const scale = useSharedValue(1);
@@ -52,6 +92,8 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onPress();
   }, [onPress]);
+
+  const isBankIcon = BANK_ICONS.has(icon as BankIconName);
 
   return (
     <View style={styles.item}>
@@ -83,9 +125,15 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
               locations={[0, 0.5, 1]}
               style={StyleSheet.absoluteFill}
             />
-            <TpIcon name={icon} size={18} color={accent ? colors.primary : colors.text} strokeWidth={2} />
+            {isBankIcon
+              ? renderBankIcon(icon as BankIconName, colors, !!accent)
+              : <TpIcon name={icon as TpIconName} size={18} color={accent ? colors.primary : colors.text} strokeWidth={2} />
+            }
           </View>
-          <Text style={[styles.label, { color: accent ? "#FFFFFF" : colors.mutedForeground, fontFamily: "Inter_500Medium" }]} numberOfLines={1}>
+          <Text
+            style={[styles.label, { color: accent ? "#FFFFFF" : colors.mutedForeground, fontFamily: "Inter_500Medium" }]}
+            numberOfLines={1}
+          >
             {label}
           </Text>
         </TouchableOpacity>
@@ -118,9 +166,9 @@ const styles = StyleSheet.create({
     elevation: 9,
   },
   iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
