@@ -32,10 +32,10 @@ import { TransferIcon, CardsIcon } from "@/components/BankIcons";
 const TP_LOGO = require("@/assets/images/icon_transparent.png");
 
 const BAR_H = 64;
-const BUMP_H = 10;
-const BUMP_W = 36;
+const BUMP_H = 0;
+const BUMP_W = 0;
 const BCR = 0;    // bottom corner radius — flush to screen edge
-const CR = 16;    // top corner radius
+const CR = 8;     // top corner radius — subtle
 const LOGO_SIZE = 36;
 
 function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boolean; extraH?: number }) {
@@ -47,21 +47,17 @@ function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boo
   const mid = W / 2;
   const total = BAR_H + bh + extraH;
 
-  /* Smooth cosine-like hill: outer CP stays at base, inner CP near peak.
-     This gives a very gradual, rounded rise rather than an ellipse arc. */
+  /* Flat top bar with rounded top corners only (BCR=0 = flush to screen bottom). */
   const d = [
-    `M ${cr} ${bh}`,
-    `L ${mid - bw} ${bh}`,
-    `C ${mid - bw * 0.55} ${bh} ${mid - bw * 0.18} 0 ${mid} 0`,
-    `C ${mid + bw * 0.18} 0 ${mid + bw * 0.55} ${bh} ${mid + bw} ${bh}`,
-    `L ${W - cr} ${bh}`,
-    `Q ${W} ${bh} ${W} ${bh + cr}`,
+    `M ${cr} 0`,
+    `L ${W - cr} 0`,
+    `Q ${W} 0 ${W} ${cr}`,
     `L ${W} ${total - bcr}`,
     `Q ${W} ${total} ${W - bcr} ${total}`,
     `L ${bcr} ${total}`,
     `Q 0 ${total} 0 ${total - bcr}`,
-    `L 0 ${bh + cr}`,
-    `Q 0 ${bh} ${cr} ${bh}`,
+    `L 0 ${cr}`,
+    `Q 0 0 ${cr} 0`,
     `Z`,
   ].join(" ");
 
@@ -310,7 +306,7 @@ const styles = StyleSheet.create({
   logoWrapper: {
     flex: 1,
     alignItems: "center",
-    marginTop: -(BUMP_H / 2 + LOGO_SIZE / 2),
+    justifyContent: "center",
   },
   logoRing: {
     width: LOGO_SIZE,

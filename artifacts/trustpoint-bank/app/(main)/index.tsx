@@ -59,19 +59,8 @@ export default function DashboardScreen() {
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
       <StatusBar style="light" />
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={[styles.scroll, { paddingTop: topPad + 8, paddingBottom: bottomPad }]}
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
-          />
-        }
-      >
-        {/* Header */}
+      {/* Fixed header — lives outside the ScrollView so it never scrolls */}
+      <View style={[styles.fixedHeader, { paddingTop: topPad + 8 }]}>
         <View style={styles.brandRow}>
           <Image
             source={require("@/assets/images/icon_transparent.png")}
@@ -118,7 +107,20 @@ export default function DashboardScreen() {
             />
           </View>
         </View>
+      </View>
 
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={[styles.scroll, { paddingTop: 8, paddingBottom: bottomPad }]}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+          />
+        }
+      >
         {/* Balance Card */}
         <BalanceShield
           balance={user?.balance ?? 247560}
@@ -258,6 +260,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   overlay: { backgroundColor: "rgba(0,0,0,0.25)" },
   scroll: { paddingHorizontal: 20, gap: 26 },
+  fixedHeader: { paddingHorizontal: 20, gap: 26, paddingBottom: 14 },
   brandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: -4 },
   brandLogo: { width: 44, height: 44 },
   brandText: { fontSize: 22, letterSpacing: -0.4 },
