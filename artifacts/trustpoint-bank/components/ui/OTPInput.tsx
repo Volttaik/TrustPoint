@@ -68,12 +68,7 @@ export function OTPInput({ length = 4, onComplete, timerSeconds = 45, onResend }
               style={[
                 styles.box,
                 {
-                  borderColor: filled ? colors.primary : isFocused ? colors.primary : colors.border,
                   backgroundColor: filled ? colors.primary : colors.surface,
-                  shadowColor: filled || isFocused ? colors.primary : "transparent",
-                  shadowOffset: { width: 0, height: 0 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 6,
                 },
               ]}
             >
@@ -112,7 +107,6 @@ const styles = StyleSheet.create({
     width: 56,
     height: 60,
     borderRadius: 12,
-    borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
   },

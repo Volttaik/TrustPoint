@@ -61,10 +61,6 @@ export function Input({
           styles.container,
           {
             backgroundColor: bg,
-            borderWidth: 1.5,
-            borderColor: focused
-              ? isDark ? "rgba(255,255,255,0.18)" : "rgba(0,0,0,0.18)"
-              : isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
           },
         ]}
       >

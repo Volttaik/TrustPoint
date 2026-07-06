@@ -24,9 +24,9 @@ export function CardCarousel({ cards, onCardPress }: CardCarouselProps) {
             ]}
           >
             <Image
-              source={require("@/assets/images/trustpoint-card.png")}
+              source={require("@/assets/images/trustpoint-card-transparent.png")}
               style={styles.fullImage}
-              resizeMode="cover"
+              resizeMode="contain"
             />
           </Pressable>
         ))}
@@ -37,16 +37,14 @@ export function CardCarousel({ cards, onCardPress }: CardCarouselProps) {
 const styles = StyleSheet.create({
   stack: {},
   imageRow: {
-    borderRadius: 18,
-    overflow: "hidden",
     aspectRatio: 780 / 1000,
-    width: "55%",
+    width: "95%",
     alignSelf: "center",
     shadowColor: "#E11D33",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 16 },
+    shadowOpacity: 0.35,
+    shadowRadius: 30,
+    elevation: 14,
   },
   fullImage: {
     width: "100%",

@@ -164,7 +164,7 @@ export default function LoginScreen() {
       </View>
 
       <Modal visible={isVisible} transparent animationType="none">
-        <View style={styles.modalBg}>
+        <View style={styles.modalBg} pointerEvents="none">
           <Animated.View
             style={[
               styles.verifyCard,
@@ -174,12 +174,12 @@ export default function LoginScreen() {
             {verifyState === "spinning" && (
               <>
                 <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
-                  <Svg width={64} height={64} viewBox="0 0 64 64" fill="none">
-                    <Circle cx="32" cy="32" r="28" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
+                  <Svg width={112} height={112} viewBox="0 0 112 112" fill="none">
+                    <Circle cx="56" cy="56" r="48" stroke="rgba(255,255,255,0.12)" strokeWidth="7" />
                     <Path
-                      d="M32 4a28 28 0 0 1 28 28"
+                      d="M56 8a48 48 0 0 1 48 48"
                       stroke="#E63946"
-                      strokeWidth="5"
+                      strokeWidth="7"
                       strokeLinecap="round"
                     />
                   </Svg>
@@ -197,11 +197,11 @@ export default function LoginScreen() {
                   },
                 ]}>
                   {verifyState === "success" ? (
-                    <Svg width={36} height={36} viewBox="0 0 24 24" fill="none">
+                    <Svg width={52} height={52} viewBox="0 0 24 24" fill="none">
                       <Path d="M20 6L9 17l-5-5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                     </Svg>
                   ) : (
-                    <Svg width={36} height={36} viewBox="0 0 24 24" fill="none">
+                    <Svg width={52} height={52} viewBox="0 0 24 24" fill="none">
                       <Path d="M18 6L6 18M6 6l12 12" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
                     </Svg>
                   )}
@@ -242,35 +242,25 @@ const styles = StyleSheet.create({
   linkText: { fontSize: 14, color: "#8E8E93" },
   modalBg: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.65)",
+    backgroundColor: "transparent",
     alignItems: "center",
     justifyContent: "center",
   },
   verifyCard: {
-    backgroundColor: "#18191C",
-    borderRadius: 24,
-    paddingVertical: 36,
-    paddingHorizontal: 40,
+    backgroundColor: "transparent",
     alignItems: "center",
-    gap: 18,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.08)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.6,
-    shadowRadius: 40,
-    elevation: 20,
+    gap: 22,
     minWidth: 200,
   },
   verifyLabel: {
-    fontSize: 16,
+    fontSize: 19,
     color: "#F1FAEE",
     letterSpacing: -0.2,
   },
   resultCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     alignItems: "center",
     justifyContent: "center",
   },
