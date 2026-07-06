@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { TpIcon } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
@@ -36,20 +36,30 @@ export function CardCarousel({ cards, onCardPress, onFreezeCard }: CardCarouselP
               { opacity: pressed ? 0.92 : 1, marginTop: idx === 0 ? 0 : 12 },
             ]}
           >
-            <LinearGradient
-              colors={gradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.chip}
-            >
-              <View pointerEvents="none" style={styles.chipHighlight} />
-              <TpIcon
-                name="credit-card"
-                size={18}
-                color="rgba(255,255,255,0.85)"
-                strokeWidth={2}
-              />
-            </LinearGradient>
+            {item.type === "virtual" ? (
+              <View style={styles.chip}>
+                <Image
+                  source={require("@/assets/images/virtual-card-thumb.png")}
+                  style={styles.chipImage}
+                  resizeMode="cover"
+                />
+              </View>
+            ) : (
+              <LinearGradient
+                colors={gradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.chip}
+              >
+                <View pointerEvents="none" style={styles.chipHighlight} />
+                <TpIcon
+                  name="credit-card"
+                  size={18}
+                  color="rgba(255,255,255,0.85)"
+                  strokeWidth={2}
+                />
+              </LinearGradient>
+            )}
 
             <View style={styles.info}>
               <View style={styles.infoTopRow}>
@@ -122,6 +132,10 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.08)",
+  },
+  chipImage: {
+    width: "100%",
+    height: "100%",
   },
   chipHighlight: {
     position: "absolute",
