@@ -64,28 +64,29 @@ export function QuickActions({ actions }: QuickActionsProps) {
   );
 }
 
-const BANK_ICONS = new Set<BankIconName>(["transfer", "deposit", "airtime", "data", "bills", "cards", "savings", "more"]);
+const BANK_ICON_SET = new Set<BankIconName>([
+  "transfer", "deposit", "airtime", "data", "bills", "cards", "savings", "more",
+]);
 
-function renderBankIcon(name: BankIconName, colors: any, accent: boolean) {
-  const iconColor = accent ? colors.primary : colors.text;
-  const iconAccent = accent ? "#fff" : colors.primary;
-  const size = 22;
+const ICON_SIZE = 24;
+
+function BankIconRenderer({ name, color, accent }: { name: BankIconName; color: string; accent: boolean }) {
+  const iconColor = accent ? "#fff" : color;
   switch (name) {
-    case "transfer": return <TransferIcon size={size} color={iconColor} accent={iconAccent} />;
-    case "deposit": return <DepositIcon size={size} color={iconColor} accent={accent ? "#fff" : "#2FBE73"} />;
-    case "airtime": return <AirtimeIcon size={size} color={iconColor} accent={iconAccent} />;
-    case "data": return <DataIcon size={size} color={iconColor} accent={accent ? "#fff" : "#3E8BFF"} />;
-    case "bills": return <BillsIcon size={size} color={iconColor} accent={accent ? "#fff" : "#E3A008"} />;
-    case "cards": return <CardsIcon size={size} color={iconColor} accent={accent ? "#fff" : "#3E8BFF"} />;
-    case "savings": return <SavingsIcon size={size} color={iconColor} accent={accent ? "#fff" : "#2FBE73"} />;
-    case "more": return <MoreIcon size={size} color={iconColor} accent={iconAccent} />;
+    case "transfer": return <TransferIcon size={ICON_SIZE} color={iconColor} />;
+    case "deposit":  return <DepositIcon  size={ICON_SIZE} color={iconColor} />;
+    case "airtime":  return <AirtimeIcon  size={ICON_SIZE} color={iconColor} />;
+    case "data":     return <DataIcon     size={ICON_SIZE} color={iconColor} />;
+    case "bills":    return <BillsIcon    size={ICON_SIZE} color={iconColor} />;
+    case "cards":    return <CardsIcon    size={ICON_SIZE} color={iconColor} />;
+    case "savings":  return <SavingsIcon  size={ICON_SIZE} color={iconColor} />;
+    case "more":     return <MoreIcon     size={ICON_SIZE} color={iconColor} />;
   }
 }
 
 function ActionButton({ icon, label, onPress, accent }: Action) {
   const colors = useColors();
   const scale = useSharedValue(1);
-
   const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   const handlePress = useCallback(() => {
@@ -93,45 +94,58 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
     onPress();
   }, [onPress]);
 
-  const isBankIcon = BANK_ICONS.has(icon as BankIconName);
+  const isBankIcon = BANK_ICON_SET.has(icon as BankIconName);
 
   return (
     <View style={styles.item}>
       <Animated.View style={aStyle}>
         <TouchableOpacity
-          activeOpacity={0.9}
+          activeOpacity={0.88}
           onPress={handlePress}
-          onPressIn={() => { scale.value = withSpring(0.94, { damping: 14, stiffness: 220 }); }}
+          onPressIn={() => { scale.value = withSpring(0.93, { damping: 14, stiffness: 220 }); }}
           onPressOut={() => { scale.value = withSpring(1, { damping: 14, stiffness: 220 }); }}
           style={[
             styles.tile,
             {
               backgroundColor: accent ? colors.primaryDeep : colors.card,
-              borderColor: accent ? colors.primary : colors.borderStrong,
+              borderColor: accent ? "rgba(225,29,51,0.55)" : colors.borderStrong,
             },
           ]}
         >
+          <LinearGradient
+            pointerEvents="none"
+            colors={
+              accent
+                ? ["rgba(255,255,255,0.07)", "rgba(0,0,0,0)", "rgba(0,0,0,0.2)"]
+                : ["rgba(255,255,255,0.05)", "rgba(0,0,0,0)", "rgba(0,0,0,0.15)"]
+            }
+            locations={[0, 0.45, 1]}
+            style={StyleSheet.absoluteFill}
+          />
           <View
             style={[
               styles.iconCircle,
               accent
-                ? { backgroundColor: "#000000", borderColor: colors.primary }
+                ? { backgroundColor: "rgba(0,0,0,0.35)", borderColor: "rgba(225,29,51,0.4)" }
                 : { backgroundColor: colors.charcoal, borderColor: colors.borderStrong },
             ]}
           >
-            <LinearGradient
-              pointerEvents="none"
-              colors={["rgba(0,0,0,0.4)", "rgba(0,0,0,0)", "rgba(255,255,255,0.08)"]}
-              locations={[0, 0.5, 1]}
-              style={StyleSheet.absoluteFill}
-            />
-            {isBankIcon
-              ? renderBankIcon(icon as BankIconName, colors, !!accent)
-              : <TpIcon name={icon as TpIconName} size={18} color={accent ? colors.primary : colors.text} strokeWidth={2} />
-            }
+            {isBankIcon ? (
+              <BankIconRenderer name={icon as BankIconName} color={colors.text} accent={!!accent} />
+            ) : (
+              <TpIcon
+                name={icon as TpIconName}
+                size={20}
+                color={accent ? "#fff" : colors.text}
+                strokeWidth={2}
+              />
+            )}
           </View>
           <Text
-            style={[styles.label, { color: accent ? "#FFFFFF" : colors.mutedForeground, fontFamily: "Inter_500Medium" }]}
+            style={[
+              styles.label,
+              { color: accent ? "#FFFFFF" : colors.mutedForeground, fontFamily: "Inter_500Medium" },
+            ]}
             numberOfLines={1}
           >
             {label}
@@ -143,36 +157,32 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
 }
 
 const styles = StyleSheet.create({
-  grid: {
-    rowGap: 12,
-  },
-  row: {
-    flexDirection: "row",
-  },
+  grid: { rowGap: 12 },
+  row: { flexDirection: "row" },
   item: { flex: 1 },
-  itemGap: { marginRight: 12 },
+  itemGap: { marginRight: 10 },
   tile: {
     aspectRatio: 1,
-    borderRadius: 18,
+    borderRadius: 20,
     borderWidth: 1.5,
     alignItems: "center",
     justifyContent: "center",
-    gap: 8,
+    gap: 9,
     paddingHorizontal: 4,
+    overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
-    elevation: 9,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 12,
+    elevation: 8,
   },
   iconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
-    overflow: "hidden",
   },
-  label: { fontSize: 10.5, letterSpacing: -0.1 },
+  label: { fontSize: 11, letterSpacing: -0.1 },
 });
