@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
@@ -76,6 +77,12 @@ function ActionButton({ icon, label, onPress, accent }: Action) {
                 : { backgroundColor: colors.charcoal, borderColor: colors.borderStrong },
             ]}
           >
+            <LinearGradient
+              pointerEvents="none"
+              colors={["rgba(0,0,0,0.4)", "rgba(0,0,0,0)", "rgba(255,255,255,0.08)"]}
+              locations={[0, 0.5, 1]}
+              style={StyleSheet.absoluteFill}
+            />
             <TpIcon name={icon} size={18} color={accent ? colors.primary : colors.text} strokeWidth={2} />
           </View>
           <Text style={[styles.label, { color: accent ? "#FFFFFF" : colors.mutedForeground, fontFamily: "Inter_500Medium" }]} numberOfLines={1}>
@@ -117,6 +124,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1.5,
+    overflow: "hidden",
   },
   label: { fontSize: 10.5, letterSpacing: -0.1 },
 });

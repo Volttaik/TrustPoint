@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
 import { BalanceShield } from "@/components/BalanceShield";
@@ -256,6 +257,12 @@ function HeaderIconButton({
       ]}
       onPress={onPress}
     >
+      <LinearGradient
+        pointerEvents="none"
+        colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0)", "rgba(255,255,255,0.06)"]}
+        locations={[0, 0.5, 1]}
+        style={StyleSheet.absoluteFill}
+      />
       <TpIcon name={icon} size={18} color={colors.text} strokeWidth={1.9} />
       {dot && <View style={[styles.notifDot, { backgroundColor: colors.primary, borderColor: colors.background }]} />}
     </Pressable>
@@ -266,9 +273,9 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#000" },
   overlay: { backgroundColor: "rgba(0,0,0,0.25)" },
   scroll: { paddingHorizontal: 20, gap: 26 },
-  brandRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: -8 },
-  brandLogo: { width: 28, height: 28 },
-  brandText: { fontSize: 16, letterSpacing: -0.3 },
+  brandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: -4 },
+  brandLogo: { width: 44, height: 44 },
+  brandText: { fontSize: 22, letterSpacing: -0.4 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   identity: { flexDirection: "row", alignItems: "center", gap: 12 },
   greeting: { fontSize: 12.5, letterSpacing: 0.1 },
@@ -282,6 +289,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     position: "relative",
     borderWidth: 1,
+    overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
