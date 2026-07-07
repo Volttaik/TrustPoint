@@ -23,7 +23,6 @@ import Svg, {
   Rect,
   Stop,
 } from "react-native-svg";
-import { LinearGradient } from "expo-linear-gradient";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { TpIcon } from "@/components/TpIcon";
@@ -192,18 +191,7 @@ export default function TransferIndexScreen() {
           <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             Paying from
           </Text>
-          <LinearGradient
-            colors={isDark ? ["#1C0408", "#120206", "#080101"] : ["#FFF5F6", "#FFF0F2"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[styles.senderCard, { borderColor: RED_DK + "55" }]}
-          >
-            {/* Decorative illustration */}
-            <Image
-              source={require("@/assets/icons/exchange_currency_rate.webp")}
-              style={styles.senderDeco}
-              resizeMode="contain"
-            />
+          <View style={[styles.senderCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             {/* Avatar */}
             <View style={[styles.acctAvatar, { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }]}>
               <Text style={[styles.acctInitial, { color: "#fff", fontFamily: "Inter_700Bold" }]}>
@@ -222,7 +210,7 @@ export default function TransferIndexScreen() {
                 ₦{(user?.balance ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
               </Text>
             </View>
-          </LinearGradient>
+          </View>
         </View>
 
         {/* ── Account number input ─────────────────────── */}

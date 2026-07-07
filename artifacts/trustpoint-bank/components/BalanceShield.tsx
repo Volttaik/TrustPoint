@@ -28,7 +28,7 @@ export function BalanceShield({
   const cardW = winWidth - H_PAD * 2;
   const cardH = cardW / CARD_ASPECT;
 
-  const formatted = balance.toLocaleString("en-NG", { minimumFractionDigits: 2 });
+  const formatted = balance.toLocaleString("en-NG", { minimumFractionDigits: 0 });
   const digits    = (accountNumber ?? "").replace(/\D/g, "");
   const masked    = digits.length >= 4
     ? `**** **** ${digits.slice(-4)}`
@@ -46,8 +46,16 @@ export function BalanceShield({
       {/* Text overlay */}
       <View style={styles.overlay} pointerEvents="box-none">
 
-        {/* ── Balance ── */}
-        <View style={styles.balanceBlock}>
+        {/* ── Account holder label + name at top ── */}
+        <View style={styles.nameBlock}>
+          <Text style={styles.nameLabel}>Account Holder</Text>
+          <Text style={styles.accountName} numberOfLines={1}>
+            {cardholderName ?? "TrustPoint Account"}
+          </Text>
+        </View>
+
+        {/* ── Balance truly centered in remaining space ── */}
+        <View style={styles.balanceCenter}>
           <Text style={styles.balanceLabel}>Available Balance</Text>
           <View style={styles.balanceRow}>
             <Text style={styles.balanceAmount} numberOfLines={1} adjustsFontSizeToFit>
@@ -64,13 +72,8 @@ export function BalanceShield({
           </View>
         </View>
 
-        {/* ── Account info ── */}
-        <View style={styles.accountBlock}>
-          <Text style={styles.accountName} numberOfLines={1}>
-            {cardholderName ?? "TrustPoint Account"}
-          </Text>
-          <Text style={styles.accountNumber}>{masked}</Text>
-        </View>
+        {/* ── Masked account number at bottom ── */}
+        <Text style={styles.accountNumber}>{masked}</Text>
       </View>
     </View>
   );
@@ -92,12 +95,24 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: "space-between",
     paddingHorizontal: 22,
     paddingTop: 26,
     paddingBottom: 20,
   },
-  balanceBlock: { gap: 5 },
+  nameBlock: { gap: 2 },
+  nameLabel: {
+    fontSize: 9,
+    color: "rgba(255,255,255,0.45)",
+    fontFamily: "Inter_400Regular",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  balanceCenter: {
+    flex: 1,
+    justifyContent: "center",
+    gap: 5,
+    paddingBottom: 24,
+  },
   balanceLabel: {
     fontSize: 11,
     color: "rgba(255,255,255,0.55)",
@@ -112,10 +127,10 @@ const styles = StyleSheet.create({
   },
   balanceAmount: {
     flex: 1,
-    fontSize: 28,
+    fontSize: 22,
     color: "#FFFFFF",
     fontFamily: "Inter_700Bold",
-    letterSpacing: -0.8,
+    letterSpacing: -0.5,
   },
   eyeBtn: {
     width: 28,
