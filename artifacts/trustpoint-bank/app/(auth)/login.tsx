@@ -214,15 +214,6 @@ export default function LoginScreen() {
                 ]}>
                   {verifyState === "success" ? (
                     <Svg width={58} height={58} viewBox="0 0 58 58" fill="none">
-                      {/* outer glow ring */}
-                      <Path
-                        d="M11 29L23 43L47 16"
-                        stroke="rgba(255,255,255,0.2)"
-                        strokeWidth="9"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      {/* main thick stem — bottom-left to kink */}
                       <Path
                         d="M11 29L23 43"
                         stroke="#fff"
@@ -230,7 +221,6 @@ export default function LoginScreen() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
-                      {/* main long arm — kink to top-right */}
                       <Path
                         d="M23 43L47 16"
                         stroke="#fff"

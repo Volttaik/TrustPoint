@@ -486,6 +486,6 @@ const styles = StyleSheet.create({
   errorMsg: { fontSize: 13, color: "#E63946" },
   linkText: { fontSize: 14, color: "#8E8E93" },
   devNote: { fontSize: 12, color: "#555", textAlign: "center" },
-  checkCircle: { width: 96, height: 96, borderRadius: 48, backgroundColor: "#E63946", alignItems: "center", justifyContent: "center", shadowColor: "#E63946", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.5, shadowRadius: 20, marginBottom: 8 },
+  checkCircle: { width: 96, height: 96, borderRadius: 48, backgroundColor: "#E63946", alignItems: "center", justifyContent: "center", marginBottom: 8 },
   welcomeTitle: { fontSize: 32, color: "#F1FAEE", letterSpacing: -1 },
 });

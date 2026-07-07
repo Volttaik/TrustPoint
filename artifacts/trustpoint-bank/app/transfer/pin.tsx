@@ -47,7 +47,7 @@ export default function TransferPinScreen() {
             avatarColor: recipientAvatarColor,
           });
           router.replace({
-            pathname: "/transfer/success",
+            pathname: "/transfer/processing",
             params: {
               ...(beneficiary ? { beneficiaryId: beneficiary.id } : {}),
               ...(accountNumber ? { accountNumber } : {}),

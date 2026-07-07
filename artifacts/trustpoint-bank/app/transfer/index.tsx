@@ -23,20 +23,14 @@ import Svg, {
   Stop,
 } from "react-native-svg";
 import { useApp } from "@/context/AppContext";
+import { useColors } from "@/hooks/useColors";
 import { TpIcon } from "@/components/TpIcon";
 
-/* ─── Palette — pure black, no gradients ────────────────── */
-const BG      = "#000000";   // page background
-const SURF    = "#0F0F0F";   // card surface
-const SURF2   = "#080808";   // deeper surface (inputs, search)
-const SURF3   = "#161618";   // sheet / slightly lifted
-const BORDER  = "#1E1E22";   // solid dark border
-const MUTED   = "#666666";   // secondary labels
-const WHITE   = "#FFFFFF";
-const RED     = "#E11D33";
-const RED_DK  = "#8E0E1E";
+/* ─── Stable accent ──────────────────────────────────────── */
+const RED    = "#E11D33";
+const RED_DK = "#8E0E1E";
 
-/* ─── Banner icon: red broadcast badge ──────────────────── */
+/* ─── Banner icon ───────────────────────────────────────── */
 function BannerIcon({ size = 24 }: { size?: number }) {
   const id = useId();
   return (
@@ -48,11 +42,11 @@ function BannerIcon({ size = 24 }: { size?: number }) {
         </SvgGrad>
       </Defs>
       <Rect x="1" y="1" width="22" height="22" rx="7" fill={`url(#${id}-bg)`} />
-      <Path d="M7 9.5H9.5L13 7V17L9.5 14.5H7V9.5Z" fill={WHITE} />
+      <Path d="M7 9.5H9.5L13 7V17L9.5 14.5H7V9.5Z" fill="#fff" />
       <Path d="M15 9.5C16.2 10.4 16.2 13.6 15 14.5"
-        stroke={WHITE} strokeWidth="1.5" strokeLinecap="round" fill="none" />
+        stroke="#fff" strokeWidth="1.5" strokeLinecap="round" fill="none" />
       <Path d="M16.5 8C18.8 9.5 18.8 14.5 16.5 16"
-        stroke={WHITE} strokeWidth="1.2" strokeLinecap="round" fill="none" strokeOpacity="0.6" />
+        stroke="#fff" strokeWidth="1.2" strokeLinecap="round" fill="none" strokeOpacity="0.6" />
     </Svg>
   );
 }
@@ -69,10 +63,10 @@ function RecipientAvatar({ initials, size = 52 }: { initials: string; size?: num
         </SvgGrad>
       </Defs>
       <Circle cx="26" cy="26" r="25" fill={`url(#${id}-bg)`} stroke={RED} strokeWidth="1.6" />
-      <Path d="M17 21 A9 9 0 0 1 32 18" stroke={WHITE} strokeWidth="2" strokeLinecap="round" fill="none" />
-      <Path d="M31 15L33 19L29 19Z" fill={WHITE} />
-      <Path d="M35 31 A9 9 0 0 1 20 34" stroke={WHITE} strokeWidth="2" strokeLinecap="round" fill="none" />
-      <Path d="M21 37L19 33L23 33Z" fill={WHITE} />
+      <Path d="M17 21 A9 9 0 0 1 32 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <Path d="M31 15L33 19L29 19Z" fill="#fff" />
+      <Path d="M35 31 A9 9 0 0 1 20 34" stroke="#fff" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <Path d="M21 37L19 33L23 33Z" fill="#fff" />
     </Svg>
   );
 }
@@ -99,6 +93,7 @@ function fmtAcct(raw: string) {
    SCREEN
 ══════════════════════════════════════════════════════════ */
 export default function TransferIndexScreen() {
+  const colors = useColors();
   const insets = useSafeAreaInsets();
   const { user, beneficiaries } = useApp();
 
@@ -112,51 +107,56 @@ export default function TransferIndexScreen() {
   const topPad    = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = insets.bottom + 120 + (Platform.OS === "web" ? 34 : 0);
 
-  /* Simulate account name lookup */
   useEffect(() => {
     if (raw.length < 10) { setResolved(null); return; }
     const found = beneficiaries.find((b) => b.account.replace(/\D/g, "") === raw);
     setResolved(found
       ? { name: found.name, bank: found.bank }
-      : { name: "TrustPoint User", bank: "TrustPoint Bank" }
-    );
+      : { name: "TrustPoint User", bank: "TrustPoint Bank" });
   }, [raw, beneficiaries]);
 
-  const savedBenefs   = beneficiaries.filter((b) => b.favorite);
-  const recentBenefs  = beneficiaries.filter((b) => !b.favorite);
-  const sourceBenefs  = activeTab === "saved" ? savedBenefs : recentBenefs;
-  const filtered = sourceBenefs.filter(
+  const savedBenefs  = beneficiaries.filter((b) => b.favorite);
+  const recentBenefs = beneficiaries.filter((b) => !b.favorite);
+  const sourceBenefs = activeTab === "saved" ? savedBenefs : recentBenefs;
+  const filtered     = sourceBenefs.filter(
     (b) =>
       search === "" ||
       b.name.toLowerCase().includes(search.toLowerCase()) ||
-      b.account.includes(search),
+      b.account.includes(search)
   );
 
   function handleBeneficiary(id: string) {
     router.push({ pathname: "/transfer/amount", params: { beneficiaryId: id } });
   }
-
   function handleConfirm() {
     setShowConfirm(false);
     router.push({ pathname: "/transfer/amount", params: { accountNumber: raw } });
   }
 
-  return (
-    <View style={[styles.root, { paddingTop: topPad }]}>
-      <StatusBar style="light" />
+  /* ── Derived dynamic style pieces ─────────────────── */
+  const isDark = colors.background !== "#F4F5F7";
 
-      {/* ── Header — solid black ─────────────────── */}
-      <View style={styles.header}>
+  return (
+    <View style={[styles.root, { backgroundColor: colors.background, paddingTop: topPad }]}>
+      <StatusBar style={isDark ? "light" : "dark"} />
+
+      {/* ── Header ────────────────────────────────────── */}
+      <View style={[styles.header, {
+        backgroundColor: colors.background,
+        borderBottomColor: colors.border,
+      }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn} hitSlop={8}>
-          <TpIcon name="arrow-left" size={22} color={WHITE} strokeWidth={2} />
+          <TpIcon name="arrow-left" size={22} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Start your transfer</Text>
+        <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+          Start your transfer
+        </Text>
         <View style={styles.headerRight}>
           <TouchableOpacity style={styles.iconBtn} hitSlop={8}>
-            <HistoryIcon size={20} color={WHITE} />
+            <HistoryIcon size={20} color={colors.mutedForeground} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconBtnFlat} hitSlop={8}>
-            <TpIcon name="more-horizontal" size={20} color={WHITE} strokeWidth={2} />
+            <TpIcon name="more-horizontal" size={20} color={colors.mutedForeground} strokeWidth={2} />
           </TouchableOpacity>
         </View>
       </View>
@@ -166,86 +166,109 @@ export default function TransferIndexScreen() {
         contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Banner ───────────────────────────────── */}
-        <View style={styles.banner}>
+        {/* ── Banner ─────────────────────────────────── */}
+        <View style={[styles.banner, {
+          backgroundColor: isDark ? "#12040A" : "#FFF0F2",
+          borderColor: RED_DK + "44",
+        }]}>
           <BannerIcon size={26} />
-          <Text style={styles.bannerText}>
+          <Text style={[styles.bannerText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             TrustPoint to TrustPoint transfers are{" "}
-            <Text style={styles.bannerBold}>free &amp; instant</Text>
+            <Text style={{ color: colors.text, fontFamily: "Inter_600SemiBold" }}>
+              free &amp; instant
+            </Text>
           </Text>
         </View>
 
-        {/* ── Paying from ──────────────────────────── */}
+        {/* ── Paying from ─────────────────────────────── */}
         <View style={styles.section}>
-          <Text style={styles.label}>Paying from</Text>
-          <View style={styles.card}>
-            <View style={styles.acctAvatar}>
-              <Text style={styles.acctInitial}>
+          <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+            Paying from
+          </Text>
+          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.acctAvatar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[styles.acctInitial, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
                 {user?.initials?.slice(0, 2).toUpperCase() ?? "TP"}
               </Text>
             </View>
             <View style={styles.acctInfo}>
-              <Text style={styles.acctName} numberOfLines={1}>
+              <Text style={[styles.acctName, { color: colors.text, fontFamily: "Inter_500Medium" }]} numberOfLines={1}>
                 {user?.name ?? "TrustPoint Account"}
                 {"  ·  "}
-                <Text style={styles.acctNum}>
+                <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_400Regular" }}>
                   {user?.accountNumber ? fmtAcct(user.accountNumber) : "000 000 0000"}
                 </Text>
               </Text>
-              <Text style={styles.acctBalance}>
+              <Text style={[styles.acctBalance, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
                 ₦{(user?.balance ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* ── Account number input ─────────────────── */}
+        {/* ── Account number input ─────────────────────── */}
         <View style={styles.section}>
-          <Text style={styles.label}>Enter recipient's account number</Text>
-          <View style={styles.inputCard}>
+          <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+            Enter recipient's account number
+          </Text>
+          <View style={[styles.inputCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <TextInput
               value={fmtAcct(raw)}
               onChangeText={(t) => setRaw(t.replace(/\D/g, "").slice(0, 10))}
               keyboardType="number-pad"
               maxLength={12}
-              style={[styles.inputField, { color: raw.length === 0 ? "#2A2A2E" : WHITE }]}
+              style={[
+                styles.inputField,
+                {
+                  color: raw.length === 0 ? colors.placeholder : colors.text,
+                  fontFamily: "Inter_600SemiBold",
+                },
+              ]}
               placeholder="000 000 0000"
-              placeholderTextColor="#2A2A2E"
+              placeholderTextColor={colors.placeholder}
               textAlign="center"
               cursorColor={RED}
               returnKeyType="done"
             />
           </View>
 
-          {/* Resolved name row — tap opens confirm sheet */}
           {resolved && (
             <Pressable
               onPress={() => setShowConfirm(true)}
-              style={({ pressed }) => [styles.resolvedRow, { opacity: pressed ? 0.75 : 1 }]}
+              style={({ pressed }) => [
+                styles.resolvedRow,
+                { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
+              ]}
             >
               <RecipientAvatar initials={resolved.name.slice(0, 2)} size={44} />
               <View style={styles.resolvedInfo}>
-                <Text style={styles.resolvedName}>{resolved.name}</Text>
-                <Text style={styles.resolvedBank}>{resolved.bank}</Text>
+                <Text style={[styles.resolvedName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+                  {resolved.name}
+                </Text>
+                <Text style={[styles.resolvedBank, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                  {resolved.bank}
+                </Text>
               </View>
-              <TpIcon name="chevron-right" size={16} color={MUTED} strokeWidth={2.2} />
+              <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2.2} />
             </Pressable>
           )}
         </View>
 
-        {/* ── Select recipient ─────────────────────── */}
+        {/* ── Select recipient ─────────────────────────── */}
         <View style={styles.section}>
-          <Text style={[styles.label, { color: WHITE }]}>Select recipient</Text>
-          <View style={styles.recipientCard}>
+          <Text style={[styles.label, { color: colors.text, fontFamily: "Inter_400Regular" }]}>
+            Select recipient
+          </Text>
+          <View style={[styles.recipientCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             {/* search */}
-            <View style={styles.searchBar}>
-              <TpIcon name="search" size={16} color={MUTED} strokeWidth={1.8} />
+            <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <TpIcon name="search" size={16} color={colors.mutedForeground} strokeWidth={1.8} />
               <TextInput
                 value={search}
                 onChangeText={setSearch}
                 placeholder="Search accounts"
-                placeholderTextColor={MUTED}
-                style={styles.searchInput}
+                placeholderTextColor={colors.placeholder}
+                style={[styles.searchInput, { color: colors.text, fontFamily: "Inter_400Regular" }]}
               />
             </View>
 
@@ -262,10 +285,13 @@ export default function TransferIndexScreen() {
                         styles.tabPill,
                         active
                           ? { backgroundColor: RED + "1A", borderColor: RED + "44" }
-                          : { backgroundColor: "transparent", borderColor: BORDER },
+                          : { backgroundColor: "transparent", borderColor: colors.border },
                       ]}
                     >
-                      <Text style={[styles.tabTxt, { color: active ? RED : MUTED }]}>
+                      <Text style={[styles.tabTxt, {
+                        color: active ? RED : colors.mutedForeground,
+                        fontFamily: "Inter_600SemiBold",
+                      }]}>
                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
                       </Text>
                     </TouchableOpacity>
@@ -273,27 +299,35 @@ export default function TransferIndexScreen() {
                 })}
               </View>
               <TouchableOpacity hitSlop={8}>
-                <Text style={styles.viewAll}>View All</Text>
+                <Text style={[styles.viewAll, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+                  View All
+                </Text>
               </TouchableOpacity>
             </View>
 
             {/* list */}
             {filtered.length === 0 ? (
               <View style={styles.emptyRow}>
-                <Text style={styles.emptyTxt}>No recipients found</Text>
+                <Text style={[styles.emptyTxt, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                  No recipients found
+                </Text>
               </View>
             ) : (
               filtered.map((b, idx) => (
                 <React.Fragment key={b.id}>
-                  {idx > 0 && <View style={styles.divider} />}
+                  {idx > 0 && <View style={[styles.divider, { backgroundColor: colors.border }]} />}
                   <Pressable
                     onPress={() => handleBeneficiary(b.id)}
                     style={({ pressed }) => [styles.benefRow, pressed && { opacity: 0.7 }]}
                   >
                     <RecipientAvatar initials={b.initials} size={48} />
                     <View style={styles.benefInfo}>
-                      <Text style={styles.benefName}>{b.name}</Text>
-                      <Text style={styles.benefSub}>{b.bank}{"  ·  "}{b.account}</Text>
+                      <Text style={[styles.benefName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+                        {b.name}
+                      </Text>
+                      <Text style={[styles.benefSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                        {b.bank}{"  ·  "}{b.account}
+                      </Text>
                     </View>
                   </Pressable>
                 </React.Fragment>
@@ -303,7 +337,7 @@ export default function TransferIndexScreen() {
         </View>
       </ScrollView>
 
-      {/* ══ Confirm bottom sheet ═════════════════════ */}
+      {/* ══ Confirm bottom sheet ═══════════════════════ */}
       <Modal
         visible={showConfirm}
         transparent
@@ -311,47 +345,59 @@ export default function TransferIndexScreen() {
         onRequestClose={() => setShowConfirm(false)}
       >
         <Pressable style={styles.overlay} onPress={() => setShowConfirm(false)} />
-        <View style={styles.sheet}>
-          <View style={styles.handle} />
+        <View style={[styles.sheet, {
+          backgroundColor: colors.surfaceElevated,
+          borderColor: colors.border,
+        }]}>
+          <View style={[styles.handle, { backgroundColor: colors.border }]} />
 
-          <Text style={styles.sheetTitle}>Confirm it's the right person</Text>
+          <Text style={[styles.sheetTitle, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+            Confirm it's the right person
+          </Text>
 
-          {/* recipient detail card */}
-          <View style={styles.recipientDetail}>
+          <View style={[styles.recipientDetail, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <RecipientAvatar initials={resolved?.name?.slice(0, 2) ?? "TU"} size={56} />
-            <Text style={styles.recipientName}>{resolved?.name ?? "Account Holder"}</Text>
-            <Text style={styles.recipientBank}>{resolved?.bank ?? "TrustPoint Bank"}</Text>
-            <Text style={styles.recipientAcct}>{fmtAcct(raw)}</Text>
+            <Text style={[styles.recipientName, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+              {resolved?.name ?? "Account Holder"}
+            </Text>
+            <Text style={[styles.recipientBank, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              {resolved?.bank ?? "TrustPoint Bank"}
+            </Text>
+            <Text style={[styles.recipientAcct, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+              {fmtAcct(raw)}
+            </Text>
           </View>
 
-          {/* save toggle */}
           <View style={styles.saveRow}>
-            <Text style={styles.saveTxt}>Save recipient?</Text>
+            <Text style={[styles.saveTxt, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
+              Save recipient?
+            </Text>
             <Switch
               value={saveRecipient}
               onValueChange={setSave}
-              trackColor={{ false: "#2A2A2E", true: RED + "88" }}
-              thumbColor={saveRecipient ? RED : "#444448"}
+              trackColor={{ false: colors.muted, true: RED + "88" }}
+              thumbColor={saveRecipient ? RED : colors.mutedForeground}
             />
           </View>
 
-          <View style={styles.sheetDivider} />
+          <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
 
-          {/* buttons */}
           <View style={styles.btnRow}>
             <TouchableOpacity
-              style={styles.changeBtn}
+              style={[styles.changeBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
               onPress={() => setShowConfirm(false)}
               activeOpacity={0.8}
             >
-              <Text style={styles.changeTxt}>Change</Text>
+              <Text style={[styles.changeTxt, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+                Change
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.confirmBtn}
+              style={[styles.confirmBtn, { backgroundColor: RED }]}
               onPress={handleConfirm}
               activeOpacity={0.85}
             >
-              <Text style={styles.confirmTxt}>Confirm</Text>
+              <Text style={[styles.confirmTxt, { fontFamily: "Inter_700Bold" }]}>Confirm</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -362,196 +408,124 @@ export default function TransferIndexScreen() {
 
 /* ═══════ Styles ════════════════════════════════════════════ */
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: BG },
+  root: { flex: 1 },
 
-  /* header */
   header: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "row", alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 18,
-    paddingBottom: 10,
+    paddingHorizontal: 18, paddingBottom: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: BORDER,
-    backgroundColor: BG,
   },
-  headerTitle:  { fontSize: 18, color: WHITE, fontFamily: "Inter_600SemiBold", letterSpacing: -0.3 },
-  headerRight:  { flexDirection: "row", alignItems: "center", gap: 6 },
-  iconBtn:      { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  iconBtnFlat:  { width: 30, height: 36, alignItems: "center", justifyContent: "center" },
+  headerTitle: { fontSize: 18, letterSpacing: -0.3 },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 6 },
+  iconBtn:     { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
+  iconBtnFlat: { width: 30, height: 36, alignItems: "center", justifyContent: "center" },
 
-  /* scroll */
-  scroll: { paddingHorizontal: 16, paddingTop: 12, gap: 16 },
+  scroll: { paddingHorizontal: 16, paddingTop: 16, gap: 20 },
 
-  /* banner */
   banner: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    backgroundColor: "#12040A",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: RED_DK + "44",
-    paddingVertical: 13,
-    paddingHorizontal: 14,
+    flexDirection: "row", alignItems: "center", gap: 10,
+    borderRadius: 12, borderWidth: 1,
+    paddingVertical: 13, paddingHorizontal: 14,
   },
-  bannerText: { flex: 1, fontSize: 13, color: MUTED, fontFamily: "Inter_400Regular", lineHeight: 19 },
-  bannerBold: { color: WHITE, fontFamily: "Inter_600SemiBold" },
+  bannerText: { flex: 1, fontSize: 13, lineHeight: 19 },
 
-  /* section */
   section: { gap: 10 },
-  label:   { fontSize: 13, color: MUTED, fontFamily: "Inter_400Regular", paddingLeft: 2 },
+  label:   { fontSize: 13, paddingLeft: 2 },
 
-  /* card — solid black surface */
   card: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: SURF,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: BORDER,
-    padding: 14,
+    flexDirection: "row", alignItems: "center", gap: 12,
+    borderRadius: 14, borderWidth: 1, padding: 14,
   },
   acctAvatar: {
     width: 44, height: 44, borderRadius: 11,
-    backgroundColor: "#1A1A1E",
-    borderWidth: 1, borderColor: BORDER,
-    alignItems: "center", justifyContent: "center",
+    borderWidth: 1, alignItems: "center", justifyContent: "center",
   },
-  acctInitial: { fontSize: 15, color: WHITE, fontFamily: "Inter_700Bold" },
+  acctInitial: { fontSize: 15 },
   acctInfo:    { flex: 1, gap: 4 },
-  acctName:    { fontSize: 14, color: WHITE, fontFamily: "Inter_500Medium", letterSpacing: -0.1 },
-  acctNum:     { color: MUTED, fontFamily: "Inter_400Regular" },
-  acctBalance: { fontSize: 17, color: WHITE, fontFamily: "Inter_700Bold" },
+  acctName:    { fontSize: 14, letterSpacing: -0.1 },
+  acctBalance: { fontSize: 17 },
 
-  /* input */
-  inputCard: {
-    backgroundColor: SURF,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: BORDER,
-    overflow: "hidden",
-  },
+  inputCard: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
   inputField: {
-    fontSize: 28,
-    fontFamily: "Inter_600SemiBold",
-    letterSpacing: 6,
-    paddingVertical: 22,
-    paddingHorizontal: 16,
-    width: "100%",
+    fontSize: 28, letterSpacing: 6,
+    paddingVertical: 22, paddingHorizontal: 16, width: "100%",
   },
 
-  /* resolved name row */
   resolvedRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    backgroundColor: SURF,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: BORDER,
-    padding: 12,
+    flexDirection: "row", alignItems: "center", gap: 12,
+    borderRadius: 14, borderWidth: 1, padding: 12,
   },
   resolvedInfo: { flex: 1 },
-  resolvedName: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold", marginBottom: 2 },
-  resolvedBank: { fontSize: 12, color: MUTED, fontFamily: "Inter_400Regular" },
+  resolvedName: { fontSize: 15, marginBottom: 2 },
+  resolvedBank: { fontSize: 12 },
 
-  /* recipient card */
-  recipientCard: {
-    backgroundColor: SURF,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: BORDER,
-    overflow: "hidden",
-  },
+  recipientCard: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
 
-  /* search */
   searchBar: {
     flexDirection: "row", alignItems: "center", gap: 8,
-    backgroundColor: SURF2,
-    margin: 12,
-    borderRadius: 10,
-    borderWidth: 1, borderColor: BORDER,
+    margin: 12, borderRadius: 10, borderWidth: 1,
     paddingHorizontal: 12, paddingVertical: 10,
   },
-  searchInput: {
-    flex: 1, fontSize: 14, color: WHITE,
-    fontFamily: "Inter_400Regular", padding: 0,
-  },
+  searchInput: { flex: 1, fontSize: 14, padding: 0 },
 
-  /* tabs */
-  tabsRow:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 12, paddingBottom: 4 },
+  tabsRow:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 12, paddingBottom: 6 },
   tabsLeft: { flexDirection: "row", alignItems: "center", gap: 6 },
   tabPill:  { borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6, borderWidth: 1 },
-  tabTxt:   { fontSize: 13, fontFamily: "Inter_600SemiBold" },
-  viewAll:  { fontSize: 13, color: MUTED, fontFamily: "Inter_500Medium" },
+  tabTxt:   { fontSize: 13 },
+  viewAll:  { fontSize: 13 },
 
-  /* beneficiary list */
-  benefRow:  { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, paddingHorizontal: 12 },
+  benefRow:  { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 13, paddingHorizontal: 14 },
   benefInfo: { flex: 1 },
-  benefName: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold", marginBottom: 2 },
-  benefSub:  { fontSize: 12, color: MUTED, fontFamily: "Inter_400Regular" },
-  divider:   { height: StyleSheet.hairlineWidth, backgroundColor: BORDER, marginHorizontal: 12 },
+  benefName: { fontSize: 15, marginBottom: 2 },
+  benefSub:  { fontSize: 12 },
+  divider:   { height: StyleSheet.hairlineWidth, marginHorizontal: 14 },
   emptyRow:  { paddingVertical: 28, alignItems: "center" },
-  emptyTxt:  { fontSize: 14, color: MUTED, fontFamily: "Inter_400Regular" },
+  emptyTxt:  { fontSize: 14 },
 
-  /* confirm sheet */
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.75)",
-  },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.72)" },
   sheet: {
-    position: "absolute",
-    bottom: 0, left: 0, right: 0,
-    backgroundColor: SURF3,
+    position: "absolute", bottom: 0, left: 0, right: 0,
     borderTopLeftRadius: 24, borderTopRightRadius: 24,
     borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 1,
-    borderColor: BORDER,
     paddingHorizontal: 20,
     paddingBottom: Platform.OS === "ios" ? 36 : 24,
     paddingTop: 12,
   },
   handle: {
     width: 36, height: 4, borderRadius: 2,
-    backgroundColor: "#2E2E32",
     alignSelf: "center", marginBottom: 20,
   },
   sheetTitle: {
-    fontSize: 17, color: WHITE,
-    fontFamily: "Inter_700Bold", letterSpacing: -0.4,
-    textAlign: "center", marginBottom: 16,
+    fontSize: 17, letterSpacing: -0.4,
+    textAlign: "center", marginBottom: 18,
   },
   recipientDetail: {
-    backgroundColor: SURF,
-    borderRadius: 16,
-    borderWidth: 1, borderColor: BORDER,
-    paddingVertical: 20, paddingHorizontal: 16,
+    borderRadius: 16, borderWidth: 1,
+    paddingVertical: 22, paddingHorizontal: 16,
     alignItems: "center", gap: 6,
   },
-  recipientName: { fontSize: 18, color: WHITE, fontFamily: "Inter_700Bold", letterSpacing: -0.4, textAlign: "center" },
-  recipientBank: { fontSize: 13, color: MUTED, fontFamily: "Inter_400Regular", textAlign: "center" },
-  recipientAcct: { fontSize: 13, color: MUTED, fontFamily: "Inter_500Medium", letterSpacing: 2, textAlign: "center" },
+  recipientName: { fontSize: 18, letterSpacing: -0.4, textAlign: "center" },
+  recipientBank: { fontSize: 13, textAlign: "center" },
+  recipientAcct: { fontSize: 13, letterSpacing: 2, textAlign: "center" },
 
   saveRow: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingVertical: 16,
+    flexDirection: "row", alignItems: "center",
+    justifyContent: "space-between", paddingVertical: 18,
   },
-  saveTxt: { fontSize: 15, color: WHITE, fontFamily: "Inter_500Medium" },
+  saveTxt: { fontSize: 15 },
 
-  sheetDivider: { height: StyleSheet.hairlineWidth, backgroundColor: BORDER, marginBottom: 16 },
+  sheetDivider: { height: StyleSheet.hairlineWidth, marginBottom: 18 },
 
-  btnRow: { flexDirection: "row", gap: 12 },
+  btnRow:    { flexDirection: "row", gap: 12 },
   changeBtn: {
-    flex: 1, paddingVertical: 14, borderRadius: 14,
-    alignItems: "center", justifyContent: "center",
-    backgroundColor: SURF, borderWidth: 1, borderColor: BORDER,
+    flex: 1, paddingVertical: 15, borderRadius: 14,
+    alignItems: "center", justifyContent: "center", borderWidth: 1,
   },
-  changeTxt: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold" },
+  changeTxt: { fontSize: 15 },
   confirmBtn: {
-    flex: 2, paddingVertical: 14, borderRadius: 14,
+    flex: 2, paddingVertical: 15, borderRadius: 14,
     alignItems: "center", justifyContent: "center",
-    backgroundColor: RED,
   },
-  confirmTxt: { fontSize: 15, color: WHITE, fontFamily: "Inter_700Bold" },
+  confirmTxt: { fontSize: 15, color: "#fff" },
 });

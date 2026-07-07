@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
   content: { flex: 1, alignItems: "center", paddingHorizontal: 24, gap: 24 },
   checkCircle: {
     width: 100, height: 100, borderRadius: 50, alignItems: "center", justifyContent: "center",
-    shadowColor: "#34C759", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.4, shadowRadius: 20, elevation: 12,
   },
   textArea: { alignItems: "center", gap: 10, width: "100%" },
   title: { fontSize: 26, letterSpacing: -0.8 },

@@ -128,7 +128,6 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: 20, gap: 24, paddingTop: 8 },
   totalCard: {
     borderRadius: 20, padding: 24, gap: 6,
-    shadowColor: "#E63946", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 8,
   },
   totalLabel: { fontSize: 13, color: "#ffffff88" },
   totalAmount: { fontSize: 40, color: "#fff", letterSpacing: -1.5 },
