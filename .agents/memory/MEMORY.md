@@ -1,2 +1,2 @@
 - [Black icon on dark circle](icon-contrast-black-on-dark.md) — solid black glyphs need a light rim stroke to stay visible on dark circle backgrounds; opacity-faded fills look "ashy/washed" instead of true black.
-  
+- [Pure black theme overhaul](pure-black-theme.md) — dark theme uses #000000 background; all nav/quick-action icons migrated from webp PackIcon to TpIcon SVG strokes; webp illustrations repurposed as decorative design elements.

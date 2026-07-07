@@ -1,6 +1,7 @@
 import React, { useCallback } from "react";
 import {
   Dimensions,
+  Image,
   Platform,
   Pressable,
   RefreshControl,
@@ -8,11 +9,9 @@ import {
   StyleSheet,
   Text,
   View,
-  Image,
-  useColorScheme,
 } from "react-native";
 
-const { width: winWidth, height: winHeight } = Dimensions.get("window");
+const { width: winWidth } = Dimensions.get("window");
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { LinearGradient } from "expo-linear-gradient";
@@ -22,9 +21,7 @@ import { BalanceShield } from "@/components/BalanceShield";
 import { CardCarousel } from "@/components/CardCarousel";
 import { QuickActions } from "@/components/QuickActions";
 import { TransactionItem } from "@/components/TransactionItem";
-import { PromoBanner } from "@/components/PromoBanner";
 import { TpIcon } from "@/components/TpIcon";
-import { QRIcon, SupportIcon, BellIcon } from "@/components/BankIcons";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
@@ -34,7 +31,7 @@ export default function DashboardScreen() {
   const { user, transactions, cards, showBalance, toggleShowBalance, freezeCard } = useApp();
   const [refreshing, setRefreshing] = React.useState(false);
 
-  const isDark    = useColorScheme() === "dark";
+  const isDark    = colors.background !== "#F4F5F7";
   const topPad    = insets.top;
   const bottomPad = 96 + (Platform.OS === "web" ? 34 : 0);
 
@@ -53,18 +50,12 @@ export default function DashboardScreen() {
   const recentTx = transactions.slice(0, 2);
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("@/assets/images/dashboard_bg_new_2.png")}
-        style={{ position: "absolute", top: 0, left: 0, width: winWidth, height: winHeight }}
-        resizeMode="cover"
-      />
-      <View style={[StyleSheet.absoluteFill, styles.overlay]} />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <StatusBar style={isDark ? "light" : "dark"} />
 
-      {/* Fixed header bar — same style as bottom nav, only branding inside */}
+      {/* Fixed header bar */}
       <LinearGradient
-        colors={isDark ? ["#131417", "#0C0D0F"] : ["#FFFFFF", "#F4F5F7"]}
+        colors={isDark ? ["#000000", "#080808"] : ["#FFFFFF", "#F4F5F7"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
         style={[styles.headerBar, { paddingTop: topPad }]}
@@ -76,7 +67,7 @@ export default function DashboardScreen() {
             resizeMode="contain"
           />
           <Text style={[styles.brandText, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-            Welcome to Trust Point
+            TrustPoint Bank
           </Text>
         </View>
       </LinearGradient>
@@ -111,9 +102,9 @@ export default function DashboardScreen() {
             </View>
           </Pressable>
           <View style={styles.headerRight}>
-            <HeaderIconButton icon="qr-code" colors={colors} onPress={() => {}} />
-            <HeaderIconButton icon="headset" colors={colors} onPress={() => {}} />
-            <HeaderIconButton icon="bell" colors={colors} onPress={() => router.push("/notifications")} dot />
+            <HeaderIconButton icon="qr-code" colors={colors} isDark={isDark} onPress={() => {}} />
+            <HeaderIconButton icon="headset" colors={colors} isDark={isDark} onPress={() => {}} />
+            <HeaderIconButton icon="bell" colors={colors} isDark={isDark} onPress={() => router.push("/notifications")} dot />
           </View>
         </View>
 
@@ -131,16 +122,56 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <QuickActions
             actions={[
-              { icon: "transfer", label: "Transfer", onPress: () => router.push("/transfer"), accent: true },
-              { icon: "deposit", label: "Add Money", onPress: () => {} },
-              { icon: "airtime", label: "Airtime", onPress: () => router.push("/(main)/payments") },
-              { icon: "data", label: "Data", onPress: () => router.push("/(main)/payments") },
-              { icon: "bills", label: "Bills", onPress: () => router.push("/(main)/payments") },
-              { icon: "cards", label: "Cards", onPress: () => router.push("/(main)/cards") },
-              { icon: "savings", label: "Savings", onPress: () => router.push("/savings") },
-              { icon: "more", label: "More", onPress: () => router.push("/(main)/more") },
+              { icon: "shuffle",         label: "Transfer",  onPress: () => router.push("/transfer"), accent: true },
+              { icon: "plus",            label: "Add Money", onPress: () => {} },
+              { icon: "phone",           label: "Airtime",   onPress: () => router.push("/(main)/payments") },
+              { icon: "wifi",            label: "Data",      onPress: () => router.push("/(main)/payments") },
+              { icon: "file-text",       label: "Bills",     onPress: () => router.push("/(main)/payments") },
+              { icon: "credit-card",     label: "Cards",     onPress: () => router.push("/(main)/cards") },
+              { icon: "trending-up",     label: "Savings",   onPress: () => router.push("/savings") },
+              { icon: "more-horizontal", label: "More",      onPress: () => router.push("/(main)/more") },
             ]}
           />
+        </View>
+
+        {/* Rewards */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+              Rewards
+            </Text>
+            <Pressable>
+              <Text style={[styles.seeAll, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>
+                View all
+              </Text>
+            </Pressable>
+          </View>
+          <View style={styles.rewardsRow}>
+            <View style={[styles.rewardCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Image
+                source={require("@/assets/icons/passive_income.webp")}
+                style={styles.rewardImg}
+              />
+              <Text style={[styles.rewardLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                Cashback
+              </Text>
+              <Text style={[styles.rewardAmount, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+                ₦0.00
+              </Text>
+            </View>
+            <View style={[styles.rewardCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Image
+                source={require("@/assets/icons/crowdfunding.webp")}
+                style={styles.rewardImg}
+              />
+              <Text style={[styles.rewardLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                Referrals
+              </Text>
+              <Text style={[styles.rewardAmount, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+                ₦0.00
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* Cards */}
@@ -157,7 +188,7 @@ export default function DashboardScreen() {
           </View>
           <CardCarousel
             cards={cards}
-            onCardPress={(c) => router.push("/(main)/cards")}
+            onCardPress={() => router.push("/(main)/cards")}
             onFreezeCard={freezeCard}
           />
         </View>
@@ -201,11 +232,6 @@ export default function DashboardScreen() {
             <TpIcon name="chevron-right" size={15} color={colors.mutedForeground} strokeWidth={2.2} />
           </Pressable>
         </View>
-
-        {/* Promotional Banner */}
-        <View style={styles.section}>
-          <PromoBanner onPress={() => {}} />
-        </View>
       </ScrollView>
     </View>
   );
@@ -219,11 +245,13 @@ function formatAccount(acc: string) {
 function HeaderIconButton({
   icon,
   colors,
+  isDark,
   onPress,
   dot,
 }: {
   icon: any;
   colors: any;
+  isDark: boolean;
   onPress: () => void;
   dot?: boolean;
 }) {
@@ -231,30 +259,23 @@ function HeaderIconButton({
     <Pressable
       style={[
         styles.iconBtn,
-        { backgroundColor: colors.surfaceHigh, borderColor: colors.borderStrong },
+        {
+          backgroundColor: isDark ? "#111111" : colors.surfaceHigh,
+          borderColor: colors.borderStrong,
+        },
       ]}
       onPress={onPress}
     >
-      <LinearGradient
-        pointerEvents="none"
-        colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0)", "rgba(255,255,255,0.06)"]}
-        locations={[0, 0.5, 1]}
-        style={StyleSheet.absoluteFill}
-      />
-      {icon === "qr-code" && <QRIcon size={18} color={colors.text} />}
-      {icon === "headset" && <SupportIcon size={18} color={colors.text} />}
-      {icon === "bell" && <BellIcon size={18} color={colors.text} />}
-      {icon !== "qr-code" && icon !== "headset" && icon !== "bell" && (
-        <TpIcon name={icon} size={18} color={colors.text} strokeWidth={1.9} />
+      <TpIcon name={icon} size={18} color={colors.text} strokeWidth={1.9} />
+      {dot && (
+        <View style={[styles.notifDot, { backgroundColor: colors.primary, borderColor: colors.background }]} />
       )}
-      {dot && <View style={[styles.notifDot, { backgroundColor: colors.primary, borderColor: colors.background }]} />}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
-  overlay: { backgroundColor: "rgba(0,0,0,0.25)" },
+  container: { flex: 1 },
   scroll: { paddingHorizontal: 20, gap: 26 },
   headerBar: {
     paddingHorizontal: 20,
@@ -264,7 +285,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 12,
   },
@@ -286,9 +307,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
     elevation: 3,
   },
   notifDot: {
@@ -304,6 +325,18 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   sectionTitle: { fontSize: 17, letterSpacing: -0.3 },
   seeAll: { fontSize: 13 },
+  rewardsRow: { flexDirection: "row", gap: 12 },
+  rewardCard: {
+    flex: 1,
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 16,
+    gap: 6,
+    minHeight: 130,
+  },
+  rewardImg: { width: 52, height: 52, resizeMode: "contain" },
+  rewardLabel: { fontSize: 12, marginTop: 4 },
+  rewardAmount: { fontSize: 18, letterSpacing: -0.5 },
   txCard: {
     borderRadius: 18,
     borderWidth: 1,

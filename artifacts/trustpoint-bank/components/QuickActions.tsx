@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -8,32 +8,10 @@ import Animated, {
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useColors } from "@/hooks/useColors";
-import {
-  TransferIcon,
-  DepositIcon,
-  AirtimeIcon,
-  DataIcon,
-  BillsIcon,
-  CardsIcon,
-  SavingsIcon,
-  MoreIcon,
-} from "@/components/BankIcons";
 import { TpIcon, TpIconName } from "@/components/TpIcon";
 
-export type BankIconName =
-  | "transfer"
-  | "deposit"
-  | "airtime"
-  | "data"
-  | "bills"
-  | "cards"
-  | "savings"
-  | "more";
-
-export type ActionIconName = BankIconName | TpIconName;
-
 interface Action {
-  icon: ActionIconName;
+  icon: TpIconName;
   label: string;
   onPress: () => void;
   accent?: boolean;
@@ -52,128 +30,110 @@ export function QuickActions({ actions }: QuickActionsProps) {
   return (
     <View style={styles.grid}>
       {rows.map((row, rowIdx) => (
-        <React.Fragment key={rowIdx}>
-          {rowIdx > 0 && (
-            <LinearGradient
-              pointerEvents="none"
-              colors={[
-                "rgba(255,255,255,0)",
-                "rgba(255,255,255,0.28)",
-                "rgba(255,255,255,0)",
-              ]}
-              locations={[0, 0.5, 1]}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
-              style={styles.rowSeparator}
-            />
-          )}
-          <View style={styles.row}>
-            {row.map((action, idx) => (
-              <View key={idx} style={[styles.item, idx < 3 && styles.itemGap]}>
-                <ActionButton {...action} />
-              </View>
-            ))}
-          </View>
-        </React.Fragment>
+        <View key={rowIdx} style={styles.row}>
+          {row.map((action, idx) => (
+            <View key={idx} style={styles.item}>
+              <ActionButton {...action} />
+            </View>
+          ))}
+        </View>
       ))}
     </View>
   );
-}
-
-const BANK_ICON_SET = new Set<BankIconName>([
-  "transfer", "deposit", "airtime", "data", "bills", "cards", "savings", "more",
-]);
-
-const ICON_SIZE = 34;
-
-function BankIconRenderer({ name }: { name: BankIconName }) {
-  switch (name) {
-    case "transfer": return <TransferIcon size={ICON_SIZE} />;
-    case "deposit":  return <DepositIcon  size={ICON_SIZE} />;
-    case "airtime":  return <AirtimeIcon  size={ICON_SIZE} />;
-    case "data":     return <DataIcon     size={ICON_SIZE} />;
-    case "bills":    return <BillsIcon    size={40} />;
-    case "cards":    return <CardsIcon    size={ICON_SIZE} />;
-    case "savings":  return <SavingsIcon  size={ICON_SIZE} />;
-    case "more":     return <MoreIcon     size={ICON_SIZE} />;
-  }
 }
 
 function ActionButton({ icon, label, onPress, accent }: Action) {
   const colors = useColors();
   const scale = useSharedValue(1);
   const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+  const isDark = colors.background !== "#F4F5F7";
 
   const handlePress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     onPress();
   }, [onPress]);
 
-  const isBankIcon = BANK_ICON_SET.has(icon as BankIconName);
+  const boxBg = accent
+    ? colors.primary
+    : isDark
+      ? "#161616"
+      : "#EFEFEF";
 
   return (
-    <View style={styles.item}>
-      <Animated.View style={aStyle}>
-        <TouchableOpacity
-          activeOpacity={0.88}
-          onPress={handlePress}
-          onPressIn={() => { scale.value = withSpring(0.93, { damping: 14, stiffness: 220 }); }}
-          onPressOut={() => { scale.value = withSpring(1, { damping: 14, stiffness: 220 }); }}
-          style={styles.tile}
+    <Animated.View style={aStyle}>
+      <TouchableOpacity
+        activeOpacity={0.82}
+        onPress={handlePress}
+        onPressIn={() => {
+          scale.value = withSpring(0.93, { damping: 14, stiffness: 220 });
+        }}
+        onPressOut={() => {
+          scale.value = withSpring(1, { damping: 14, stiffness: 220 });
+        }}
+        style={styles.tile}
+      >
+        <View
+          style={[
+            styles.iconBox,
+            {
+              backgroundColor: boxBg,
+              borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
+            },
+            Platform.select({ web: { boxShadow: "inset 0 2px 6px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.04)" } as any }),
+          ]}
         >
-          <View
-            style={[
-              styles.iconCircle,
-              accent
-                ? { backgroundColor: colors.primary }
-                : { backgroundColor: colors.charcoal },
-            ]}
-          >
-            {isBankIcon ? (
-              <BankIconRenderer name={icon as BankIconName} />
-            ) : (
-              <TpIcon
-                name={icon as TpIconName}
-                size={20}
-                color={accent ? "#fff" : colors.text}
-                strokeWidth={2}
-              />
-            )}
-          </View>
-          <Text
-            style={[
-              styles.label,
-              { color: accent ? colors.primary : colors.mutedForeground, fontFamily: "Inter_500Medium" },
-            ]}
-            numberOfLines={1}
-          >
-            {label}
-          </Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+          {/* Inset shadow overlay (native) */}
+          {!accent && (
+            <LinearGradient
+              pointerEvents="none"
+              colors={
+                isDark
+                  ? ["rgba(0,0,0,0.55)", "rgba(0,0,0,0.1)", "transparent"]
+                  : ["rgba(0,0,0,0.08)", "transparent"]
+              }
+              locations={isDark ? [0, 0.45, 1] : [0, 1]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+          )}
+          <TpIcon
+            name={icon}
+            size={22}
+            color={accent ? "#fff" : isDark ? "#D8D8D8" : "#2A2A2A"}
+            strokeWidth={1.85}
+          />
+        </View>
+        <Text
+          style={[
+            styles.label,
+            {
+              color: accent ? colors.primary : colors.mutedForeground,
+              fontFamily: "Inter_500Medium",
+            },
+          ]}
+          numberOfLines={1}
+        >
+          {label}
+        </Text>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  grid: { rowGap: 22 },
-  row: { flexDirection: "row" },
-  rowSeparator: { height: 2, marginVertical: 8, borderRadius: 1 },
-  item: { flex: 1 },
-  itemGap: { marginRight: 10 },
-  tile: {
-    aspectRatio: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-  },
-  iconCircle: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+  grid: { gap: 20 },
+  row: { flexDirection: "row", justifyContent: "space-between" },
+  item: { flex: 1, alignItems: "center" },
+  tile: { alignItems: "center", gap: 9 },
+  iconBox: {
+    width: 58,
+    height: 58,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
+    borderWidth: 1,
   },
-  label: { fontSize: 10, letterSpacing: -0.1 },
+  label: { fontSize: 10.5, letterSpacing: -0.1, textAlign: "center" },
 });

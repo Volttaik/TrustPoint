@@ -61,7 +61,7 @@ export default function PaymentsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
+      <StatusBar style={colors.background !== "#F4F5F7" ? "light" : "dark"} />
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingTop: topPad + 8, paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}

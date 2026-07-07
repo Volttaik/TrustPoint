@@ -13,45 +13,44 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
-import { TpIcon } from "@/components/TpIcon";
-import { PackIcon, PackIconName } from "@/components/PackIcon";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
 const MENU_SECTIONS: {
   title: string;
-  items: { icon: PackIconName; label: string; route: string | null; isTheme?: boolean }[];
+  items: { icon: TpIconName; label: string; route: string | null; isTheme?: boolean }[];
 }[] = [
   {
     title: "Account",
     items: [
-      { icon: "edit_profile",    label: "Edit Profile",      route: "/settings/profile" },
-      { icon: "upgrade",         label: "Account Upgrade",   route: "/settings/upgrade" },
-      { icon: "linked_accounts", label: "Linked Accounts",   route: null },
+      { icon: "edit-2",      label: "Edit Profile",      route: "/settings/profile" },
+      { icon: "trending-up", label: "Account Upgrade",   route: "/settings/upgrade" },
+      { icon: "link",        label: "Linked Accounts",   route: null },
     ],
   },
   {
     title: "Finance",
     items: [
-      { icon: "savings_goals", label: "Savings & Goals",     route: "/savings" },
-      { icon: "investments",   label: "Investments",         route: null },
-      { icon: "loans",         label: "Loans",               route: null },
-      { icon: "referrals",     label: "Referrals & Rewards", route: null },
+      { icon: "pie-chart",    label: "Savings & Goals",     route: "/savings" },
+      { icon: "activity",     label: "Investments",          route: null },
+      { icon: "dollar-sign",  label: "Loans",                route: null },
+      { icon: "gift",         label: "Referrals & Rewards",  route: null },
     ],
   },
   {
     title: "Security",
     items: [
-      { icon: "security", label: "Security Settings", route: "/settings/security" },
-      { icon: "devices",  label: "Trusted Devices",   route: null },
+      { icon: "shield",      label: "Security Settings", route: "/settings/security" },
+      { icon: "smartphone",  label: "Trusted Devices",   route: null },
     ],
   },
   {
     title: "Preferences",
     items: [
-      { icon: "theme",         label: "Theme",            route: "/settings/theme", isTheme: true },
-      { icon: "notifications", label: "Notifications",    route: "/notifications" },
-      { icon: "help",          label: "Help & Support",   route: null },
+      { icon: "moon",         label: "Theme",           route: "/settings/theme", isTheme: true },
+      { icon: "bell",         label: "Notifications",   route: "/notifications" },
+      { icon: "help-circle",  label: "Help & Support",  route: null },
     ],
   },
 ];
@@ -60,6 +59,7 @@ export default function MoreScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { user, logout, toggleTheme, theme } = useApp();
+  const isDark = colors.background !== "#F4F5F7";
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = 90 + (Platform.OS === "web" ? 34 : 0);
 
@@ -83,7 +83,7 @@ export default function MoreScreen() {
     route,
     isTheme,
   }: {
-    icon: PackIconName;
+    icon: TpIconName;
     label: string;
     route: string | null;
     isTheme?: boolean;
@@ -95,8 +95,13 @@ export default function MoreScreen() {
       }}
       style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
     >
-      <View style={[styles.menuIcon, { backgroundColor: colors.primary + "18" }]}>
-        <PackIcon name={icon} size={22} />
+      <View
+        style={[
+          styles.menuIcon,
+          { backgroundColor: isDark ? "#1A1A1A" : colors.charcoal },
+        ]}
+      >
+        <TpIcon name={icon} size={17} color={colors.mutedForeground} strokeWidth={1.8} />
       </View>
       <Text style={[styles.menuLabel, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
         {label}
@@ -120,7 +125,7 @@ export default function MoreScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar style={colors.background === "#0A0A0A" ? "light" : "dark"} />
+      <StatusBar style={isDark ? "light" : "dark"} />
       <ScrollView
         contentContainerStyle={[styles.scroll, { paddingTop: topPad + 8, paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}
@@ -142,7 +147,7 @@ export default function MoreScreen() {
             </View>
           </View>
           <Pressable onPress={() => router.push("/settings/profile")}>
-            <PackIcon name="edit_profile" size={22} />
+            <TpIcon name="edit-2" size={20} color={colors.mutedForeground} strokeWidth={1.8} />
           </Pressable>
         </View>
 
@@ -157,7 +162,7 @@ export default function MoreScreen() {
             </Text>
           </View>
           <Pressable style={[styles.copyBtn, { backgroundColor: colors.primary + "18" }]}>
-            <PackIcon name="copy" size={20} />
+            <TpIcon name="copy" size={16} color={colors.primary} strokeWidth={1.8} />
             <Text style={[styles.copyText, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>Copy</Text>
           </Pressable>
         </View>
@@ -189,7 +194,7 @@ export default function MoreScreen() {
             { backgroundColor: colors.destructive + "15", borderColor: colors.destructive + "33" },
           ]}
         >
-          <PackIcon name="logout" size={24} />
+          <TpIcon name="log-out" size={20} color={colors.destructive} strokeWidth={1.8} />
           <Text style={[styles.logoutText, { color: colors.destructive, fontFamily: "Inter_600SemiBold" }]}>
             Logout
           </Text>
@@ -246,7 +251,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
   },
-  menuIcon: { width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center" },
+  menuIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   menuLabel: { flex: 1, fontSize: 14 },
   menuRight: { alignItems: "center", justifyContent: "center" },
   sep: { height: 0.5, marginLeft: 64 },

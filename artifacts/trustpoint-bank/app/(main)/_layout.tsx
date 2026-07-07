@@ -19,28 +19,24 @@ import Animated, {
 import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from "react-native-svg";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { TransferIcon, CardsIcon } from "@/components/BankIcons";
-import { PackIcon } from "@/components/PackIcon";
+import { TpIcon, TpIconName } from "@/components/TpIcon";
 
 const TP_LOGO = require("@/assets/images/icon_transparent.png");
 
 const BAR_H = 64;
 const BUMP_H = 0;
 const BUMP_W = 0;
-const BCR = 0;    // bottom corner radius — flush to screen edge
-const CR = 8;     // top corner radius — subtle
+const BCR = 0;
+const CR = 8;
 const LOGO_SIZE = 36;
 
 function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boolean; extraH?: number }) {
   const W = width;
   const bh = BUMP_H;
-  const bw = BUMP_W;
   const cr = CR;
   const bcr = BCR;
-  const mid = W / 2;
   const total = BAR_H + bh + extraH;
 
-  /* Flat top bar with rounded top corners only (BCR=0 = flush to screen bottom). */
   const d = [
     `M ${cr} 0`,
     `L ${W - cr} 0`,
@@ -54,8 +50,8 @@ function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boo
     `Z`,
   ].join(" ");
 
-  const fill    = isDark ? "#131417" : "#FFFFFF";
-  const fillAlt = isDark ? "#0C0D0F" : "#F4F5F7";
+  const fill    = isDark ? "#000000" : "#FFFFFF";
+  const fillAlt = isDark ? "#080808" : "#F4F5F7";
 
   return (
     <Svg width={W} height={total} style={{ position: "absolute", top: 0, left: 0 }}>
@@ -70,63 +66,31 @@ function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boo
   );
 }
 
-/* ─── Nav icons ─────────────────────────────────────── */
-
-function HomeIcon({ size = 28 }: { size?: number; active: boolean; isDark?: boolean }) {
-  return <PackIcon name="home" size={size} />;
-}
-
-function SettingsIcon({ size = 28 }: { size?: number; active: boolean; isDark?: boolean }) {
-  return <PackIcon name="settings" size={size} />;
-}
-
-/* ─── Tab definitions ───────────────────────────────── */
-
 type NavTab = {
   name: string;
   label: string;
-  icon: (active: boolean, colors: any) => React.ReactNode;
+  icon: TpIconName;
 };
 
 const LEFT_TABS: NavTab[] = [
-  {
-    name: "index",
-    label: "Home",
-    icon: (active, colors) => <HomeIcon size={27} active={active} isDark={colors.background !== "#F4F5F7"} />,
-  },
-  {
-    name: "transfers",
-    label: "Transfer",
-    icon: () => <TransferIcon size={27} />,
-  },
+  { name: "index",     label: "Home",     icon: "home" },
+  { name: "transfers", label: "Transfer", icon: "shuffle" },
 ];
 
 const RIGHT_TABS: NavTab[] = [
-  {
-    name: "cards",
-    label: "Cards",
-    icon: () => <CardsIcon size={27} />,
-  },
-  {
-    name: "more",
-    label: "Settings",
-    icon: (active, colors) => <SettingsIcon size={27} active={active} isDark={colors.background !== "#F4F5F7"} />,
-  },
+  { name: "cards", label: "Cards",    icon: "credit-card" },
+  { name: "more",  label: "Settings", icon: "settings" },
 ];
 
-/* ─── Custom tab bar ────────────────────────────────── */
-
 function CustomTabBar() {
-  const colors  = useColors();
-  const insets  = useSafeAreaInsets();
+  const colors   = useColors();
+  const insets   = useSafeAreaInsets();
   const pathname = usePathname();
-  // Derive isDark from the actual theme colours so that a user-toggled dark/light
-  // preference always matches the nav bar shape — not just the system colour scheme.
-  const isDark  = colors.background !== "#F4F5F7";
-  const bottomH = Math.max(insets.bottom, Platform.OS === "web" ? 16 : 0);
-  const screenW = Dimensions.get("window").width;
-  const barW    = screenW;
-  const totalH  = BAR_H + BUMP_H;
+  const isDark   = colors.background !== "#F4F5F7";
+  const bottomH  = Math.max(insets.bottom, Platform.OS === "web" ? 16 : 0);
+  const screenW  = Dimensions.get("window").width;
+  const barW     = screenW;
+  const totalH   = BAR_H + BUMP_H;
 
   const isActive = (name: string) => {
     if (name === "index") return pathname === "/(main)" || pathname === "/";
@@ -152,7 +116,12 @@ function CustomTabBar() {
       >
         <Animated.View style={[styles.tabContent, aStyle]}>
           <View style={[styles.iconSlot, active && { backgroundColor: colors.primary + "17" }]}>
-            {tab.icon(active, colors)}
+            <TpIcon
+              name={tab.icon}
+              size={22}
+              color={active ? colors.primary : colors.mutedForeground}
+              strokeWidth={active ? 2.1 : 1.7}
+            />
           </View>
           <Text
             style={[
@@ -187,12 +156,12 @@ function CustomTabBar() {
       >
         <Animated.View style={aStyle}>
           <LinearGradient
-            colors={isDark ? ["#2E3036", "#131417"] : ["#ECEDF0", "#D8DADF"]}
+            colors={isDark ? ["#1A1A1A", "#000000"] : ["#ECEDF0", "#D8DADF"]}
             start={{ x: 0.2, y: 0 }}
             end={{ x: 0.9, y: 1 }}
             style={[
               styles.logoRing,
-              { borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)" },
+              { borderColor: isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.1)" },
             ]}
           >
             <View pointerEvents="none" style={styles.logoTopHighlight} />
@@ -255,7 +224,7 @@ const styles = StyleSheet.create({
     overflow: "visible",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.18,
     shadowRadius: 8,
     elevation: 20,
   },
@@ -268,7 +237,7 @@ const styles = StyleSheet.create({
   tabBtn: { flex: 1, alignItems: "center" },
   tabContent: { alignItems: "center", gap: 3 },
   iconSlot: {
-    width: 42,
+    width: 44,
     height: 34,
     borderRadius: 11,
     alignItems: "center",
@@ -287,10 +256,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.12)",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.4,
     shadowRadius: 12,
     elevation: 12,
     overflow: "hidden",
@@ -301,7 +269,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: "50%",
-    backgroundColor: "rgba(255,255,255,0.07)",
+    backgroundColor: "rgba(255,255,255,0.05)",
   },
   logoInner: {
     width: 44,
