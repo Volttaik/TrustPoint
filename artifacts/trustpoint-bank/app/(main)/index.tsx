@@ -134,7 +134,7 @@ export default function DashboardScreen() {
           <QuickActions
             actions={[
               { icon: "shuffle",         label: "Transfer",  onPress: () => router.push("/transfer"), accent: true },
-              { icon: "plus",            label: "Add Money", onPress: () => {} },
+              { icon: "plus",            label: "Add Money", onPress: () => router.push("/deposit") },
               { icon: "phone",           label: "Airtime",   onPress: () => router.push("/(main)/payments") },
               { icon: "wifi",            label: "Data",      onPress: () => router.push("/(main)/payments") },
               { icon: "file-text",       label: "Bills",     onPress: () => router.push("/(main)/payments") },

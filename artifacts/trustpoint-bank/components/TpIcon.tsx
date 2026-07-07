@@ -528,7 +528,7 @@ const ICONS: Record<TpIconName, IconRenderer> = {
   ),
 };
 
-export function TpIcon({ name, size = 24, color = "#fff", strokeWidth = 2 }: TpIconProps) {
+export function TpIcon({ name, size = 24, color = "#fff", strokeWidth = 2.3 }: TpIconProps) {
   const renderer = ICONS[name];
   if (!renderer) return null;
   return (
