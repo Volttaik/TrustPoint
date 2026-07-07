@@ -29,12 +29,12 @@ name = "TrustPoint Bank (Mobile)"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd artifacts/trustpoint-bank && PORT=9000 EXPO_PACKAGER_PROXY_URL=https://$REPLIT_EXPO_DEV_DOMAIN EXPO_PUBLIC_DOMAIN=$REPLIT_DEV_DOMAIN EXPO_PUBLIC_REPL_ID=$REPL_ID REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN pnpm exec expo start --localhost --port 9000"
-waitForPort = 9000
+args = "cd artifacts/trustpoint-bank && EXPO_PACKAGER_PROXY_URL=https://$REPLIT_EXPO_DEV_DOMAIN EXPO_PUBLIC_DOMAIN=$REPLIT_DEV_DOMAIN EXPO_PUBLIC_REPL_ID=$REPL_ID REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN pnpm exec expo start --web --localhost --port 5000"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "API Server"
@@ -61,12 +61,16 @@ localPort = 8081
 externalPort = 80
 
 [[ports]]
+localPort = 9000
+externalPort = 9000
+
+[[ports]]
 localPort = 23415
 externalPort = 3000
 
 [[ports]]
-localPort = 9000
-externalPort = 9000
+localPort = 5000
+externalPort = 80
 
 [nix]
 channel = "stable-25_05"
