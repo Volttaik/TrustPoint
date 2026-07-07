@@ -23,6 +23,7 @@ import Svg, {
   Rect,
   Stop,
 } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { TpIcon } from "@/components/TpIcon";
@@ -191,25 +192,37 @@ export default function TransferIndexScreen() {
           <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             Paying from
           </Text>
-          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={[styles.acctAvatar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-              <Text style={[styles.acctInitial, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+          <LinearGradient
+            colors={isDark ? ["#1C0408", "#120206", "#080101"] : ["#FFF5F6", "#FFF0F2"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.senderCard, { borderColor: RED_DK + "55" }]}
+          >
+            {/* Decorative illustration */}
+            <Image
+              source={require("@/assets/icons/exchange_currency_rate.webp")}
+              style={styles.senderDeco}
+              resizeMode="contain"
+            />
+            {/* Avatar */}
+            <View style={[styles.acctAvatar, { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }]}>
+              <Text style={[styles.acctInitial, { color: "#fff", fontFamily: "Inter_700Bold" }]}>
                 {user?.initials?.slice(0, 2).toUpperCase() ?? "TP"}
               </Text>
             </View>
+            {/* Info */}
             <View style={styles.acctInfo}>
-              <Text style={[styles.acctName, { color: colors.text, fontFamily: "Inter_500Medium" }]} numberOfLines={1}>
+              <Text style={[styles.senderName, { fontFamily: "Inter_600SemiBold" }]} numberOfLines={1}>
                 {user?.name ?? "TrustPoint Account"}
-                {"  ·  "}
-                <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_400Regular" }}>
-                  {user?.accountNumber ? fmtAcct(user.accountNumber) : "000 000 0000"}
-                </Text>
               </Text>
-              <Text style={[styles.acctBalance, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
+              <Text style={[styles.senderSub, { fontFamily: "Inter_400Regular" }]}>
+                {user?.accountNumber ? fmtAcct(user.accountNumber) : "000 000 0000"}
+              </Text>
+              <Text style={[styles.senderBalance, { fontFamily: "Inter_700Bold" }]}>
                 ₦{(user?.balance ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
               </Text>
             </View>
-          </View>
+          </LinearGradient>
         </View>
 
         {/* ── Account number input ─────────────────────── */}
@@ -444,6 +457,19 @@ const styles = StyleSheet.create({
     flexDirection: "row", alignItems: "center", gap: 12,
     borderRadius: 14, borderWidth: 1, padding: 14,
   },
+  senderCard: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    borderRadius: 16, borderWidth: 1, padding: 16,
+    overflow: "hidden",
+  },
+  senderDeco: {
+    position: "absolute", right: -10, top: "50%",
+    width: 90, height: 90, opacity: 0.25,
+    transform: [{ translateY: -45 }],
+  },
+  senderName:    { fontSize: 14, color: "#fff", letterSpacing: -0.1 },
+  senderSub:     { fontSize: 12, color: "rgba(255,255,255,0.45)", letterSpacing: 0.5 },
+  senderBalance: { fontSize: 18, color: "#fff" },
   acctAvatar: {
     width: 44, height: 44, borderRadius: 11,
     borderWidth: 1, alignItems: "center", justifyContent: "center",

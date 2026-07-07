@@ -33,7 +33,7 @@ const COLS  = 4;
 export function QuickActions({ actions }: QuickActionsProps) {
   const screenW = Dimensions.get("window").width;
   const cardW   = Math.floor((screenW - H_PAD * 2 - GAP * (COLS - 1)) / COLS);
-  const cardH   = Math.floor(cardW * 1.0);
+  const cardH   = Math.floor(cardW * 0.78);
 
   const rows: Action[][] = [];
   for (let i = 0; i < actions.length; i += COLS) {

@@ -115,7 +115,8 @@ export default function DashboardScreen() {
           expenses={user?.expenses ?? 76015}
           showBalance={showBalance}
           onToggle={toggleShowBalance}
-          accountNumber={user?.accountNumber ? formatAccount(user.accountNumber) : undefined}
+          accountNumber={user?.accountNumber}
+          cardholderName={user?.name}
         />
 
         {/* Services */}
