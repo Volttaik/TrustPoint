@@ -153,11 +153,11 @@ const styles = StyleSheet.create({
   },
 
   iconWrap: {
-    width: 110, height: 110, borderRadius: 28,
+    width: 80, height: 80, borderRadius: 20,
     borderWidth: 1,
     alignItems: "center", justifyContent: "center",
   },
-  iconImg: { width: 78, height: 78 },
+  iconImg: { width: 54, height: 54 },
 
   textBlock: { alignItems: "center", gap: 8 },
   title:    { fontSize: 20, letterSpacing: -0.5 },
