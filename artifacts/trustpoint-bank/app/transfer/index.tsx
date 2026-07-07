@@ -1,9 +1,11 @@
-import React, { useId, useState } from "react";
+import React, { useId, useState, useEffect } from "react";
 import {
+  Modal,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -15,7 +17,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, {
   Circle,
   Defs,
-  G,
   LinearGradient as SvgGrad,
   Path,
   Rect,
@@ -24,91 +25,72 @@ import Svg, {
 import { useApp } from "@/context/AppContext";
 import { TpIcon } from "@/components/TpIcon";
 
-/* ─── Palette (solid — no transparency or glass) ──────── */
-const BG        = "#000000";   // page background
-const SURFACE   = "#111111";   // cards / inputs
-const SURFACE2  = "#0D0D0D";   // slightly deeper variant
-const BANNER_BG = "#1A0508";   // red banner strip
-const GREEN_BG  = "#122A18";   // green promo card
-const AMBER     = "#E9A200";   // Recent pill, View All
-const AMBER_BG  = "#2C2200";   // amber pill background
-const TEAL      = "#E11D33";   // recipient circle rim (red)
-const TEAL_BG   = "#1A0508";   // recipient circle fill (dark red)
-const GREEN_TXT = "#4ADE80";   // highlighted numbers
-const MUTED     = "#666666";   // secondary labels
-const WHITE     = "#FFFFFF";
-const RED       = "#E11D33";
+/* ─── Palette — pure black, no gradients ────────────────── */
+const BG      = "#000000";   // page background
+const SURF    = "#0F0F0F";   // card surface
+const SURF2   = "#080808";   // deeper surface (inputs, search)
+const SURF3   = "#161618";   // sheet / slightly lifted
+const BORDER  = "#1E1E22";   // solid dark border
+const MUTED   = "#666666";   // secondary labels
+const WHITE   = "#FFFFFF";
+const RED     = "#E11D33";
+const RED_DK  = "#8E0E1E";
 
-/* ─── Banner icon: red broadcast badge ────────────────── */
+/* ─── Banner icon: red broadcast badge ──────────────────── */
 function BannerIcon({ size = 24 }: { size?: number }) {
   const id = useId();
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Defs>
         <SvgGrad id={`${id}-bg`} x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#E11D33" />
-          <Stop offset="1" stopColor="#8B0E1E" />
+          <Stop offset="0" stopColor={RED} />
+          <Stop offset="1" stopColor={RED_DK} />
         </SvgGrad>
       </Defs>
       <Rect x="1" y="1" width="22" height="22" rx="7" fill={`url(#${id}-bg)`} />
-      {/* speaker cone */}
       <Path d="M7 9.5H9.5L13 7V17L9.5 14.5H7V9.5Z" fill={WHITE} />
-      {/* sound waves */}
-      <Path d="M15 9.5C16.2 10.4 16.2 13.6 15 14.5" stroke={WHITE} strokeWidth="1.5" strokeLinecap="round" fill="none" />
-      <Path d="M16.5 8C18.8 9.5 18.8 14.5 16.5 16" stroke={WHITE} strokeWidth="1.2" strokeLinecap="round" fill="none" strokeOpacity="0.6" />
+      <Path d="M15 9.5C16.2 10.4 16.2 13.6 15 14.5"
+        stroke={WHITE} strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <Path d="M16.5 8C18.8 9.5 18.8 14.5 16.5 16"
+        stroke={WHITE} strokeWidth="1.2" strokeLinecap="round" fill="none" strokeOpacity="0.6" />
     </Svg>
   );
 }
 
-
-/* ─── Recipient avatar: teal circle with transfer ring ─── */
-function RecipientAvatar({ initials, color = TEAL_BG, rim = TEAL, size = 48 }: {
-  initials: string; color?: string; rim?: string; size?: number;
-}) {
+/* ─── Recipient avatar ──────────────────────────────────── */
+function RecipientAvatar({ initials, size = 52 }: { initials: string; size?: number }) {
+  const id = useId();
   return (
-    <Svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-      {/* outer ring */}
-      <Circle cx="24" cy="24" r="23" fill={color} stroke={rim} strokeWidth="2" />
-      {/* circular-arrows transfer icon */}
-      <Path
-        d="M16 20 A8 8 0 0 1 30 17"
-        stroke={WHITE}
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <Path d="M29 14L31 18L27 18Z" fill={WHITE} />
-      <Path
-        d="M32 28 A8 8 0 0 1 18 31"
-        stroke={WHITE}
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <Path d="M19 34L17 30L21 30Z" fill={WHITE} />
+    <Svg width={size} height={size} viewBox="0 0 52 52" fill="none">
+      <Defs>
+        <SvgGrad id={`${id}-bg`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor="#1A0508" />
+          <Stop offset="1" stopColor="#0D0204" />
+        </SvgGrad>
+      </Defs>
+      <Circle cx="26" cy="26" r="25" fill={`url(#${id}-bg)`} stroke={RED} strokeWidth="1.6" />
+      <Path d="M17 21 A9 9 0 0 1 32 18" stroke={WHITE} strokeWidth="2" strokeLinecap="round" fill="none" />
+      <Path d="M31 15L33 19L29 19Z" fill={WHITE} />
+      <Path d="M35 31 A9 9 0 0 1 20 34" stroke={WHITE} strokeWidth="2" strokeLinecap="round" fill="none" />
+      <Path d="M21 37L19 33L23 33Z" fill={WHITE} />
     </Svg>
   );
 }
 
-/* ─── History clock icon ──────────────────────────────── */
-function HistoryIcon({ size = 22, color }: { size?: number; color: string }) {
+/* ─── History icon ──────────────────────────────────────── */
+function HistoryIcon({ size = 20, color }: { size?: number; color: string }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M3 12A9 9 0 1 0 12 3M3 12H7M3 12V8"
-        stroke={color}
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <Path d="M12 7.5V12.5L15 14.5" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M3 12A9 9 0 1 0 12 3M3 12H7M3 12V8"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M12 7.5V12.5L15 14.5"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </Svg>
   );
 }
 
-/* ─── Account-number formatter ───────────────────────── */
-function formatAcct(raw: string) {
+/* ─── Account-number formatter ──────────────────────────── */
+function fmtAcct(raw: string) {
   const d = raw.replace(/\D/g, "").slice(0, 10);
   return [d.slice(0, 3), d.slice(3, 6), d.slice(6, 10)].filter(Boolean).join(" ");
 }
@@ -120,34 +102,50 @@ export default function TransferIndexScreen() {
   const insets = useSafeAreaInsets();
   const { user, beneficiaries } = useApp();
 
-  const [raw, setRaw]             = useState("");
-  const [activeTab, setActiveTab] = useState<"recent" | "saved">("recent");
-  const [search, setSearch]       = useState("");
+  const [raw, setRaw]                 = useState("");
+  const [activeTab, setActiveTab]     = useState<"recent" | "saved">("recent");
+  const [search, setSearch]           = useState("");
+  const [resolved, setResolved]       = useState<{ name: string; bank: string } | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [saveRecipient, setSave]      = useState(false);
 
   const topPad    = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = insets.bottom + 120 + (Platform.OS === "web" ? 34 : 0);
 
-  const filtered = beneficiaries.filter(
+  /* Simulate account name lookup */
+  useEffect(() => {
+    if (raw.length < 10) { setResolved(null); return; }
+    const found = beneficiaries.find((b) => b.account.replace(/\D/g, "") === raw);
+    setResolved(found
+      ? { name: found.name, bank: found.bank }
+      : { name: "TrustPoint User", bank: "TrustPoint Bank" }
+    );
+  }, [raw, beneficiaries]);
+
+  const savedBenefs   = beneficiaries.filter((b) => b.favorite);
+  const recentBenefs  = beneficiaries.filter((b) => !b.favorite);
+  const sourceBenefs  = activeTab === "saved" ? savedBenefs : recentBenefs;
+  const filtered = sourceBenefs.filter(
     (b) =>
       search === "" ||
       b.name.toLowerCase().includes(search.toLowerCase()) ||
       b.account.includes(search),
   );
 
-  function handleProceed() {
-    if (raw.length < 10) return;
-    router.push({ pathname: "/transfer/amount", params: { accountNumber: raw } });
-  }
-
   function handleBeneficiary(id: string) {
     router.push({ pathname: "/transfer/amount", params: { beneficiaryId: id } });
+  }
+
+  function handleConfirm() {
+    setShowConfirm(false);
+    router.push({ pathname: "/transfer/amount", params: { accountNumber: raw } });
   }
 
   return (
     <View style={[styles.root, { paddingTop: topPad }]}>
       <StatusBar style="light" />
 
-      {/* ── Header ───────────────────────────────────── */}
+      {/* ── Header — solid black ─────────────────── */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn} hitSlop={8}>
           <TpIcon name="arrow-left" size={22} color={WHITE} strokeWidth={2} />
@@ -168,7 +166,7 @@ export default function TransferIndexScreen() {
         contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Blue instant-transfer banner ──────────── */}
+        {/* ── Banner ───────────────────────────────── */}
         <View style={styles.banner}>
           <BannerIcon size={26} />
           <Text style={styles.bannerText}>
@@ -177,11 +175,10 @@ export default function TransferIndexScreen() {
           </Text>
         </View>
 
-        {/* ── Paying from ───────────────────────────── */}
+        {/* ── Paying from ──────────────────────────── */}
         <View style={styles.section}>
           <Text style={styles.label}>Paying from</Text>
           <View style={styles.card}>
-            {/* amber-square avatar */}
             <View style={styles.acctAvatar}>
               <Text style={styles.acctInitial}>
                 {user?.initials?.slice(0, 2).toUpperCase() ?? "TP"}
@@ -192,7 +189,7 @@ export default function TransferIndexScreen() {
                 {user?.name ?? "TrustPoint Account"}
                 {"  ·  "}
                 <Text style={styles.acctNum}>
-                  {user?.accountNumber ? formatAcct(user.accountNumber) : "000 000 0000"}
+                  {user?.accountNumber ? fmtAcct(user.accountNumber) : "000 000 0000"}
                 </Text>
               </Text>
               <Text style={styles.acctBalance}>
@@ -202,43 +199,45 @@ export default function TransferIndexScreen() {
           </View>
         </View>
 
-        {/* ── Account number input ──────────────────── */}
+        {/* ── Account number input ─────────────────── */}
         <View style={styles.section}>
           <Text style={styles.label}>Enter recipient's account number</Text>
           <View style={styles.inputCard}>
             <TextInput
-              value={raw}
+              value={fmtAcct(raw)}
               onChangeText={(t) => setRaw(t.replace(/\D/g, "").slice(0, 10))}
               keyboardType="number-pad"
-              maxLength={10}
-              style={[
-                styles.inputField,
-                { color: raw.length === 0 ? "#333333" : WHITE },
-              ]}
+              maxLength={12}
+              style={[styles.inputField, { color: raw.length === 0 ? "#2A2A2E" : WHITE }]}
               placeholder="000 000 0000"
-              placeholderTextColor="#333333"
+              placeholderTextColor="#2A2A2E"
               textAlign="center"
               cursorColor={RED}
               returnKeyType="done"
-              onSubmitEditing={handleProceed}
             />
           </View>
-          {raw.length > 0 && raw.length < 10 && (
-            <Text style={styles.inputHint}>{10 - raw.length} more digit{10 - raw.length !== 1 ? "s" : ""}</Text>
-          )}
-          {raw.length === 10 && (
-            <TouchableOpacity style={styles.proceedBtn} onPress={handleProceed} activeOpacity={0.85}>
-              <Text style={styles.proceedTxt}>Continue</Text>
-              <TpIcon name="arrow-right" size={16} color={WHITE} strokeWidth={2.2} />
-            </TouchableOpacity>
+
+          {/* Resolved name row — tap opens confirm sheet */}
+          {resolved && (
+            <Pressable
+              onPress={() => setShowConfirm(true)}
+              style={({ pressed }) => [styles.resolvedRow, { opacity: pressed ? 0.75 : 1 }]}
+            >
+              <RecipientAvatar initials={resolved.name.slice(0, 2)} size={44} />
+              <View style={styles.resolvedInfo}>
+                <Text style={styles.resolvedName}>{resolved.name}</Text>
+                <Text style={styles.resolvedBank}>{resolved.bank}</Text>
+              </View>
+              <TpIcon name="chevron-right" size={16} color={MUTED} strokeWidth={2.2} />
+            </Pressable>
           )}
         </View>
 
-        {/* ── Select recipient ──────────────────────── */}
+        {/* ── Select recipient ─────────────────────── */}
         <View style={styles.section}>
           <Text style={[styles.label, { color: WHITE }]}>Select recipient</Text>
           <View style={styles.recipientCard}>
-            {/* search bar */}
+            {/* search */}
             <View style={styles.searchBar}>
               <TpIcon name="search" size={16} color={MUTED} strokeWidth={1.8} />
               <TextInput
@@ -250,7 +249,7 @@ export default function TransferIndexScreen() {
               />
             </View>
 
-            {/* tabs row */}
+            {/* tabs */}
             <View style={styles.tabsRow}>
               <View style={styles.tabsLeft}>
                 {(["recent", "saved"] as const).map((tab) => {
@@ -262,16 +261,11 @@ export default function TransferIndexScreen() {
                       style={[
                         styles.tabPill,
                         active
-                          ? { backgroundColor: AMBER }
-                          : { backgroundColor: "transparent" },
+                          ? { backgroundColor: RED + "1A", borderColor: RED + "44" }
+                          : { backgroundColor: "transparent", borderColor: BORDER },
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.tabTxt,
-                          { color: active ? "#000" : WHITE },
-                        ]}
-                      >
+                      <Text style={[styles.tabTxt, { color: active ? RED : MUTED }]}>
                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
                       </Text>
                     </TouchableOpacity>
@@ -283,7 +277,7 @@ export default function TransferIndexScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* recipient list */}
+            {/* list */}
             {filtered.length === 0 ? (
               <View style={styles.emptyRow}>
                 <Text style={styles.emptyTxt}>No recipients found</Text>
@@ -296,17 +290,10 @@ export default function TransferIndexScreen() {
                     onPress={() => handleBeneficiary(b.id)}
                     style={({ pressed }) => [styles.benefRow, pressed && { opacity: 0.7 }]}
                   >
-                    <RecipientAvatar
-                      initials={b.initials}
-                      color={TEAL_BG}
-                      rim={TEAL}
-                      size={48}
-                    />
+                    <RecipientAvatar initials={b.initials} size={48} />
                     <View style={styles.benefInfo}>
                       <Text style={styles.benefName}>{b.name}</Text>
-                      <Text style={styles.benefSub}>
-                        {b.bank}{"  ·  "}{b.account}
-                      </Text>
+                      <Text style={styles.benefSub}>{b.bank}{"  ·  "}{b.account}</Text>
                     </View>
                   </Pressable>
                 </React.Fragment>
@@ -315,11 +302,65 @@ export default function TransferIndexScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* ══ Confirm bottom sheet ═════════════════════ */}
+      <Modal
+        visible={showConfirm}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowConfirm(false)}
+      >
+        <Pressable style={styles.overlay} onPress={() => setShowConfirm(false)} />
+        <View style={styles.sheet}>
+          <View style={styles.handle} />
+
+          <Text style={styles.sheetTitle}>Confirm it's the right person</Text>
+
+          {/* recipient detail card */}
+          <View style={styles.recipientDetail}>
+            <RecipientAvatar initials={resolved?.name?.slice(0, 2) ?? "TU"} size={56} />
+            <Text style={styles.recipientName}>{resolved?.name ?? "Account Holder"}</Text>
+            <Text style={styles.recipientBank}>{resolved?.bank ?? "TrustPoint Bank"}</Text>
+            <Text style={styles.recipientAcct}>{fmtAcct(raw)}</Text>
+          </View>
+
+          {/* save toggle */}
+          <View style={styles.saveRow}>
+            <Text style={styles.saveTxt}>Save recipient?</Text>
+            <Switch
+              value={saveRecipient}
+              onValueChange={setSave}
+              trackColor={{ false: "#2A2A2E", true: RED + "88" }}
+              thumbColor={saveRecipient ? RED : "#444448"}
+            />
+          </View>
+
+          <View style={styles.sheetDivider} />
+
+          {/* buttons */}
+          <View style={styles.btnRow}>
+            <TouchableOpacity
+              style={styles.changeBtn}
+              onPress={() => setShowConfirm(false)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.changeTxt}>Change</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.confirmBtn}
+              onPress={handleConfirm}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.confirmTxt}>Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
 
-/* ═══════ Styles ═══════════════════════════════════════════ */
+/* ═══════ Styles ════════════════════════════════════════════ */
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: BG },
 
@@ -329,146 +370,188 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 18,
-    paddingBottom: 6,
+    paddingBottom: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: BORDER,
+    backgroundColor: BG,
   },
-  headerTitle: { fontSize: 18, color: WHITE, fontFamily: "Inter_600SemiBold", letterSpacing: -0.3 },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 6 },
-  iconBtn: { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
-  iconBtnFlat: { width: 30, height: 36, alignItems: "center", justifyContent: "center" },
+  headerTitle:  { fontSize: 18, color: WHITE, fontFamily: "Inter_600SemiBold", letterSpacing: -0.3 },
+  headerRight:  { flexDirection: "row", alignItems: "center", gap: 6 },
+  iconBtn:      { width: 36, height: 36, alignItems: "center", justifyContent: "center" },
+  iconBtnFlat:  { width: 30, height: 36, alignItems: "center", justifyContent: "center" },
 
   /* scroll */
-  scroll: { paddingHorizontal: 16, paddingTop: 8, gap: 16 },
+  scroll: { paddingHorizontal: 16, paddingTop: 12, gap: 16 },
 
   /* banner */
   banner: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: BANNER_BG,
-    borderRadius: 10,
+    backgroundColor: "#12040A",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: RED_DK + "44",
     paddingVertical: 13,
     paddingHorizontal: 14,
   },
-  bannerText: { flex: 1, fontSize: 13.5, color: "#CCCCCC", fontFamily: "Inter_400Regular", lineHeight: 19 },
+  bannerText: { flex: 1, fontSize: 13, color: MUTED, fontFamily: "Inter_400Regular", lineHeight: 19 },
   bannerBold: { color: WHITE, fontFamily: "Inter_600SemiBold" },
-
-  /* promo card */
-  promoCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    backgroundColor: GREEN_BG,
-    borderRadius: 14,
-    paddingVertical: 18,
-    paddingHorizontal: 16,
-  },
-  promoText: { flex: 1, gap: 4 },
-  promoLine: { fontSize: 14, color: "#B4E8C8", fontFamily: "Inter_400Regular", lineHeight: 20 },
-  promoGreen: { color: GREEN_TXT, fontFamily: "Inter_700Bold" },
-  promoGold: { color: AMBER, fontFamily: "Inter_700Bold" },
 
   /* section */
   section: { gap: 10 },
-  label: { fontSize: 13.5, color: MUTED, fontFamily: "Inter_400Regular" },
+  label:   { fontSize: 13, color: MUTED, fontFamily: "Inter_400Regular", paddingLeft: 2 },
 
-  /* paying-from card */
+  /* card — solid black surface */
   card: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-    backgroundColor: SURFACE,
+    backgroundColor: SURF,
     borderRadius: 14,
+    borderWidth: 1,
+    borderColor: BORDER,
     padding: 14,
   },
   acctAvatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: "#3D2A08",
-    alignItems: "center",
-    justifyContent: "center",
+    width: 44, height: 44, borderRadius: 11,
+    backgroundColor: "#1A1A1E",
+    borderWidth: 1, borderColor: BORDER,
+    alignItems: "center", justifyContent: "center",
   },
-  acctInitial: { fontSize: 16, color: "#FFD580", fontFamily: "Inter_700Bold" },
-  acctInfo: { flex: 1, gap: 4 },
-  acctName: { fontSize: 14, color: WHITE, fontFamily: "Inter_500Medium", letterSpacing: -0.1 },
-  acctNum: { color: MUTED, fontFamily: "Inter_400Regular" },
-  acctBalance: { fontSize: 16, color: WHITE, fontFamily: "Inter_700Bold" },
+  acctInitial: { fontSize: 15, color: WHITE, fontFamily: "Inter_700Bold" },
+  acctInfo:    { flex: 1, gap: 4 },
+  acctName:    { fontSize: 14, color: WHITE, fontFamily: "Inter_500Medium", letterSpacing: -0.1 },
+  acctNum:     { color: MUTED, fontFamily: "Inter_400Regular" },
+  acctBalance: { fontSize: 17, color: WHITE, fontFamily: "Inter_700Bold" },
 
-  /* account input */
+  /* input */
   inputCard: {
-    backgroundColor: SURFACE,
+    backgroundColor: SURF,
     borderRadius: 14,
-    paddingVertical: 0,
+    borderWidth: 1,
+    borderColor: BORDER,
     overflow: "hidden",
   },
   inputField: {
     fontSize: 28,
     fontFamily: "Inter_600SemiBold",
     letterSpacing: 6,
-    paddingVertical: 24,
+    paddingVertical: 22,
     paddingHorizontal: 16,
+    width: "100%",
   },
-  inputHint: { fontSize: 12, color: MUTED, fontFamily: "Inter_400Regular", paddingHorizontal: 4 },
-  proceedBtn: {
+
+  /* resolved name row */
+  resolvedRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: RED,
-    borderRadius: 12,
-    paddingVertical: 14,
+    gap: 12,
+    backgroundColor: SURF,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: BORDER,
+    padding: 12,
   },
-  proceedTxt: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold" },
+  resolvedInfo: { flex: 1 },
+  resolvedName: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold", marginBottom: 2 },
+  resolvedBank: { fontSize: 12, color: MUTED, fontFamily: "Inter_400Regular" },
 
   /* recipient card */
   recipientCard: {
-    backgroundColor: SURFACE,
+    backgroundColor: SURF,
     borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingTop: 14,
-    paddingBottom: 6,
-    gap: 12,
+    borderWidth: 1,
+    borderColor: BORDER,
+    overflow: "hidden",
   },
+
+  /* search */
   searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: SURFACE2,
+    flexDirection: "row", alignItems: "center", gap: 8,
+    backgroundColor: SURF2,
+    margin: 12,
     borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 11,
+    borderWidth: 1, borderColor: BORDER,
+    paddingHorizontal: 12, paddingVertical: 10,
   },
   searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: WHITE,
-    fontFamily: "Inter_400Regular",
-    padding: 0,
-    margin: 0,
+    flex: 1, fontSize: 14, color: WHITE,
+    fontFamily: "Inter_400Regular", padding: 0,
   },
 
   /* tabs */
-  tabsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  tabsLeft: { flexDirection: "row", alignItems: "center", gap: 4 },
-  tabPill: { borderRadius: 20, paddingHorizontal: 18, paddingVertical: 8 },
-  tabTxt: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
-  viewAll: { fontSize: 14, color: AMBER, fontFamily: "Inter_600SemiBold" },
+  tabsRow:  { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 12, paddingBottom: 4 },
+  tabsLeft: { flexDirection: "row", alignItems: "center", gap: 6 },
+  tabPill:  { borderRadius: 20, paddingHorizontal: 14, paddingVertical: 6, borderWidth: 1 },
+  tabTxt:   { fontSize: 13, fontFamily: "Inter_600SemiBold" },
+  viewAll:  { fontSize: 13, color: MUTED, fontFamily: "Inter_500Medium" },
 
-  /* beneficiary */
-  benefRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    paddingVertical: 12,
-  },
+  /* beneficiary list */
+  benefRow:  { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, paddingHorizontal: 12 },
   benefInfo: { flex: 1 },
-  benefName: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold", marginBottom: 3 },
-  benefSub: { fontSize: 13, color: MUTED, fontFamily: "Inter_400Regular" },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: "#222222", marginHorizontal: 2 },
-  emptyRow: { paddingVertical: 28, alignItems: "center" },
-  emptyTxt: { fontSize: 14, color: MUTED, fontFamily: "Inter_400Regular" },
+  benefName: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold", marginBottom: 2 },
+  benefSub:  { fontSize: 12, color: MUTED, fontFamily: "Inter_400Regular" },
+  divider:   { height: StyleSheet.hairlineWidth, backgroundColor: BORDER, marginHorizontal: 12 },
+  emptyRow:  { paddingVertical: 28, alignItems: "center" },
+  emptyTxt:  { fontSize: 14, color: MUTED, fontFamily: "Inter_400Regular" },
+
+  /* confirm sheet */
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.75)",
+  },
+  sheet: {
+    position: "absolute",
+    bottom: 0, left: 0, right: 0,
+    backgroundColor: SURF3,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    borderTopWidth: 1, borderLeftWidth: 1, borderRightWidth: 1,
+    borderColor: BORDER,
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === "ios" ? 36 : 24,
+    paddingTop: 12,
+  },
+  handle: {
+    width: 36, height: 4, borderRadius: 2,
+    backgroundColor: "#2E2E32",
+    alignSelf: "center", marginBottom: 20,
+  },
+  sheetTitle: {
+    fontSize: 17, color: WHITE,
+    fontFamily: "Inter_700Bold", letterSpacing: -0.4,
+    textAlign: "center", marginBottom: 16,
+  },
+  recipientDetail: {
+    backgroundColor: SURF,
+    borderRadius: 16,
+    borderWidth: 1, borderColor: BORDER,
+    paddingVertical: 20, paddingHorizontal: 16,
+    alignItems: "center", gap: 6,
+  },
+  recipientName: { fontSize: 18, color: WHITE, fontFamily: "Inter_700Bold", letterSpacing: -0.4, textAlign: "center" },
+  recipientBank: { fontSize: 13, color: MUTED, fontFamily: "Inter_400Regular", textAlign: "center" },
+  recipientAcct: { fontSize: 13, color: MUTED, fontFamily: "Inter_500Medium", letterSpacing: 2, textAlign: "center" },
+
+  saveRow: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingVertical: 16,
+  },
+  saveTxt: { fontSize: 15, color: WHITE, fontFamily: "Inter_500Medium" },
+
+  sheetDivider: { height: StyleSheet.hairlineWidth, backgroundColor: BORDER, marginBottom: 16 },
+
+  btnRow: { flexDirection: "row", gap: 12 },
+  changeBtn: {
+    flex: 1, paddingVertical: 14, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+    backgroundColor: SURF, borderWidth: 1, borderColor: BORDER,
+  },
+  changeTxt: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold" },
+  confirmBtn: {
+    flex: 2, paddingVertical: 14, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+    backgroundColor: RED,
+  },
+  confirmTxt: { fontSize: 15, color: WHITE, fontFamily: "Inter_700Bold" },
 });

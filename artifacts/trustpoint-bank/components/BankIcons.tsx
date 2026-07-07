@@ -409,49 +409,91 @@ export function OtherBanksIcon({ size = 24 }: BankIconProps) {
           <Stop offset="0" stopColor={BLK_LIGHT} />
           <Stop offset="1" stopColor={BLK_DARK} />
         </LinearGradient>
+        {/* column: left face lighter, right face dark for 3-D extrusion */}
+        <LinearGradient id={`${id}-col`} x1="0" y1="0" x2="1" y2="0">
+          <Stop offset="0" stopColor={BLK_LIGHT} />
+          <Stop offset="0.65" stopColor="#282830" />
+          <Stop offset="1" stopColor={BLK_DARK} />
+        </LinearGradient>
         <LinearGradient id={`${id}-roof`} x1="0" y1="0" x2="1" y2="1">
           <Stop offset="0" stopColor={R_LIGHT} />
           <Stop offset="1" stopColor={R_DARK} />
         </LinearGradient>
+        <LinearGradient id={`${id}-door`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={R_LIGHT} />
+          <Stop offset="1" stopColor={R_DARK} />
+        </LinearGradient>
       </Defs>
-      {/* base platform */}
-      <Rect x="1.5" y="19.8" width="21" height="2.8" rx="0.8" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
-      <Rect x="2.3" y="20.2" width="19.4" height="0.9" rx="0.45" fill={W} fillOpacity="0.22" />
-      {/* sub-base */}
-      <Rect x="2.8" y="17.8" width="18.4" height="2" rx="0.6" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
-      <Rect x="3.6" y="18.2" width="16.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.18" />
-      {/* columns */}
-      <Rect x="3.6"  y="10.2" width="2.6" height="7.6" rx="1.3" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
-      <Rect x="4"    y="10.7" width="1.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.28" />
-      <Rect x="7.8"  y="10.2" width="2.6" height="7.6" rx="1.3" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
-      <Rect x="8.2"  y="10.7" width="1.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.28" />
-      <Rect x="13.6" y="10.2" width="2.6" height="7.6" rx="1.3" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
-      <Rect x="14"   y="10.7" width="1.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.28" />
-      <Rect x="17.8" y="10.2" width="2.6" height="7.6" rx="1.3" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
-      <Rect x="18.2" y="10.7" width="1.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.28" />
-      {/* pediment / roof — solid red extruded triangle */}
-      <Path d="M2 10.2L12 2.4L22 10.2Z" fill={`url(#${id}-roof)`} stroke={R_DARK} strokeWidth="0.4" strokeLinejoin="round" />
-      <Path d="M4.2 10.2L12 4L19.8 10.2Z" fill={W} fillOpacity="0.14" />
-      {/* keystone dot */}
-      <Circle cx="12" cy="6.4" r="1.2" fill={W} fillOpacity="0.85" />
-      <Circle cx="12" cy="6.4" r="0.5" fill={R_DARK} />
+
+      {/* ── base platforms ── */}
+      <Rect x="1.2" y="19.6" width="21.6" height="3" rx="0.8"
+        fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="2" y="20" width="20" height="1" rx="0.5" fill={W} fillOpacity="0.22" />
+      <Rect x="2.6" y="17.4" width="18.8" height="2.2" rx="0.6"
+        fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="3.4" y="17.8" width="17.2" height="0.9" rx="0.45" fill={W} fillOpacity="0.18" />
+
+      {/* ── column 1 (leftmost) ── */}
+      <Rect x="3.2" y="9.8" width="2.8" height="7.6" rx="1.4"
+        fill={`url(#${id}-col)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="3.6" y="10.3" width="2" height="0.9" rx="0.45" fill={W} fillOpacity="0.28" />
+      {/* right-side shadow strip for 3-D depth */}
+      <Rect x="5.6" y="9.8" width="0.4" height="7.6" fill={BLK_DARK} fillOpacity="0.45" />
+
+      {/* ── column 2 ── */}
+      <Rect x="7.4" y="9.8" width="2.8" height="7.6" rx="1.4"
+        fill={`url(#${id}-col)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="7.8" y="10.3" width="2" height="0.9" rx="0.45" fill={W} fillOpacity="0.28" />
+      <Rect x="9.8" y="9.8" width="0.4" height="7.6" fill={BLK_DARK} fillOpacity="0.45" />
+
+      {/* ── central arched door in red ── */}
+      <Path d="M11 17.4V14.5A1.8 1.8 0 0 1 14.6 14.5V17.4Z"
+        fill={`url(#${id}-door)`} stroke={R_DARK} strokeWidth="0.4" />
+      <Ellipse cx="12.8" cy="14.5" rx="1.8" ry="0.65" fill={W} fillOpacity="0.22" />
+      {/* door shadow base */}
+      <Path d="M11 17.4H14.6" stroke={R_DARK} strokeWidth="0.5" strokeOpacity="0.6" />
+
+      {/* ── column 3 ── */}
+      <Rect x="13.8" y="9.8" width="2.8" height="7.6" rx="1.4"
+        fill={`url(#${id}-col)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="14.2" y="10.3" width="2" height="0.9" rx="0.45" fill={W} fillOpacity="0.28" />
+      <Rect x="16.2" y="9.8" width="0.4" height="7.6" fill={BLK_DARK} fillOpacity="0.45" />
+
+      {/* ── column 4 (rightmost) ── */}
+      <Rect x="18" y="9.8" width="2.8" height="7.6" rx="1.4"
+        fill={`url(#${id}-col)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="18.4" y="10.3" width="2" height="0.9" rx="0.45" fill={W} fillOpacity="0.28" />
+      <Rect x="20.4" y="9.8" width="0.4" height="7.6" fill={BLK_DARK} fillOpacity="0.45" />
+
+      {/* ── pediment (red extruded triangle) ── */}
+      <Path d="M1.8 9.8L12 2L22.2 9.8Z"
+        fill={`url(#${id}-roof)`} stroke={R_DARK} strokeWidth="0.4" strokeLinejoin="round" />
+      {/* inner depth triangle */}
+      <Path d="M4 9.8L12 3.7L20 9.8Z" fill={W} fillOpacity="0.13" />
+      {/* pediment bottom edge shadow */}
+      <Line x1="1.8" y1="9.8" x2="22.2" y2="9.8" stroke={R_DARK} strokeWidth="0.6" strokeOpacity="0.55" />
+      {/* keystone */}
+      <Circle cx="12" cy="6.1" r="1.3" fill={W} fillOpacity="0.85" />
+      <Circle cx="12" cy="6.1" r="0.55" fill={R_DARK} />
     </Svg>
   );
 }
 
 /* ─────────────────────────────────────────────
    INTERNATIONAL — red radial-gradient globe
-   sphere (ball-shaded like SavingsIcon vault)
-   with black extruded plane and engraved
-   meridian / latitude lines
+   with dense engraved grid (4 meridians, 3
+   latitude bands); extruded black plane body
+   with delta wing + tail fin; dual specular
+   highlights for strong ball-like depth
 ───────────────────────────────────────────── */
 export function InternationalIcon({ size = 24 }: BankIconProps) {
   const id = useId();
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Defs>
-        <RadialGradient id={`${id}-globe`} cx="0.35" cy="0.28" r="0.85">
+        <RadialGradient id={`${id}-globe`} cx="0.32" cy="0.26" r="0.82">
           <Stop offset="0" stopColor={R_LIGHT} />
+          <Stop offset="0.55" stopColor={R} />
           <Stop offset="1" stopColor={R_DARK} />
         </RadialGradient>
         <LinearGradient id={`${id}-plane`} x1="0" y1="0" x2="1" y2="1">
@@ -459,31 +501,53 @@ export function InternationalIcon({ size = 24 }: BankIconProps) {
           <Stop offset="1" stopColor={BLK_DARK} />
         </LinearGradient>
       </Defs>
-      {/* globe sphere — radial shaded red ball */}
-      <Circle cx="12" cy="12.5" r="10" fill={`url(#${id}-globe)`} stroke={R_DARK} strokeWidth="0.4" />
-      {/* specular highlight */}
-      <Ellipse cx="9.4" cy="8.2" rx="3.2" ry="1.9" fill={W} fillOpacity="0.22" />
-      {/* engraved equator */}
-      <Line x1="2" y1="12.5" x2="22" y2="12.5" stroke={W} strokeOpacity="0.35" strokeWidth="0.8" />
-      {/* engraved meridians */}
-      <Path d="M12 2.5C9.2 5.8 9.2 19.2 12 22.5" stroke={W} strokeOpacity="0.28" strokeWidth="0.8" fill="none" />
-      <Path d="M12 2.5C14.8 5.8 14.8 19.2 12 22.5" stroke={W} strokeOpacity="0.28" strokeWidth="0.8" fill="none" />
-      {/* latitude band */}
-      <Path d="M3.8 8.2C6.4 9.4 17.6 9.4 20.2 8.2" stroke={W} strokeOpacity="0.2" strokeWidth="0.7" fill="none" />
-      {/* solid black extruded plane */}
-      <Path d="M17.6 3.6L21.4 6.8L18.4 7.4L17.2 5.2Z" fill={`url(#${id}-plane)`} stroke={RIM} strokeWidth="0.5" strokeLinejoin="round" />
-      <Path d="M18.1 4.1L20.6 6.2L19.4 6.4Z" fill={W} fillOpacity="0.22" />
-      {/* dashed flight arc */}
-      <Path d="M8 9C11 6.5 14.5 4.8 17.6 3.6" stroke={W} strokeOpacity="0.5" strokeWidth="0.9" strokeDasharray="1.6 1.4" strokeLinecap="round" fill="none" />
+
+      {/* ── globe sphere ── */}
+      <Circle cx="11.5" cy="13" r="9.8" fill={`url(#${id}-globe)`} stroke={R_DARK} strokeWidth="0.4" />
+
+      {/* primary specular */}
+      <Ellipse cx="8.6" cy="7.8" rx="3.4" ry="2" fill={W} fillOpacity="0.24" />
+      {/* secondary micro-spec */}
+      <Ellipse cx="6.8" cy="6.4" rx="1.2" ry="0.7" fill={W} fillOpacity="0.16" />
+
+      {/* equator */}
+      <Line x1="1.7" y1="13" x2="21.3" y2="13" stroke={W} strokeOpacity="0.32" strokeWidth="0.75" />
+      {/* latitude bands */}
+      <Path d="M3.2 8.4C6.2 9.6 16.8 9.6 19.8 8.4"   stroke={W} strokeOpacity="0.22" strokeWidth="0.65" fill="none" />
+      <Path d="M3.2 17.6C6.2 16.4 16.8 16.4 19.8 17.6" stroke={W} strokeOpacity="0.18" strokeWidth="0.65" fill="none" />
+      {/* meridians */}
+      <Path d="M11.5 3.2C8.4 6.8 8.4 19.2 11.5 22.8"  stroke={W} strokeOpacity="0.26" strokeWidth="0.7" fill="none" />
+      <Path d="M11.5 3.2C14.6 6.8 14.6 19.2 11.5 22.8" stroke={W} strokeOpacity="0.26" strokeWidth="0.7" fill="none" />
+      <Path d="M5.8 5.5C4 8.2 3.5 11 3.7 13"           stroke={W} strokeOpacity="0.14" strokeWidth="0.6" fill="none" />
+      <Path d="M17.2 5.5C19 8.2 19.5 11 19.3 13"       stroke={W} strokeOpacity="0.14" strokeWidth="0.6" fill="none" />
+
+      {/* ── extruded black plane (top-right) ── */}
+      {/* fuselage */}
+      <Path d="M17 2.8L22 5.8L19.6 6.6L16.4 4.8Z"
+        fill={`url(#${id}-plane)`} stroke={RIM} strokeWidth="0.55" strokeLinejoin="round" />
+      {/* wing */}
+      <Path d="M19.6 6.6L21.4 8.6L17.8 7.4Z"
+        fill={`url(#${id}-plane)`} stroke={RIM} strokeWidth="0.45" strokeLinejoin="round" />
+      {/* tail fin */}
+      <Path d="M16.4 4.8L15.4 3.4L17 2.8Z"
+        fill={`url(#${id}-plane)`} stroke={RIM} strokeWidth="0.4" strokeLinejoin="round" />
+      {/* fuselage top highlight */}
+      <Path d="M17.4 3.2L21.4 5.8L20.4 6.1L17 3.9Z" fill={W} fillOpacity="0.22" />
+
+      {/* ── dashed flight arc ── */}
+      <Path d="M6.5 10C9.2 6.8 13 4.2 17 2.8"
+        stroke={W} strokeOpacity="0.48" strokeWidth="0.9"
+        strokeDasharray="1.5 1.3" strokeLinecap="round" fill="none" />
     </Svg>
   );
 }
 
 /* ─────────────────────────────────────────────
    SCHEDULE TRANSFER — solid black extruded
-   calendar body with rim light; red radial-
-   gradient clock badge overlaps bottom-right
-   (same badge technique as BillsIcon checkmark)
+   calendar with full day-grid, date peg rings,
+   header separator line; red radial-gradient
+   clock badge with 12 tick marks, dual hands,
+   specular highlight for ball depth
 ───────────────────────────────────────────── */
 export function ScheduleIcon({ size = 24 }: BankIconProps) {
   const id = useId();
@@ -494,39 +558,72 @@ export function ScheduleIcon({ size = 24 }: BankIconProps) {
           <Stop offset="0" stopColor={BLK_LIGHT} />
           <Stop offset="1" stopColor={BLK_DARK} />
         </LinearGradient>
-        <RadialGradient id={`${id}-clock`} cx="0.35" cy="0.3" r="0.85">
+        <RadialGradient id={`${id}-clock`} cx="0.32" cy="0.28" r="0.82">
           <Stop offset="0" stopColor={R_LIGHT} />
+          <Stop offset="0.5" stopColor={R} />
           <Stop offset="1" stopColor={R_DARK} />
         </RadialGradient>
       </Defs>
-      {/* calendar body */}
-      <Rect x="1.4" y="4" width="16.2" height="16.2" rx="2.2" fill={`url(#${id}-cal)`} stroke={RIM} strokeWidth="0.6" />
-      {/* top highlight strip */}
-      <Rect x="1.8" y="4.4" width="15.4" height="1.2" rx="0.6" fill={W} fillOpacity="0.28" />
-      {/* header band */}
-      <Rect x="1.4" y="4" width="16.2" height="5.2" rx="2.2" fill={W} fillOpacity="0.07" />
-      {/* peg lines */}
-      <Line x1="6"    y1="2"   x2="6"    y2="6.2" stroke={RIM} strokeWidth="1.8" strokeLinecap="round" />
-      <Line x1="12.4" y1="2"   x2="12.4" y2="6.2" stroke={RIM} strokeWidth="1.8" strokeLinecap="round" />
-      {/* day grid dots */}
-      <Circle cx="5.2"  cy="13" r="1.05" fill={W} fillOpacity="0.55" />
-      <Circle cx="9.5"  cy="13" r="1.05" fill={W} fillOpacity="0.55" />
-      <Circle cx="5.2"  cy="17" r="1.05" fill={W} fillOpacity="0.35" />
-      <Circle cx="9.5"  cy="17" r="1.05" fill={W} fillOpacity="0.35" />
-      <Circle cx="13.8" cy="13" r="1.05" fill={W} fillOpacity="0.35" />
-      {/* clock badge — red sphere, bottom-right */}
-      <Circle cx="18.6" cy="18.6" r="5.4" fill={`url(#${id}-clock)`} stroke={R_DARK} strokeWidth="0.4" />
-      <Ellipse cx="17.2" cy="16.4" rx="1.8" ry="1.1" fill={W} fillOpacity="0.24" />
-      <Circle cx="18.6" cy="18.6" r="3.2" fill="none" stroke={W} strokeOpacity="0.5" strokeWidth="0.8" />
-      {/* clock ticks */}
-      <Line x1="18.6" y1="15.8" x2="18.6" y2="16.6" stroke={W} strokeWidth="0.9" strokeLinecap="round" />
-      <Line x1="18.6" y1="20.6" x2="18.6" y2="21.4" stroke={W} strokeWidth="0.9" strokeLinecap="round" />
-      <Line x1="15.8" y1="18.6" x2="16.6" y2="18.6" stroke={W} strokeWidth="0.9" strokeLinecap="round" />
-      <Line x1="20.6" y1="18.6" x2="21.4" y2="18.6" stroke={W} strokeWidth="0.9" strokeLinecap="round" />
-      {/* clock hands */}
-      <Line x1="18.6" y1="18.6" x2="18.6" y2="16.8" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
-      <Line x1="18.6" y1="18.6" x2="20.2" y2="19.5" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
-      <Circle cx="18.6" cy="18.6" r="0.7" fill={W} />
+
+      {/* ── calendar body ── */}
+      <Rect x="1.2" y="3.8" width="16.4" height="16.4" rx="2.4"
+        fill={`url(#${id}-cal)`} stroke={RIM} strokeWidth="0.6" />
+      {/* top highlight */}
+      <Rect x="1.6" y="4.2" width="15.6" height="1.2" rx="0.6" fill={W} fillOpacity="0.28" />
+      {/* header band fill */}
+      <Rect x="1.2" y="3.8" width="16.4" height="5.4" rx="2.4" fill={W} fillOpacity="0.06" />
+      {/* header bottom separator */}
+      <Line x1="1.2" y1="9.2" x2="17.6" y2="9.2" stroke={RIM} strokeWidth="0.5" strokeOpacity="0.4" />
+
+      {/* peg rings (date tabs) */}
+      <Circle cx="6"    cy="3.8" r="1.1" fill={`url(#${id}-cal)`} stroke={RIM} strokeWidth="0.5" />
+      <Line x1="6" y1="2.2" x2="6" y2="5.4" stroke={RIM} strokeWidth="1.6" strokeLinecap="round" />
+      <Circle cx="12.8" cy="3.8" r="1.1" fill={`url(#${id}-cal)`} stroke={RIM} strokeWidth="0.5" />
+      <Line x1="12.8" y1="2.2" x2="12.8" y2="5.4" stroke={RIM} strokeWidth="1.6" strokeLinecap="round" />
+
+      {/* header "MON" weekday label hint (3 tiny bars) */}
+      <Rect x="3.2" y="6.6" width="4" height="0.7" rx="0.35" fill={W} fillOpacity="0.35" />
+      <Rect x="7.8" y="6.6" width="3" height="0.7" rx="0.35" fill={W} fillOpacity="0.25" />
+      <Rect x="11.4" y="6.6" width="3.8" height="0.7" rx="0.35" fill={W} fillOpacity="0.25" />
+
+      {/* day grid — 3 rows × 4 cols */}
+      {/* row 1 */}
+      <Circle cx="4.2"  cy="11.6" r="0.9" fill={W} fillOpacity="0.55" />
+      <Circle cx="7.4"  cy="11.6" r="0.9" fill={W} fillOpacity="0.55" />
+      <Circle cx="10.6" cy="11.6" r="0.9" fill={W} fillOpacity="0.45" />
+      <Circle cx="13.8" cy="11.6" r="0.9" fill={W} fillOpacity="0.45" />
+      {/* row 2 */}
+      <Circle cx="4.2"  cy="14.4" r="0.9" fill={W} fillOpacity="0.38" />
+      <Circle cx="7.4"  cy="14.4" r="0.9" fill={W} fillOpacity="0.38" />
+      <Circle cx="10.6" cy="14.4" r="0.9" fill={W} fillOpacity="0.28" />
+      {/* row 3 */}
+      <Circle cx="4.2"  cy="17.2" r="0.9" fill={W} fillOpacity="0.25" />
+      <Circle cx="7.4"  cy="17.2" r="0.9" fill={W} fillOpacity="0.25" />
+
+      {/* ── clock badge — red sphere ── */}
+      <Circle cx="18.8" cy="18.8" r="5.2" fill={`url(#${id}-clock)`} stroke={R_DARK} strokeWidth="0.4" />
+      {/* primary specular */}
+      <Ellipse cx="17.2" cy="16.5" rx="2" ry="1.2" fill={W} fillOpacity="0.25" />
+      {/* secondary micro-spec */}
+      <Ellipse cx="16.4" cy="15.8" rx="0.8" ry="0.5" fill={W} fillOpacity="0.16" />
+      {/* face ring */}
+      <Circle cx="18.8" cy="18.8" r="3.4" fill="none" stroke={W} strokeOpacity="0.45" strokeWidth="0.75" />
+      {/* 12 hour ticks */}
+      <Line x1="18.8" y1="15.8" x2="18.8" y2="16.7" stroke={W} strokeWidth="1.1" strokeLinecap="round" />
+      <Line x1="18.8" y1="20.9" x2="18.8" y2="21.8" stroke={W} strokeWidth="1.1" strokeLinecap="round" />
+      <Line x1="15.8" y1="18.8" x2="16.7" y2="18.8" stroke={W} strokeWidth="1.1" strokeLinecap="round" />
+      <Line x1="20.9" y1="18.8" x2="21.8" y2="18.8" stroke={W} strokeWidth="1.1" strokeLinecap="round" />
+      {/* diagonal minor ticks */}
+      <Line x1="16.5" y1="16.5" x2="17.1" y2="17.1" stroke={W} strokeWidth="0.7" strokeLinecap="round" strokeOpacity="0.6" />
+      <Line x1="21.1" y1="16.5" x2="20.5" y2="17.1" stroke={W} strokeWidth="0.7" strokeLinecap="round" strokeOpacity="0.6" />
+      <Line x1="16.5" y1="21.1" x2="17.1" y2="20.5" stroke={W} strokeWidth="0.7" strokeLinecap="round" strokeOpacity="0.6" />
+      <Line x1="21.1" y1="21.1" x2="20.5" y2="20.5" stroke={W} strokeWidth="0.7" strokeLinecap="round" strokeOpacity="0.6" />
+      {/* minute hand (longer, thin) */}
+      <Line x1="18.8" y1="18.8" x2="18.8" y2="16.9" stroke={W} strokeWidth="1.0" strokeLinecap="round" />
+      {/* hour hand (shorter, thick) */}
+      <Line x1="18.8" y1="18.8" x2="20.6" y2="19.7" stroke={W} strokeWidth="1.4" strokeLinecap="round" />
+      {/* center pivot */}
+      <Circle cx="18.8" cy="18.8" r="0.75" fill={W} />
     </Svg>
   );
 }
