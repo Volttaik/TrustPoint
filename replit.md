@@ -54,6 +54,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 - `$PORT` is not auto-injected for manually configured workflows — the run command must hardcode or export `PORT`
 - The Expo app's dev script uses `REPLIT_EXPO_DEV_DOMAIN` and `REPLIT_DEV_DOMAIN` env vars that are injected automatically at runtime on Replit
 - `pnpm-workspace.yaml` enforces a 1440-minute minimum package release age — do not disable this
+- After a fresh clone / first install, run `pnpm exec tsc --build lib/db lib/api-zod` once to emit the declaration files the API server's project references require; without this, `pnpm run typecheck` in `api-server` reports missing `.d.ts` files
 
 ## Pointers
 

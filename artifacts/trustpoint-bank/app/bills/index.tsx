@@ -24,7 +24,7 @@ const CATEGORIES: { id: BillCategory; label: string; icon: TpIconName; color: st
   { id: "tv", label: "Cable TV", icon: "tv", color: "#007AFF" },
   { id: "internet", label: "Internet", icon: "wifi", color: "#34C759" },
   { id: "water", label: "Water", icon: "droplet", color: "#5AC8FA" },
-  { id: "betting", label: "Betting", icon: "bar-chart-2", color: "#8E44AD" },
+  { id: "betting", label: "Betting", icon: "activity", color: "#8E44AD" },
 ];
 
 const PROVIDERS: Record<BillCategory, { id: string; name: string }[]> = {
@@ -205,7 +205,7 @@ export default function BillsScreen() {
           onChangeText={setMeterNumber}
           keyboardType="default"
           placeholder={`Enter your ${fieldLabel.toLowerCase()}`}
-          prefixIcon={<TpIcon name="hash" size={18} color={colors.placeholder} strokeWidth={1.8} />}
+          prefixIcon={<TpIcon name="key" size={18} color={colors.placeholder} strokeWidth={1.8} />}
         />
 
         <Input

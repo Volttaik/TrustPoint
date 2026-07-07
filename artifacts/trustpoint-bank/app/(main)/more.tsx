@@ -27,7 +27,7 @@ const MENU_SECTIONS: {
     items: [
       { icon: "edit-2",      label: "Edit Profile",        route: "/settings/profile" },
       { icon: "trending-up", label: "Account Upgrade",     route: "/settings/upgrade" },
-      { icon: "user-check",  label: "KYC / Verification",  route: "/profile/kyc" },
+      { icon: "shield",      label: "KYC / Verification",  route: "/profile/kyc" },
     ],
   },
   {
