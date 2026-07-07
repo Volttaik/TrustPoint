@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -85,14 +85,14 @@ export default function TransferPinScreen() {
       </View>
 
       <View style={styles.content}>
-        <View style={[styles.iconWrap, {
-          backgroundColor: isDark ? "#140308" : "#FDF0F2",
-          borderColor: "#E11D3322",
-        }]}>
-          <Image
-            source={require("@/assets/icons/financial_security.webp")}
-            style={styles.iconImg}
-            resizeMode="contain"
+
+        {/* ── Lock icon — no container, clean standalone ── */}
+        <View style={styles.lockIconWrap}>
+          <TpIcon
+            name="lock"
+            size={52}
+            color={colors.primary}
+            strokeWidth={1.6}
           />
         </View>
 
@@ -103,6 +103,23 @@ export default function TransferPinScreen() {
           <Text style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             Enter your 4-digit PIN to securely{"\n"}confirm this payment
           </Text>
+        </View>
+
+        {/* ── Decorative feature hints — no containers ── */}
+        <View style={styles.decorRow}>
+          <View style={styles.decorItem}>
+            <TpIcon name="gift" size={15} color={colors.mutedForeground} strokeWidth={1.5} />
+            <Text style={[styles.decorLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              Rewards
+            </Text>
+          </View>
+          <View style={[styles.decorDivider, { backgroundColor: colors.border }]} />
+          <View style={styles.decorItem}>
+            <TpIcon name="users" size={15} color={colors.mutedForeground} strokeWidth={1.5} />
+            <Text style={[styles.decorLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              Referrals
+            </Text>
+          </View>
         </View>
 
         {error && (
@@ -149,19 +166,27 @@ const styles = StyleSheet.create({
 
   content: {
     flex: 1, alignItems: "center",
-    gap: 20, paddingHorizontal: 20, paddingTop: 12,
+    gap: 18, paddingHorizontal: 20, paddingTop: 16,
   },
 
-  iconWrap: {
-    width: 80, height: 80, borderRadius: 20,
-    borderWidth: 1,
+  /* Lock icon — bare, no background */
+  lockIconWrap: {
     alignItems: "center", justifyContent: "center",
+    marginBottom: 4,
   },
-  iconImg: { width: 54, height: 54 },
 
   textBlock: { alignItems: "center", gap: 8 },
   title:    { fontSize: 20, letterSpacing: -0.5 },
   subtitle: { fontSize: 14, textAlign: "center", lineHeight: 21 },
+
+  /* Decorative icon row — no containers */
+  decorRow: {
+    flexDirection: "row", alignItems: "center", gap: 18,
+    opacity: 0.7,
+  },
+  decorItem: { flexDirection: "row", alignItems: "center", gap: 5 },
+  decorDivider: { width: 1, height: 13 },
+  decorLabel: { fontSize: 12, letterSpacing: 0.1 },
 
   errorPill: {
     flexDirection: "row", alignItems: "center", gap: 6,

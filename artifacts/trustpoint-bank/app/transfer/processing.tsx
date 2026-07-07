@@ -1,16 +1,20 @@
-import React, { useEffect, useRef } from "react";
-import {
-  Animated,
+import React, { useEffect } from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
+import Animated, {
   Easing,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+  SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
+import { TpIcon } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
 export default function ProcessingScreen() {
@@ -28,34 +32,43 @@ export default function ProcessingScreen() {
     narration?: string;
   }>();
 
-  const spinAnim = useRef(new Animated.Value(0)).current;
-  const step1    = useRef(new Animated.Value(0)).current;
-  const step2    = useRef(new Animated.Value(0)).current;
-  const step3    = useRef(new Animated.Value(0)).current;
-
   const numTotal = parseFloat(total ?? amount ?? "0") || 0;
 
-  useEffect(() => {
-    /* Spinning arc — runs indefinitely while mounted */
-    const spinLoop = Animated.loop(
-      Animated.timing(spinAnim, {
-        toValue: 1, duration: 800,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    );
-    spinLoop.start();
+  /* ── Ring rotations ──────────────────────────────────── */
+  const rot1 = useSharedValue(0); // outer — clockwise, slow
+  const rot2 = useSharedValue(0); // mid   — counter-clockwise, medium
+  const rot3 = useSharedValue(0); // inner — clockwise, fast
 
-    /* Step ticks — staggered; keep handles for cleanup */
-    const t1 = setTimeout(() =>
-      Animated.spring(step1, { toValue: 1, useNativeDriver: true, friction: 5, tension: 90 }).start(),
-      500);
-    const t2 = setTimeout(() =>
-      Animated.spring(step2, { toValue: 1, useNativeDriver: true, friction: 5, tension: 90 }).start(),
-      1300);
-    const t3 = setTimeout(() =>
-      Animated.spring(step3, { toValue: 1, useNativeDriver: true, friction: 5, tension: 90 }).start(),
-      2100);
+  /* ── Step animations ─────────────────────────────────── */
+  const step1Scale   = useSharedValue(0);
+  const step2Scale   = useSharedValue(0);
+  const step3Scale   = useSharedValue(0);
+  const step1Opacity = useSharedValue(0.25);
+  const step2Opacity = useSharedValue(0.25);
+  const step3Opacity = useSharedValue(0.25);
+
+  useEffect(() => {
+    /* Spinning rings — continuous loops at different speeds & directions */
+    const linearCfg = (duration: number) => ({
+      duration,
+      easing: Easing.linear,
+    });
+
+    rot1.value = withRepeat(withTiming(360,  linearCfg(1400)), -1, false);
+    rot2.value = withRepeat(withTiming(-360, linearCfg(2100)), -1, false);
+    rot3.value = withRepeat(withTiming(360,  linearCfg(900)),  -1, false);
+
+    /* Step ticks — spring in with staggered delay */
+    const spring = { damping: 14, stiffness: 180 };
+
+    step1Scale.value   = withDelay(400,  withSpring(1, spring));
+    step1Opacity.value = withDelay(400,  withTiming(1, { duration: 200 }));
+
+    step2Scale.value   = withDelay(1200, withSpring(1, spring));
+    step2Opacity.value = withDelay(1200, withTiming(1, { duration: 200 }));
+
+    step3Scale.value   = withDelay(2000, withSpring(1, spring));
+    step3Opacity.value = withDelay(2000, withTiming(1, { duration: 200 }));
 
     /* Navigate to success once all steps done */
     const nav = setTimeout(() => {
@@ -69,24 +82,27 @@ export default function ProcessingScreen() {
       });
     }, 2900);
 
-    return () => {
-      spinLoop.stop();
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(nav);
-    };
+    return () => clearTimeout(nav);
   }, []);
 
-  const spinRotate = spinAnim.interpolate({
-    inputRange:  [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
+  const ring1Style = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rot1.value}deg` }],
+  }));
+  const ring2Style = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rot2.value}deg` }],
+  }));
+  const ring3Style = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rot3.value}deg` }],
+  }));
 
-  const SIZE = 92;
-  const R    = 38;
-  const C    = SIZE / 2;
-  const circ = 2 * Math.PI * R;
+  /* ── SVG ring specs ──────────────────────────────────── */
+  const SZ  = 120;
+  const CX  = SZ / 2;
+  const arc = (r: number) => 2 * Math.PI * r;
+
+  const OUTER = { r: 52, fill: 0.70, sw: 4   };
+  const MID   = { r: 37, fill: 0.50, sw: 3.5 };
+  const INNER = { r: 22, fill: 0.40, sw: 3   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -94,30 +110,60 @@ export default function ProcessingScreen() {
 
       <View style={[styles.content, { paddingTop: topPad + 72 }]}>
 
-        {/* ── Spinner ───────────────────────────────────── */}
+        {/* ── Premium multi-ring spinner ─────────────────── */}
         <View style={styles.spinnerWrap}>
-          <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
-            <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
-              {/* track */}
+
+          {/* Outer ring — slow clockwise */}
+          <Animated.View style={[StyleSheet.absoluteFill, ring1Style]}>
+            <Svg width={SZ} height={SZ} viewBox={`0 0 ${SZ} ${SZ}`}>
+              <Circle cx={CX} cy={CX} r={OUTER.r} stroke={colors.border} strokeWidth={OUTER.sw} fill="none" />
               <Circle
-                cx={C} cy={C} r={R}
-                stroke={colors.border}
-                strokeWidth={4.5}
-                fill="none"
-              />
-              {/* arc */}
-              <Circle
-                cx={C} cy={C} r={R}
+                cx={CX} cy={CX} r={OUTER.r}
                 stroke={colors.primary}
-                strokeWidth={4.5}
+                strokeWidth={OUTER.sw}
                 fill="none"
-                strokeDasharray={`${circ * 0.68} ${circ * 0.32}`}
+                strokeDasharray={`${arc(OUTER.r) * OUTER.fill} ${arc(OUTER.r) * (1 - OUTER.fill)}`}
                 strokeLinecap="round"
                 rotation={-90}
-                origin={`${C},${C}`}
+                origin={`${CX},${CX}`}
               />
             </Svg>
           </Animated.View>
+
+          {/* Mid ring — medium counter-clockwise */}
+          <Animated.View style={[StyleSheet.absoluteFill, ring2Style]}>
+            <Svg width={SZ} height={SZ} viewBox={`0 0 ${SZ} ${SZ}`}>
+              <Circle cx={CX} cy={CX} r={MID.r} stroke={colors.border} strokeWidth={MID.sw} fill="none" />
+              <Circle
+                cx={CX} cy={CX} r={MID.r}
+                stroke={colors.primary + "AA"}
+                strokeWidth={MID.sw}
+                fill="none"
+                strokeDasharray={`${arc(MID.r) * MID.fill} ${arc(MID.r) * (1 - MID.fill)}`}
+                strokeLinecap="round"
+                rotation={-90}
+                origin={`${CX},${CX}`}
+              />
+            </Svg>
+          </Animated.View>
+
+          {/* Inner ring — fast clockwise */}
+          <Animated.View style={[StyleSheet.absoluteFill, ring3Style]}>
+            <Svg width={SZ} height={SZ} viewBox={`0 0 ${SZ} ${SZ}`}>
+              <Circle cx={CX} cy={CX} r={INNER.r} stroke="transparent" strokeWidth={INNER.sw} fill="none" />
+              <Circle
+                cx={CX} cy={CX} r={INNER.r}
+                stroke={colors.primary + "DD"}
+                strokeWidth={INNER.sw}
+                fill="none"
+                strokeDasharray={`${arc(INNER.r) * INNER.fill} ${arc(INNER.r) * (1 - INNER.fill)}`}
+                strokeLinecap="round"
+                rotation={-90}
+                origin={`${CX},${CX}`}
+              />
+            </Svg>
+          </Animated.View>
+
         </View>
 
         {/* ── Labels ───────────────────────────────────── */}
@@ -132,15 +178,27 @@ export default function ProcessingScreen() {
         </Text>
 
         {/* ── Steps card ───────────────────────────────── */}
-        <View style={[
-          styles.stepsCard,
-          { backgroundColor: colors.card, borderColor: colors.border },
-        ]}>
-          <StepRow label="PIN verified"           anim={step1} colors={colors} />
+        <View style={[styles.stepsCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <StepRow
+            label="PIN verified"
+            scaleAnim={step1Scale}
+            opacityAnim={step1Opacity}
+            colors={colors}
+          />
           <View style={[styles.sep, { backgroundColor: colors.border }]} />
-          <StepRow label="Authorizing transfer"   anim={step2} colors={colors} />
+          <StepRow
+            label="Authorizing transfer"
+            scaleAnim={step2Scale}
+            opacityAnim={step2Opacity}
+            colors={colors}
+          />
           <View style={[styles.sep, { backgroundColor: colors.border }]} />
-          <StepRow label="Completing transaction" anim={step3} colors={colors} />
+          <StepRow
+            label="Completing transaction"
+            scaleAnim={step3Scale}
+            opacityAnim={step3Opacity}
+            colors={colors}
+          />
         </View>
 
       </View>
@@ -150,26 +208,25 @@ export default function ProcessingScreen() {
 
 /* ── Step row ──────────────────────────────────────────────── */
 function StepRow({
-  label, anim, colors,
+  label, scaleAnim, opacityAnim, colors,
 }: {
   label: string;
-  anim: Animated.Value;
+  scaleAnim: SharedValue<number>;
+  opacityAnim: SharedValue<number>;
   colors: any;
 }) {
-  const opacity = anim.interpolate({ inputRange: [0, 1], outputRange: [0.3, 1] });
+  const rowStyle   = useAnimatedStyle(() => ({ opacity: opacityAnim.value }));
+  const checkStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scaleAnim.value }],
+  }));
+
   return (
-    <Animated.View style={[styles.stepRow, { opacity }]}>
-      <Text style={[
-        styles.stepLabel,
-        { color: colors.text, fontFamily: "Inter_400Regular" },
-      ]}>
+    <Animated.View style={[styles.stepRow, rowStyle]}>
+      <Text style={[styles.stepLabel, { color: colors.text, fontFamily: "Inter_400Regular" }]}>
         {label}
       </Text>
-      <Animated.View style={[
-        styles.stepCheck,
-        { backgroundColor: colors.success, transform: [{ scale: anim }] },
-      ]}>
-        <Text style={styles.checkMark}>✓</Text>
+      <Animated.View style={[styles.stepCheck, { backgroundColor: colors.success }, checkStyle]}>
+        <TpIcon name="check" size={13} color="#fff" strokeWidth={2.5} />
       </Animated.View>
     </Animated.View>
   );
@@ -178,10 +235,13 @@ function StepRow({
 const styles = StyleSheet.create({
   container:   { flex: 1 },
   content:     { flex: 1, alignItems: "center", paddingHorizontal: 28, gap: 12 },
-  spinnerWrap: { marginBottom: 8 },
+
+  spinnerWrap: { width: 120, height: 120, marginBottom: 8 },
+
   title:       { fontSize: 22, letterSpacing: -0.6, marginTop: 4 },
   amountText:  { fontSize: 42, letterSpacing: -1.5 },
   sub:         { fontSize: 13 },
+
   stepsCard: {
     width: "100%", borderRadius: 18, borderWidth: 1,
     marginTop: 28, overflow: "hidden",
@@ -196,6 +256,5 @@ const styles = StyleSheet.create({
     width: 26, height: 26, borderRadius: 13,
     alignItems: "center", justifyContent: "center",
   },
-  checkMark: { color: "#fff", fontSize: 12 },
-  sep:       { height: StyleSheet.hairlineWidth, marginHorizontal: 20 },
+  sep: { height: StyleSheet.hairlineWidth, marginHorizontal: 20 },
 });
