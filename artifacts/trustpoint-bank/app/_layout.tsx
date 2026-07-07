@@ -22,16 +22,17 @@ const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
+    <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+      <Stack.Screen name="index" options={{ animation: "fade" }} />
       <Stack.Screen name="(auth)" options={{ animation: "fade" }} />
-      <Stack.Screen name="(main)" />
+      <Stack.Screen name="(main)" options={{ animation: "fade" }} />
       <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="transfer" options={{ presentation: "card" }} />
-      <Stack.Screen name="transactions" options={{ presentation: "card" }} />
-      <Stack.Screen name="savings" options={{ presentation: "card" }} />
-      <Stack.Screen name="notifications" options={{ presentation: "card" }} />
-      <Stack.Screen name="settings" options={{ presentation: "card" }} />
+      <Stack.Screen name="transfer" />
+      <Stack.Screen name="deposit" />
+      <Stack.Screen name="transactions" />
+      <Stack.Screen name="savings" />
+      <Stack.Screen name="notifications" />
+      <Stack.Screen name="settings" />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
