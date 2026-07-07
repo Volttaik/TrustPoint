@@ -11,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { SuccessModal } from "@/components/ui/SuccessModal";
 import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
@@ -56,7 +57,6 @@ export default function PaymentsScreen() {
     });
     setLoading(false);
     setSuccess(true);
-    setTimeout(() => { setSuccess(false); setSelected(null); setAmount(""); }, 2500);
   };
 
   return (
@@ -143,14 +143,6 @@ export default function PaymentsScreen() {
               />
             </View>
 
-            {success ? (
-              <View style={[styles.successBanner, { backgroundColor: colors.success + "22", borderColor: colors.success }]}>
-                <TpIcon name="check-circle" size={18} color={colors.success} strokeWidth={1.8} />
-                <Text style={[styles.successText, { color: colors.success, fontFamily: "Inter_600SemiBold" }]}>
-                  Payment successful!
-                </Text>
-              </View>
-            ) : (
               <Button
                 onPress={handlePay}
                 loading={loading}
@@ -159,10 +151,18 @@ export default function PaymentsScreen() {
               >
                 Pay ₦{Number(amount || 0).toLocaleString()}
               </Button>
-            )}
           </View>
         )}
       </ScrollView>
+
+      <SuccessModal
+        visible={success}
+        title="Payment Successful!"
+        subtitle={selected
+          ? `${CATEGORIES.find((c) => c.id === selected)?.label} — ₦${Number(amount || 0).toLocaleString()}`
+          : undefined}
+        onDismiss={() => { setSuccess(false); setSelected(null); setAmount(""); }}
+      />
     </View>
   );
 }

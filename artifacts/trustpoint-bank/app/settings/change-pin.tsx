@@ -10,6 +10,7 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PinPad } from "@/components/ui/PinPad";
+import { SuccessModal } from "@/components/ui/SuccessModal";
 import { TpIcon } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
@@ -66,31 +67,6 @@ export default function ChangePinScreen() {
   };
 
   const stepIndex = step === "current" ? 0 : step === "new" ? 1 : 2;
-
-  if (success) {
-    return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <StatusBar style={isDark ? "light" : "dark"} />
-        <View style={styles.successContainer}>
-          <View style={[styles.successIcon, { backgroundColor: colors.success + "20" }]}>
-            <TpIcon name="check-circle" size={52} color={colors.success} strokeWidth={1.5} />
-          </View>
-          <Text style={[styles.successTitle, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-            PIN Changed!
-          </Text>
-          <Text style={[styles.successSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-            Your transaction PIN has been updated successfully.
-          </Text>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={[styles.doneBtn, { backgroundColor: colors.primary }]}
-          >
-            <Text style={[styles.doneBtnText, { fontFamily: "Inter_600SemiBold" }]}>Done</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -154,6 +130,14 @@ export default function ChangePinScreen() {
           shake={error}
         />
       </View>
+
+      <SuccessModal
+        visible={success}
+        title="PIN Changed!"
+        subtitle="Your transaction PIN has been updated successfully."
+        onDismiss={() => { setSuccess(false); router.back(); }}
+        autoDismissMs={2000}
+      />
     </View>
   );
 }

@@ -13,6 +13,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { SuccessModal } from "@/components/ui/SuccessModal";
 import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
@@ -96,12 +97,6 @@ export default function BillsScreen() {
     });
     setLoading(false);
     setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      setProvider("");
-      setMeterNumber("");
-      setAmount("");
-    }, 2500);
   };
 
   return (
@@ -217,24 +212,17 @@ export default function BillsScreen() {
           prefixIcon={<Text style={{ color: colors.placeholder, fontSize: 16, fontFamily: "Inter_400Regular" }}>₦</Text>}
         />
 
-        {success ? (
-          <View style={[styles.successBox, { backgroundColor: colors.success + "18", borderColor: colors.success }]}>
-            <TpIcon name="check-circle" size={22} color={colors.success} strokeWidth={1.8} />
-            <View>
-              <Text style={[styles.successTitle, { color: colors.success, fontFamily: "Inter_600SemiBold" }]}>
-                Payment Successful!
-              </Text>
-              <Text style={[styles.successSub, { color: colors.success + "CC", fontFamily: "Inter_400Regular" }]}>
-                {selectedProvider?.name} — ₦{Number(amount).toLocaleString()}
-              </Text>
-            </View>
-          </View>
-        ) : (
           <Button onPress={handlePay} loading={loading} disabled={!canPay} fullWidth size="large">
             Pay ₦{amount ? Number(amount).toLocaleString() : "0"}
           </Button>
-        )}
       </ScrollView>
+
+      <SuccessModal
+        visible={success}
+        title="Payment Successful!"
+        subtitle={`${selectedProvider?.name ?? catInfo.label} — ₦${Number(amount).toLocaleString()}`}
+        onDismiss={() => { setSuccess(false); setProvider(""); setMeterNumber(""); setAmount(""); }}
+      />
     </View>
   );
 }

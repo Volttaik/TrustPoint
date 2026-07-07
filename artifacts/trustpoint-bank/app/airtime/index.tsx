@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Circle, Rect, G } from "react-native-svg";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { SuccessModal } from "@/components/ui/SuccessModal";
 import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
@@ -138,11 +139,6 @@ export default function AirtimeScreen() {
     });
     setLoading(false);
     setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      setAmount("");
-      setBundle("");
-    }, 2000);
   };
 
   const canSubmit = tab === "airtime"
@@ -355,14 +351,6 @@ export default function AirtimeScreen() {
           </View>
         )}
 
-        {success ? (
-          <View style={[styles.successBox, { backgroundColor: colors.success + "18", borderColor: colors.success }]}>
-            <TpIcon name="check-circle" size={22} color={colors.success} strokeWidth={1.8} />
-            <Text style={[styles.successText, { color: colors.success, fontFamily: "Inter_600SemiBold" }]}>
-              {tab === "airtime" ? "Airtime" : "Data"} purchased successfully!
-            </Text>
-          </View>
-        ) : (
           <Button
             onPress={handleBuy}
             loading={loading}
@@ -375,8 +363,18 @@ export default function AirtimeScreen() {
               : `Buy ${selectedBundle ? selectedBundle.size : "Data"}${selectedBundle ? ` — ₦${selectedBundle.price.toLocaleString()}` : ""}`
             }
           </Button>
-        )}
       </ScrollView>
+
+      <SuccessModal
+        visible={success}
+        title={tab === "airtime" ? "Airtime Purchased!" : "Data Purchased!"}
+        subtitle={
+          tab === "airtime"
+            ? `₦${Number(amount).toLocaleString()} to ${phone}`
+            : `${selectedBundle?.size ?? ""} to ${phone}`
+        }
+        onDismiss={() => { setSuccess(false); setAmount(""); setBundle(""); }}
+      />
     </View>
   );
 }

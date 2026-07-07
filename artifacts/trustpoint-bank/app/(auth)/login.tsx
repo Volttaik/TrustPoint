@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  Animated,
-  Easing,
   Image,
   Modal,
   StyleSheet,
@@ -10,31 +8,45 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { BlurView } from "expo-blur";
+import Svg, { Path } from "react-native-svg";
 import { PinPad } from "@/components/ui/PinPad";
+import { TpSpinner } from "@/components/ui/TpSpinner";
 import { Avatar } from "@/components/Avatar";
 import { useApp } from "@/context/AppContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Svg, { Circle, Defs, Path, RadialGradient, Stop } from "react-native-svg";
 
 type VerifyState = "idle" | "spinning" | "success" | "error";
 
 export default function LoginScreen() {
   const { login, user } = useApp();
   const { width: winWidth, height: winHeight } = useWindowDimensions();
-  const [pin, setPin] = useState("");
-  const [error, setError] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [verifyState, setVerifyState] = useState<VerifyState>("idle");
+  const [pin,          setPin]          = useState("");
+  const [error,        setError]        = useState(false);
+  const [attempts,     setAttempts]     = useState(0);
+  const [loading,      setLoading]      = useState(false);
+  const [verifyState,  setVerifyState]  = useState<VerifyState>("idle");
   const [displayPhone, setDisplayPhone] = useState("");
 
-  const spinAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0)).current;
-  const checkAnim = useRef(new Animated.Value(0)).current;
-  const spinLoopRef = useRef<Animated.CompositeAnimation | null>(null);
+  /* ── Reanimated values ───────────────────────────────── */
+  const cardScale   = useSharedValue(0.8);
+  const resultScale = useSharedValue(0);
+
+  const cardStyle   = useAnimatedStyle(() => ({
+    transform: [{ scale: cardScale.value }],
+  }));
+  const resultStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: resultScale.value }],
+  }));
 
   useEffect(() => {
     AsyncStorage.getItem("@tp_last_phone").then((p) => {
@@ -42,47 +54,32 @@ export default function LoginScreen() {
     });
   }, []);
 
+  /* ── Spinner control ─────────────────────────────────── */
   const startSpinner = () => {
-    spinAnim.setValue(0);
-    scaleAnim.setValue(0);
-    checkAnim.setValue(0);
+    resultScale.value = 0;
+    cardScale.value   = 0.8;
     setVerifyState("spinning");
-
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, friction: 6, tension: 80 }).start();
-
-    spinLoopRef.current = Animated.loop(
-      Animated.timing(spinAnim, {
-        toValue: 1,
-        duration: 900,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    );
-    spinLoopRef.current.start();
+    cardScale.value   = withSpring(1, { damping: 14, stiffness: 200 });
   };
 
   const stopSpinnerSuccess = () => {
-    spinLoopRef.current?.stop();
     setVerifyState("success");
-    Animated.spring(checkAnim, { toValue: 1, useNativeDriver: true, friction: 5, tension: 90 }).start();
+    resultScale.value = withSpring(1, { damping: 11, stiffness: 220 });
   };
 
   const stopSpinnerError = () => {
-    spinLoopRef.current?.stop();
     setVerifyState("error");
-    Animated.sequence([
-      Animated.timing(scaleAnim, { toValue: 1.1, duration: 80, useNativeDriver: true, easing: Easing.out(Easing.ease) }),
-      Animated.timing(scaleAnim, { toValue: 0.95, duration: 80, useNativeDriver: true, easing: Easing.out(Easing.ease) }),
-      Animated.timing(scaleAnim, { toValue: 1, duration: 80, useNativeDriver: true, easing: Easing.out(Easing.ease) }),
-    ]).start(() => {
-      setTimeout(() => {
-        Animated.timing(scaleAnim, { toValue: 0, duration: 180, useNativeDriver: true, easing: Easing.in(Easing.ease) }).start(() => {
-          setVerifyState("idle");
-        });
-      }, 700);
-    });
+    resultScale.value = withSequence(
+      withSpring(1.1, { damping: 8,  stiffness: 300 }),
+      withSpring(1,   { damping: 12, stiffness: 200 }),
+    );
+    setTimeout(() => {
+      cardScale.value = withTiming(0.8, { duration: 200 });
+      setTimeout(() => setVerifyState("idle"), 220);
+    }, 820);
   };
 
+  /* ── PIN handling ────────────────────────────────────── */
   const handleKey = async (key: string) => {
     if (pin.length >= 4 || loading) return;
     const newPin = pin + key;
@@ -91,9 +88,9 @@ export default function LoginScreen() {
       setLoading(true);
       startSpinner();
       await new Promise((r) => setTimeout(r, 400));
-      const success = await login(newPin);
+      const ok = await login(newPin);
       setLoading(false);
-      if (success) {
+      if (ok) {
         stopSpinnerSuccess();
         await new Promise((r) => setTimeout(r, 900));
         router.replace("/(main)");
@@ -107,13 +104,7 @@ export default function LoginScreen() {
   };
 
   const displayName = user?.name?.split(" ")[0] ?? "there";
-
-  const spinRotate = spinAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ["0deg", "360deg"],
-  });
-
-  const isVisible = verifyState !== "idle";
+  const isVisible   = verifyState !== "idle";
 
   return (
     <View style={styles.container}>
@@ -125,6 +116,7 @@ export default function LoginScreen() {
       />
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
 
+      {/* ── Brand header ─────────────────────────────────── */}
       <View style={styles.header}>
         <View style={styles.headerBrand}>
           <Image
@@ -142,19 +134,23 @@ export default function LoginScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* ── User greeting ─────────────────────────────────── */}
       <View style={styles.top}>
         <Avatar initials={user?.initials ?? "?"} color={user?.avatarColor ?? "#E63946"} size={64} />
         <Text style={[styles.greeting, { fontFamily: "Inter_400Regular" }]}>Welcome back,</Text>
-        <Text style={[styles.name, { fontFamily: "Inter_700Bold" }]}>{displayName}</Text>
+        <Text style={[styles.name,     { fontFamily: "Inter_700Bold" }]}>{displayName}</Text>
         {displayPhone ? (
           <Text style={[styles.phone, { fontFamily: "Inter_400Regular" }]}>{displayPhone}</Text>
         ) : null}
       </View>
 
+      {/* ── PIN pad ───────────────────────────────────────── */}
       <View style={styles.padArea}>
         {error && !isVisible && (
           <Text style={[styles.errorText, { fontFamily: "Inter_500Medium" }]}>
-            Incorrect PIN.{attempts < 3 ? ` ${3 - attempts} attempt${3 - attempts === 1 ? "" : "s"} left.` : " Please try again."}
+            Incorrect PIN.{attempts < 3
+              ? ` ${3 - attempts} attempt${3 - attempts === 1 ? "" : "s"} left.`
+              : " Please try again."}
           </Text>
         )}
         <PinPad
@@ -165,68 +161,52 @@ export default function LoginScreen() {
         />
       </View>
 
+      {/* ── Footer ────────────────────────────────────────── */}
       <View style={styles.bottom}>
         <TouchableOpacity onPress={() => {}}>
           <Text style={[styles.linkTextSmall, { fontFamily: "Inter_400Regular" }]}>
-            Forgot PIN? <Text style={{ color: "#E63946" }}>Reset</Text>
+            Forgot PIN?{" "}
+            <Text style={{ color: "#E63946" }}>Reset</Text>
           </Text>
         </TouchableOpacity>
       </View>
 
+      {/* ══ Verify overlay modal ══════════════════════════ */}
       <Modal visible={isVisible} transparent animationType="none">
         <BlurView intensity={45} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
+
         <View style={styles.modalBg} pointerEvents="none">
-          <Animated.View
-            style={[
-              styles.verifyCard,
-              { transform: [{ scale: scaleAnim }] },
-            ]}
-          >
+          <Animated.View style={[styles.verifyCard, cardStyle]}>
+
+            {/* Spinning state — concentric ring spinner */}
             {verifyState === "spinning" && (
               <>
-                <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
-                  <Svg width={winWidth * 0.62} height={winWidth * 0.62} viewBox="0 0 112 112" fill="none">
-                    <Defs>
-                      <RadialGradient id="spinnerHead" cx="0.5" cy="0.5" r="0.5">
-                        <Stop offset="0" stopColor="#FF7A85" />
-                        <Stop offset="1" stopColor="#E63946" />
-                      </RadialGradient>
-                    </Defs>
-                    <Path
-                      d="M56 8a48 48 0 0 1 48 48"
-                      stroke="#E63946"
-                      strokeWidth="7"
-                      strokeLinecap="round"
-                    />
-                  </Svg>
-                </Animated.View>
-                <Text style={[styles.verifyLabel, { fontFamily: "Inter_500Medium" }]}>Login</Text>
+                <TpSpinner size="large" color="#E63946" />
+                <Text style={[styles.verifyLabel, { fontFamily: "Inter_500Medium" }]}>
+                  Verifying
+                </Text>
               </>
             )}
+
+            {/* Result state — success / error circle */}
             {(verifyState === "success" || verifyState === "error") && (
               <>
                 <Animated.View style={[
                   styles.resultCircle,
-                  {
-                    backgroundColor: verifyState === "success" ? "#1E9E5A" : "#E63946",
-                    transform: [{ scale: checkAnim }],
-                  },
+                  { backgroundColor: verifyState === "success" ? "#1E9E5A" : "#E63946" },
+                  resultStyle,
                 ]}>
                   {verifyState === "success" ? (
                     <Svg width={58} height={58} viewBox="0 0 58 58" fill="none">
                       <Path
                         d="M11 29L23 43"
-                        stroke="#fff"
-                        strokeWidth="5.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                        stroke="#fff" strokeWidth="5.5"
+                        strokeLinecap="round" strokeLinejoin="round"
                       />
                       <Path
                         d="M23 43L47 16"
-                        stroke="#fff"
-                        strokeWidth="5.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                        stroke="#fff" strokeWidth="5.5"
+                        strokeLinecap="round" strokeLinejoin="round"
                       />
                     </Svg>
                   ) : (
@@ -247,6 +227,7 @@ export default function LoginScreen() {
                 </Text>
               </>
             )}
+
           </Animated.View>
         </View>
       </Modal>
@@ -256,7 +237,8 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#0A0A0A" },
-  overlay: { backgroundColor: "rgba(0,0,0,0.72)" },
+  overlay:   { backgroundColor: "rgba(0,0,0,0.72)" },
+
   header: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -265,19 +247,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 22,
   },
   headerBrand: { flexDirection: "row", alignItems: "center", gap: 8 },
-  headerLogo: { width: 34, height: 34 },
+  headerLogo:  { width: 34, height: 34 },
   headerTitle: { fontSize: 22, color: "#F1FAEE", letterSpacing: -0.5 },
-  headerLink: { fontSize: 11.5, color: "#8E8E93", textAlign: "right", lineHeight: 15 },
-  top: {
-    alignItems: "center",
-    paddingTop: 28,
-    paddingBottom: 20,
-    gap: 5,
-  },
-  icon: { width: 72, height: 72, marginBottom: 10 },
+  headerLink:  { fontSize: 11.5, color: "#8E8E93", textAlign: "right", lineHeight: 15 },
+
+  top: { alignItems: "center", paddingTop: 28, paddingBottom: 20, gap: 5 },
   greeting: { fontSize: 12.5, color: "#8E8E93" },
-  name: { fontSize: 22, color: "#F1FAEE", letterSpacing: -0.6 },
-  phone: { fontSize: 12, color: "#8E8E93" },
+  name:     { fontSize: 22,   color: "#F1FAEE", letterSpacing: -0.6 },
+  phone:    { fontSize: 12,   color: "#8E8E93" },
+
   padArea: {
     flex: 1,
     alignItems: "center",
@@ -285,9 +263,11 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   errorText: { fontSize: 12.5, color: "#E63946" },
-  bottom: { paddingBottom: 40, alignItems: "center", gap: 10 },
-  linkText: { fontSize: 14, color: "#8E8E93" },
+
+  bottom: { paddingBottom: 40, alignItems: "center" },
   linkTextSmall: { fontSize: 12, color: "#6E6E73" },
+
+  /* Modal */
   modalBg: {
     flex: 1,
     backgroundColor: "transparent",
@@ -295,7 +275,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   verifyCard: {
-    backgroundColor: "transparent",
     alignItems: "center",
     gap: 30,
     minWidth: 200,
@@ -306,10 +285,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   resultCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 96, height: 96, borderRadius: 48,
+    alignItems: "center", justifyContent: "center",
   },
 });

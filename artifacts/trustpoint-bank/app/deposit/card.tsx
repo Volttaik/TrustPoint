@@ -14,6 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { SuccessModal } from "@/components/ui/SuccessModal";
 import { TpIcon } from "@/components/TpIcon";
 import { useColors } from "@/hooks/useColors";
 
@@ -45,7 +46,6 @@ export default function CardTopupScreen() {
     await new Promise((r) => setTimeout(r, 1800));
     setLoading(false);
     setSuccess(true);
-    setTimeout(() => { setSuccess(false); setAmount(""); }, 3000);
   };
 
   return (
@@ -205,17 +205,6 @@ export default function CardTopupScreen() {
         borderTopColor:  colors.border,
         paddingBottom:   bottomPad + 16,
       }]}>
-        {success ? (
-          <View style={[styles.successBanner, {
-            backgroundColor: colors.success + "18",
-            borderColor:     colors.success + "40",
-          }]}>
-            <TpIcon name="check-circle" size={20} color={colors.success} strokeWidth={1.8} />
-            <Text style={[styles.successTxt, { color: colors.success, fontFamily: "Inter_600SemiBold" }]}>
-              ₦{numAmount.toLocaleString()} added successfully!
-            </Text>
-          </View>
-        ) : (
           <Button
             onPress={handleContinue}
             loading={loading}
@@ -227,7 +216,13 @@ export default function CardTopupScreen() {
               ? `Add ₦${numAmount.toLocaleString("en-NG")}`
               : "Enter an Amount"}
           </Button>
-        )}
+
+          <SuccessModal
+            visible={success}
+            title="Top-up Successful!"
+            subtitle={numAmount > 0 ? `₦${numAmount.toLocaleString("en-NG")} added to your account` : undefined}
+            onDismiss={() => { setSuccess(false); setAmount(""); }}
+          />
       </View>
     </View>
   );
