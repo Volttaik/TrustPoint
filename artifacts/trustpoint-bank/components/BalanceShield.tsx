@@ -1,8 +1,8 @@
 import React from "react";
-import { Image, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { TpIcon } from "@/components/TpIcon";
 
-const CARD_ASPECT = 1024 / 645;
+const CARD_ASPECT = 1536 / 1024; // matches actual image dimensions (1536×1024)
 
 interface BalanceShieldProps {
   balance?: number;
@@ -15,6 +15,8 @@ interface BalanceShieldProps {
   onAddMoney?: () => void;
 }
 
+const H_PAD = 20;
+
 export function BalanceShield({
   balance = 0,
   showBalance = true,
@@ -22,6 +24,10 @@ export function BalanceShield({
   accountNumber,
   cardholderName,
 }: BalanceShieldProps) {
+  const { width: winWidth } = useWindowDimensions();
+  const cardW = winWidth - H_PAD * 2;
+  const cardH = cardW / CARD_ASPECT;
+
   const formatted = balance.toLocaleString("en-NG", { minimumFractionDigits: 2 });
   const digits    = (accountNumber ?? "").replace(/\D/g, "");
   const masked    = digits.length >= 4
@@ -29,11 +35,11 @@ export function BalanceShield({
     : "**** **** ****";
 
   return (
-    <View style={styles.wrapper}>
-      {/* Card background image */}
+    <View style={[styles.wrapper, { width: cardW, height: cardH }]}>
+      {/* Card background image — explicit pixel dims so it never zooms */}
       <Image
         source={require("@/assets/images/card-bg-new-transparent.png")}
-        style={StyleSheet.absoluteFill}
+        style={{ position: "absolute", top: 0, left: 0, width: cardW, height: cardH }}
         resizeMode="cover"
       />
 
@@ -72,8 +78,6 @@ export function BalanceShield({
 
 const styles = StyleSheet.create({
   wrapper: {
-    width: "100%",
-    aspectRatio: CARD_ASPECT,
     borderRadius: 20,
     overflow: "hidden",
     ...Platform.select({
