@@ -25,29 +25,29 @@ import { useApp } from "@/context/AppContext";
 import { TpIcon } from "@/components/TpIcon";
 
 /* ─── Palette (solid — no transparency or glass) ──────── */
-const BG        = "#0B0E1C";   // page background
-const SURFACE   = "#13182A";   // cards / inputs
-const SURFACE2  = "#0F1323";   // slightly deeper variant
-const BANNER_BG = "#162040";   // blue banner strip
+const BG        = "#000000";   // page background
+const SURFACE   = "#111111";   // cards / inputs
+const SURFACE2  = "#0D0D0D";   // slightly deeper variant
+const BANNER_BG = "#1A0508";   // red banner strip
 const GREEN_BG  = "#122A18";   // green promo card
 const AMBER     = "#E9A200";   // Recent pill, View All
 const AMBER_BG  = "#2C2200";   // amber pill background
-const TEAL      = "#0E8080";   // recipient circle rim
-const TEAL_BG   = "#082828";   // recipient circle fill
+const TEAL      = "#E11D33";   // recipient circle rim (red)
+const TEAL_BG   = "#1A0508";   // recipient circle fill (dark red)
 const GREEN_TXT = "#4ADE80";   // highlighted numbers
-const MUTED     = "#6B7A9E";   // secondary labels
+const MUTED     = "#666666";   // secondary labels
 const WHITE     = "#FFFFFF";
 const RED       = "#E11D33";
 
-/* ─── Banner icon: blue broadcast badge ───────────────── */
+/* ─── Banner icon: red broadcast badge ────────────────── */
 function BannerIcon({ size = 24 }: { size?: number }) {
   const id = useId();
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Defs>
         <SvgGrad id={`${id}-bg`} x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#3B82F6" />
-          <Stop offset="1" stopColor="#1D4ED8" />
+          <Stop offset="0" stopColor="#E11D33" />
+          <Stop offset="1" stopColor="#8B0E1E" />
         </SvgGrad>
       </Defs>
       <Rect x="1" y="1" width="22" height="22" rx="7" fill={`url(#${id}-bg)`} />
@@ -252,10 +252,10 @@ export default function TransferIndexScreen() {
               maxLength={10}
               style={[
                 styles.inputField,
-                { color: raw.length === 0 ? "#2A3050" : WHITE },
+                { color: raw.length === 0 ? "#333333" : WHITE },
               ]}
               placeholder="000 000 0000"
-              placeholderTextColor="#2A3050"
+              placeholderTextColor="#333333"
               textAlign="center"
               cursorColor={RED}
               returnKeyType="done"
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
     paddingVertical: 13,
     paddingHorizontal: 14,
   },
-  bannerText: { flex: 1, fontSize: 13.5, color: "#A8BFE8", fontFamily: "Inter_400Regular", lineHeight: 19 },
+  bannerText: { flex: 1, fontSize: 13.5, color: "#CCCCCC", fontFamily: "Inter_400Regular", lineHeight: 19 },
   bannerBold: { color: WHITE, fontFamily: "Inter_600SemiBold" },
 
   /* promo card */
@@ -507,7 +507,7 @@ const styles = StyleSheet.create({
   benefInfo: { flex: 1 },
   benefName: { fontSize: 15, color: WHITE, fontFamily: "Inter_600SemiBold", marginBottom: 3 },
   benefSub: { fontSize: 13, color: MUTED, fontFamily: "Inter_400Regular" },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: "#1E2540", marginHorizontal: 2 },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: "#222222", marginHorizontal: 2 },
   emptyRow: { paddingVertical: 28, alignItems: "center" },
   emptyTxt: { fontSize: 14, color: MUTED, fontFamily: "Inter_400Regular" },
 });
