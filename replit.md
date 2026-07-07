@@ -25,7 +25,7 @@ A Nigerian fintech mobile banking app (Expo / React Native) with an Express + Po
 
 - `artifacts/trustpoint-bank/` — Expo mobile app
   - `app/` — Expo Router screens (`(auth)/`, `(main)/`, `transfer/`, `settings/`, etc.)
-  - `components/` — shared UI (`TpIcon.tsx` custom SVG icons, `Avatar.tsx`, `BankIcons.tsx`)
+  - `components/` — shared UI (`TpIcon.tsx` SVG UI icons, `BankIcons.tsx` + `PackIcon.tsx` illustration icons from the investment_funding_icons pack, `Avatar.tsx`)
   - `constants/colors.ts` — full dark + light theme palette
   - `context/AppContext.tsx` — global state (user, transactions, beneficiaries, cards)
   - `hooks/useColors.ts` — theme-aware color hook
@@ -35,6 +35,7 @@ A Nigerian fintech mobile banking app (Expo / React Native) with an Express + Po
 
 ## Architecture decisions
 
+- Two-layer icon system: `TpIcon` (custom SVG strokes) for small UI glyphs (chevrons, arrows, eye, etc.); `PackIcon` / `BankIcons` (`.webp` illustration images from `assets/icons/`) for functional feature icons (nav bar, Quick Actions, transaction categories, More menu). QRIcon stays SVG because it must theme-adapt its stroke color.
 - Custom SVG icon system (`TpIcon`) instead of an icon library — full control, no native linking issues with Expo Go
 - Mock data in `AppContext` for transactions/beneficiaries/cards — app is usable without the API server running
 - Transfer flow entry point is `app/transfer/index.tsx` (the "Start your transfer" screen); old `method.tsx` is preserved but bypassed

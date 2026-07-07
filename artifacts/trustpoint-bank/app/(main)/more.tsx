@@ -13,41 +13,45 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
-import { TpIcon, TpIconName } from "@/components/TpIcon";
+import { TpIcon } from "@/components/TpIcon";
+import { PackIcon, PackIconName } from "@/components/PackIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
-const MENU_SECTIONS: { title: string; items: { icon: TpIconName; label: string; route: string | null; isTheme?: boolean }[] }[] = [
+const MENU_SECTIONS: {
+  title: string;
+  items: { icon: PackIconName; label: string; route: string | null; isTheme?: boolean }[];
+}[] = [
   {
     title: "Account",
     items: [
-      { icon: "user", label: "Edit Profile", route: "/settings/profile" },
-      { icon: "star", label: "Account Upgrade", route: "/settings/upgrade" },
-      { icon: "link", label: "Linked Accounts", route: null },
+      { icon: "edit_profile",    label: "Edit Profile",      route: "/settings/profile" },
+      { icon: "upgrade",         label: "Account Upgrade",   route: "/settings/upgrade" },
+      { icon: "linked_accounts", label: "Linked Accounts",   route: null },
     ],
   },
   {
     title: "Finance",
     items: [
-      { icon: "pie-chart", label: "Savings & Goals", route: "/savings" },
-      { icon: "trending-up", label: "Investments", route: null },
-      { icon: "file-text", label: "Loans", route: null },
-      { icon: "gift", label: "Referrals & Rewards", route: null },
+      { icon: "savings_goals", label: "Savings & Goals",     route: "/savings" },
+      { icon: "investments",   label: "Investments",         route: null },
+      { icon: "loans",         label: "Loans",               route: null },
+      { icon: "referrals",     label: "Referrals & Rewards", route: null },
     ],
   },
   {
     title: "Security",
     items: [
-      { icon: "shield", label: "Security Settings", route: "/settings/security" },
-      { icon: "smartphone", label: "Trusted Devices", route: null },
+      { icon: "security", label: "Security Settings", route: "/settings/security" },
+      { icon: "devices",  label: "Trusted Devices",   route: null },
     ],
   },
   {
     title: "Preferences",
     items: [
-      { icon: "moon", label: "Theme", route: "/settings/theme", isTheme: true },
-      { icon: "bell", label: "Notifications", route: "/notifications" },
-      { icon: "help-circle", label: "Help & Support", route: null },
+      { icon: "theme",         label: "Theme",            route: "/settings/theme", isTheme: true },
+      { icon: "notifications", label: "Notifications",    route: "/notifications" },
+      { icon: "help",          label: "Help & Support",   route: null },
     ],
   },
 ];
@@ -73,7 +77,17 @@ export default function MoreScreen() {
     ]);
   };
 
-  const MenuItem = ({ icon, label, route, isTheme }: { icon: TpIconName; label: string; route: string | null; isTheme?: boolean }) => (
+  const MenuItem = ({
+    icon,
+    label,
+    route,
+    isTheme,
+  }: {
+    icon: PackIconName;
+    label: string;
+    route: string | null;
+    isTheme?: boolean;
+  }) => (
     <Pressable
       onPress={() => {
         if (isTheme) { toggleTheme(); return; }
@@ -82,7 +96,7 @@ export default function MoreScreen() {
       style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
     >
       <View style={[styles.menuIcon, { backgroundColor: colors.primary + "18" }]}>
-        <TpIcon name={icon} size={17} color={colors.primary} strokeWidth={1.8} />
+        <PackIcon name={icon} size={22} />
       </View>
       <Text style={[styles.menuLabel, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
         {label}
@@ -97,7 +111,9 @@ export default function MoreScreen() {
             ios_backgroundColor={colors.border}
           />
         )}
-        {!isTheme && <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2} />}
+        {!isTheme && (
+          <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2} />
+        )}
       </View>
     </Pressable>
   );
@@ -126,7 +142,7 @@ export default function MoreScreen() {
             </View>
           </View>
           <Pressable onPress={() => router.push("/settings/profile")}>
-            <TpIcon name="edit-2" size={18} color={colors.mutedForeground} strokeWidth={1.8} />
+            <PackIcon name="edit_profile" size={22} />
           </Pressable>
         </View>
 
@@ -141,7 +157,7 @@ export default function MoreScreen() {
             </Text>
           </View>
           <Pressable style={[styles.copyBtn, { backgroundColor: colors.primary + "18" }]}>
-            <TpIcon name="copy" size={16} color={colors.primary} strokeWidth={1.8} />
+            <PackIcon name="copy" size={20} />
             <Text style={[styles.copyText, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>Copy</Text>
           </Pressable>
         </View>
@@ -168,9 +184,12 @@ export default function MoreScreen() {
         {/* Logout */}
         <Pressable
           onPress={handleLogout}
-          style={[styles.logoutBtn, { backgroundColor: colors.destructive + "15", borderColor: colors.destructive + "33" }]}
+          style={[
+            styles.logoutBtn,
+            { backgroundColor: colors.destructive + "15", borderColor: colors.destructive + "33" },
+          ]}
         >
-          <TpIcon name="log-out" size={18} color={colors.destructive} strokeWidth={1.8} />
+          <PackIcon name="logout" size={24} />
           <Text style={[styles.logoutText, { color: colors.destructive, fontFamily: "Inter_600SemiBold" }]}>
             Logout
           </Text>
@@ -209,7 +228,14 @@ const styles = StyleSheet.create({
   },
   acctLabel: { fontSize: 12, marginBottom: 4 },
   acctNum: { fontSize: 18, letterSpacing: 2 },
-  copyBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
+  copyBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
   copyText: { fontSize: 13 },
   sectionTitle: { fontSize: 11, letterSpacing: 0.8, marginBottom: 8, marginLeft: 4 },
   menuCard: { borderRadius: 16, borderWidth: 1, overflow: "hidden" },

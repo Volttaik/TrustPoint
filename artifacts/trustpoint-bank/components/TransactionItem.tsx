@@ -5,7 +5,8 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { TpIcon, TpIconName } from "@/components/TpIcon";
+import { TpIcon } from "@/components/TpIcon";
+import { PackIcon, PackIconName } from "@/components/PackIcon";
 import { useColors } from "@/hooks/useColors";
 import { Transaction } from "@/context/AppContext";
 
@@ -16,14 +17,14 @@ interface TransactionItemProps {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const CATEGORY_ICON: Record<string, TpIconName> = {
-  Transfer: "send",
-  Bills: "zap",
-  Airtime: "smartphone",
-  Data: "wifi",
-  Entertainment: "tv",
-  Income: "trending-up",
-  Shopping: "gift",
+const CATEGORY_ICON: Record<string, PackIconName> = {
+  Transfer:      "tx_transfer",
+  Bills:         "tx_bills",
+  Airtime:       "tx_airtime",
+  Data:          "tx_data",
+  Entertainment: "tx_entertainment",
+  Income:        "tx_income",
+  Shopping:      "tx_shopping",
 };
 
 export function TransactionItem({ tx, onPress }: TransactionItemProps) {
@@ -60,7 +61,7 @@ export function TransactionItem({ tx, onPress }: TransactionItemProps) {
     return date.toLocaleDateString("en-NG", { month: "short", day: "numeric" });
   };
 
-  const categoryIcon = CATEGORY_ICON[tx.category] ?? "credit-card";
+  const categoryIcon: PackIconName = CATEGORY_ICON[tx.category] ?? "tx_default";
 
   return (
     <AnimatedPressable
@@ -102,7 +103,7 @@ export function TransactionItem({ tx, onPress }: TransactionItemProps) {
           {tx.title}
         </Text>
         <View style={styles.subRow}>
-          <TpIcon name={categoryIcon} size={11} color={colors.mutedForeground} strokeWidth={2} />
+          <PackIcon name={categoryIcon} size={14} />
           <Text style={[styles.sub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]} numberOfLines={1}>
             {tx.subtitle} · {formatDate(tx.date)}
           </Text>

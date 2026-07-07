@@ -16,17 +16,11 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import Svg, {
-  Path,
-  Circle,
-  G,
-  Defs,
-  LinearGradient as SvgGradient,
-  Stop,
-} from "react-native-svg";
+import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from "react-native-svg";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { TransferIcon, CardsIcon } from "@/components/BankIcons";
+import { PackIcon } from "@/components/PackIcon";
 
 const TP_LOGO = require("@/assets/images/icon_transparent.png");
 
@@ -78,40 +72,12 @@ function NavBarShape({ width, isDark, extraH = 0 }: { width: number; isDark: boo
 
 /* ─── Nav icons ─────────────────────────────────────── */
 
-function HomeIcon({ size = 28, active, isDark = true }: { size?: number; active: boolean; isDark?: boolean }) {
-  const fill      = isDark ? (active ? "#D4D6DC" : "#6B6B72") : (active ? "#1E2028" : "#8A8C96");
-  const rimColor  = isDark ? (active ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)") : (active ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.08)");
-  const shimmer   = isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.05)";
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M3.4 11.2L12 4.2L20.6 11.2V20.8H14.8V15H9.2V20.8H3.4Z"
-        fill={fill}
-        stroke={rimColor}
-        strokeWidth="0.7"
-        strokeLinejoin="round"
-      />
-      <Path d="M9.2 15H14.8V17H9.2Z" fill={shimmer} />
-      <Path d="M4.8 12.1L12 5.8L19.2 12.1" stroke={rimColor} strokeWidth="0.5" fill="none" />
-    </Svg>
-  );
+function HomeIcon({ size = 28 }: { size?: number; active: boolean; isDark?: boolean }) {
+  return <PackIcon name="home" size={size} />;
 }
 
-function SettingsIcon({ size = 28, active, isDark = true }: { size?: number; active: boolean; isDark?: boolean }) {
-  const fill     = isDark ? (active ? "#D4D6DC" : "#6B6B72") : (active ? "#1E2028" : "#8A8C96");
-  const rimColor = isDark ? (active ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)") : (active ? "rgba(0,0,0,0.18)" : "rgba(0,0,0,0.08)");
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M12 2.4L13.6 5.1A7.2 7.2 0 0 1 15.6 5.8L18.5 4.6L19.4 6.3L17 8.1A7.3 7.3 0 0 1 17.2 10L19.6 11.5L18.8 13.3L16.1 12.6A7.3 7.3 0 0 1 14.5 14.1L14.8 17H12.8L12.4 14.1A7.3 7.3 0 0 1 10.8 12.9L8.1 14.1L6.9 12.5L9.2 10.9A7.3 7.3 0 0 1 9 9.2L6.5 7.7L7.5 6L10.2 7.3A7.2 7.2 0 0 1 12 6.6L12 2.4Z"
-        fill={fill}
-        stroke={rimColor}
-        strokeWidth="0.5"
-        strokeLinejoin="round"
-      />
-      <Circle cx="12" cy="10" r="2.6" fill={rimColor} stroke={rimColor} strokeWidth="0.5" />
-    </Svg>
-  );
+function SettingsIcon({ size = 28 }: { size?: number; active: boolean; isDark?: boolean }) {
+  return <PackIcon name="settings" size={size} />;
 }
 
 /* ─── Tab definitions ───────────────────────────────── */
