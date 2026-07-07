@@ -23,7 +23,7 @@ import Svg, {
   Rect,
   Stop,
 } from "react-native-svg";
-import { useApp } from "@/context/AppContext";
+import { useApp, type Beneficiary } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { TpIcon } from "@/components/TpIcon";
 
@@ -104,6 +104,7 @@ export default function TransferIndexScreen() {
   const [resolved, setResolved]       = useState<{ name: string; bank: string } | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [saveRecipient, setSave]      = useState(false);
+  const [selectedBenef, setSelectedBenef] = useState<Beneficiary | null>(null);
 
   const topPad    = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = insets.bottom + 120 + (Platform.OS === "web" ? 34 : 0);
@@ -126,12 +127,22 @@ export default function TransferIndexScreen() {
       b.account.includes(search)
   );
 
-  function handleBeneficiary(id: string) {
-    router.push({ pathname: "/transfer/amount", params: { beneficiaryId: id } });
+  function handleBeneficiary(b: Beneficiary) {
+    setSelectedBenef(b);
+    setShowConfirm(true);
+  }
+  function dismissConfirm() {
+    setShowConfirm(false);
+    setSelectedBenef(null);
   }
   function handleConfirm() {
     setShowConfirm(false);
-    router.push({ pathname: "/transfer/amount", params: { accountNumber: raw } });
+    if (selectedBenef) {
+      setSelectedBenef(null);
+      router.push({ pathname: "/transfer/amount", params: { beneficiaryId: selectedBenef.id } });
+    } else {
+      router.push({ pathname: "/transfer/amount", params: { accountNumber: raw } });
+    }
   }
 
   /* ── Derived dynamic style pieces ─────────────────── */
@@ -324,7 +335,7 @@ export default function TransferIndexScreen() {
                 <React.Fragment key={b.id}>
                   {idx > 0 && <View style={[styles.divider, { backgroundColor: colors.border }]} />}
                   <Pressable
-                    onPress={() => handleBeneficiary(b.id)}
+                    onPress={() => handleBeneficiary(b)}
                     style={({ pressed }) => [styles.benefRow, pressed && { opacity: 0.7 }]}
                   >
                     <RecipientAvatar initials={b.initials} size={48} />
@@ -349,9 +360,9 @@ export default function TransferIndexScreen() {
         visible={showConfirm}
         transparent
         animationType="slide"
-        onRequestClose={() => setShowConfirm(false)}
+        onRequestClose={dismissConfirm}
       >
-        <Pressable style={styles.overlay} onPress={() => setShowConfirm(false)} />
+        <Pressable style={styles.overlay} onPress={dismissConfirm} />
         <View style={[styles.sheet, {
           backgroundColor: colors.surfaceElevated,
           borderColor: colors.border,
@@ -363,36 +374,41 @@ export default function TransferIndexScreen() {
           </Text>
 
           <View style={[styles.recipientDetail, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <RecipientAvatar initials={resolved?.name?.slice(0, 2) ?? "TU"} size={56} />
+            <RecipientAvatar
+              initials={(selectedBenef?.name ?? resolved?.name ?? "TU").slice(0, 2)}
+              size={56}
+            />
             <Text style={[styles.recipientName, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-              {resolved?.name ?? "Account Holder"}
+              {selectedBenef?.name ?? resolved?.name ?? "Account Holder"}
             </Text>
             <Text style={[styles.recipientBank, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              {resolved?.bank ?? "TrustPoint Bank"}
+              {selectedBenef?.bank ?? resolved?.bank ?? "TrustPoint Bank"}
             </Text>
             <Text style={[styles.recipientAcct, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-              {fmtAcct(raw)}
+              {selectedBenef ? selectedBenef.account : fmtAcct(raw)}
             </Text>
           </View>
 
-          <View style={styles.saveRow}>
-            <Text style={[styles.saveTxt, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
-              Save recipient?
-            </Text>
-            <Switch
-              value={saveRecipient}
-              onValueChange={setSave}
-              trackColor={{ false: colors.muted, true: RED + "88" }}
-              thumbColor={saveRecipient ? RED : colors.mutedForeground}
-            />
-          </View>
+          {!selectedBenef && (
+            <View style={styles.saveRow}>
+              <Text style={[styles.saveTxt, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
+                Save recipient?
+              </Text>
+              <Switch
+                value={saveRecipient}
+                onValueChange={setSave}
+                trackColor={{ false: colors.muted, true: RED + "88" }}
+                thumbColor={saveRecipient ? RED : colors.mutedForeground}
+              />
+            </View>
+          )}
 
           <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
 
           <View style={styles.btnRow}>
             <TouchableOpacity
               style={[styles.changeBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
-              onPress={() => setShowConfirm(false)}
+              onPress={dismissConfirm}
               activeOpacity={0.8}
             >
               <Text style={[styles.changeTxt, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
