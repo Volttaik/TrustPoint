@@ -1,5 +1,6 @@
 import React, { useId, useState, useEffect } from "react";
 import {
+  Image,
   Modal,
   Platform,
   Pressable,
@@ -178,6 +179,11 @@ export default function TransferIndexScreen() {
               free &amp; instant
             </Text>
           </Text>
+          <Image
+            source={require("@/assets/icons/investment_flow.webp")}
+            style={styles.bannerDeco}
+            resizeMode="contain"
+          />
         </View>
 
         {/* ── Paying from ─────────────────────────────── */}
@@ -429,6 +435,7 @@ const styles = StyleSheet.create({
     paddingVertical: 13, paddingHorizontal: 14,
   },
   bannerText: { flex: 1, fontSize: 13, lineHeight: 19 },
+  bannerDeco: { width: 52, height: 52, opacity: 0.88 },
 
   section: { gap: 10 },
   label:   { fontSize: 13, paddingLeft: 2 },

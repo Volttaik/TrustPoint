@@ -118,8 +118,18 @@ export default function DashboardScreen() {
           accountNumber={user?.accountNumber ? formatAccount(user.accountNumber) : undefined}
         />
 
-        {/* Quick Actions */}
+        {/* Services */}
         <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[styles.sectionTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+              Services
+            </Text>
+            <Pressable>
+              <Text style={[styles.seeAll, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+                Edit
+              </Text>
+            </Pressable>
+          </View>
           <QuickActions
             actions={[
               { icon: "shuffle",         label: "Transfer",  onPress: () => router.push("/transfer"), accent: true },

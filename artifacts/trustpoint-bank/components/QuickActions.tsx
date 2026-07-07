@@ -1,16 +1,23 @@
-import React, { useCallback } from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import {
+  Dimensions,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { useColors } from "@/hooks/useColors";
 import { TpIcon, TpIconName } from "@/components/TpIcon";
 
-interface Action {
+export interface Action {
   icon: TpIconName;
   label: string;
   onPress: () => void;
@@ -21,20 +28,33 @@ interface QuickActionsProps {
   actions: Action[];
 }
 
+const H_PAD  = 20; // must match the parent ScrollView horizontal padding
+const GAP    = 8;  // gap between every card
+const COLS   = 4;
+
 export function QuickActions({ actions }: QuickActionsProps) {
+  const screenW = Dimensions.get("window").width;
+  // Each card gets exactly ¼ of the usable width
+  const cardW = Math.floor((screenW - H_PAD * 2 - GAP * (COLS - 1)) / COLS);
+  const cardH = Math.floor(cardW * 1.0); // square cards
+
+  // Slice into rows of 4
   const rows: Action[][] = [];
-  for (let i = 0; i < actions.length; i += 4) {
-    rows.push(actions.slice(i, i + 4));
+  for (let i = 0; i < actions.length; i += COLS) {
+    rows.push(actions.slice(i, i + COLS));
   }
 
   return (
     <View style={styles.grid}>
-      {rows.map((row, rowIdx) => (
-        <View key={rowIdx} style={styles.row}>
-          {row.map((action, idx) => (
-            <View key={idx} style={styles.item}>
-              <ActionButton {...action} />
-            </View>
+      {rows.map((row, ri) => (
+        <View key={ri} style={styles.row}>
+          {row.map((action) => (
+            <ActionCard
+              key={action.label}
+              {...action}
+              cardW={cardW}
+              cardH={cardH}
+            />
           ))}
         </View>
       ))}
@@ -42,98 +62,105 @@ export function QuickActions({ actions }: QuickActionsProps) {
   );
 }
 
-function ActionButton({ icon, label, onPress, accent }: Action) {
-  const colors = useColors();
-  const scale = useSharedValue(1);
-  const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
-  const isDark = colors.background !== "#F4F5F7";
+function ActionCard({
+  icon,
+  label,
+  onPress,
+  accent,
+  cardW,
+  cardH,
+}: Action & { cardW: number; cardH: number }) {
+  const colors  = useColors();
+  const isDark  = colors.background !== "#F4F5F7";
+  const scale   = useSharedValue(1);
+  const aStyle  = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
-  const handlePress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    onPress();
-  }, [onPress]);
-
-  const boxBg = accent
-    ? colors.primary
-    : isDark
-      ? "#161616"
-      : "#EFEFEF";
+  const cardBg    = accent ? colors.primary  : (isDark ? "#161616" : "#F0F0F0");
+  const iconColor = accent ? "#FFFFFF"        : (isDark ? "#D0D0D0" : "#2A2A2A");
+  const txtColor  = accent ? "#FFFFFF"        : colors.mutedForeground;
 
   return (
-    <Animated.View style={aStyle}>
-      <TouchableOpacity
-        activeOpacity={0.82}
-        onPress={handlePress}
+    <Animated.View style={[{ width: cardW, height: cardH }, aStyle]}>
+      <Pressable
+        style={[
+          styles.card,
+          {
+            width: cardW,
+            height: cardH,
+            backgroundColor: cardBg,
+            borderColor: isDark
+              ? "rgba(255,255,255,0.06)"
+              : "rgba(0,0,0,0.07)",
+          },
+          Platform.select({
+            web: {
+              boxShadow:
+                "inset 0 2px 7px rgba(0,0,0,0.70), inset 0 -1px 0 rgba(255,255,255,0.04)",
+            } as any,
+          }),
+        ]}
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          onPress();
+        }}
         onPressIn={() => {
-          scale.value = withSpring(0.93, { damping: 14, stiffness: 220 });
+          scale.value = withSpring(0.92, { damping: 14, stiffness: 220 });
         }}
         onPressOut={() => {
           scale.value = withSpring(1, { damping: 14, stiffness: 220 });
         }}
-        style={styles.tile}
       >
-        <View
-          style={[
-            styles.iconBox,
-            {
-              backgroundColor: boxBg,
-              borderColor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.08)",
-            },
-            Platform.select({ web: { boxShadow: "inset 0 2px 6px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.04)" } as any }),
-          ]}
-        >
-          {/* Inset shadow overlay (native) */}
-          {!accent && (
-            <LinearGradient
-              pointerEvents="none"
-              colors={
-                isDark
-                  ? ["rgba(0,0,0,0.55)", "rgba(0,0,0,0.1)", "transparent"]
-                  : ["rgba(0,0,0,0.08)", "transparent"]
-              }
-              locations={isDark ? [0, 0.45, 1] : [0, 1]}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-              style={StyleSheet.absoluteFill}
-            />
-          )}
-          <TpIcon
-            name={icon}
-            size={22}
-            color={accent ? "#fff" : isDark ? "#D8D8D8" : "#2A2A2A"}
-            strokeWidth={1.85}
+        {/* Caved-in inset shadow overlay (native) */}
+        {!accent && (
+          <LinearGradient
+            pointerEvents="none"
+            colors={
+              isDark
+                ? ["rgba(0,0,0,0.52)", "rgba(0,0,0,0.12)", "transparent"]
+                : ["rgba(0,0,0,0.07)", "transparent"]
+            }
+            locations={isDark ? [0, 0.42, 1] : [0, 1]}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={StyleSheet.absoluteFill}
           />
-        </View>
+        )}
+
+        {/* Icon — upper portion */}
+        <TpIcon name={icon} size={26} color={iconColor} strokeWidth={1.75} />
+
+        {/* Label — directly below icon */}
         <Text
           style={[
             styles.label,
-            {
-              color: accent ? colors.primary : colors.mutedForeground,
-              fontFamily: "Inter_500Medium",
-            },
+            { color: txtColor, fontFamily: "Inter_500Medium" },
           ]}
           numberOfLines={1}
+          adjustsFontSizeToFit
         >
           {label}
         </Text>
-      </TouchableOpacity>
+      </Pressable>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  grid: { gap: 20 },
-  row: { flexDirection: "row", justifyContent: "space-between" },
-  item: { flex: 1, alignItems: "center" },
-  tile: { alignItems: "center", gap: 9 },
-  iconBox: {
-    width: 58,
-    height: 58,
+  grid: { gap: GAP },
+  row:  { flexDirection: "row", gap: GAP },
+  card: {
     borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
     overflow: "hidden",
     borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 9,
+    paddingHorizontal: 4,
+    paddingVertical: 10,
   },
-  label: { fontSize: 10.5, letterSpacing: -0.1, textAlign: "center" },
+  label: {
+    fontSize: 11,
+    letterSpacing: -0.15,
+    textAlign: "center",
+  },
 });
