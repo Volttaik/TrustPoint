@@ -60,26 +60,6 @@ function BannerIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-/* ─── Promo icon: stacked money with up-arrows ─────────── */
-function PromoMoneyIcon({ size = 44 }: { size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 44 44" fill="none">
-      {/* back bill */}
-      <Rect x="4" y="20" width="28" height="16" rx="3" fill="#1A5C2E" stroke="#2A7A3E" strokeWidth="0.8" />
-      <Rect x="4" y="20" width="28" height="5" rx="2" fill="#FFFFFF" fillOpacity="0.06" />
-      {/* front bill */}
-      <Rect x="2" y="14" width="28" height="16" rx="3" fill="#22863A" stroke="#36A854" strokeWidth="0.8" />
-      <Rect x="2" y="14" width="28" height="5" rx="2" fill="#FFFFFF" fillOpacity="0.1" />
-      <Circle cx="16" cy="22" r="4" fill="#FFFFFF" fillOpacity="0.15" />
-      <Circle cx="16" cy="22" r="2.2" fill="#36A854" />
-      {/* up arrows (₦ symbol) */}
-      <Path d="M34 16L38 10L42 16" stroke={GREEN_TXT} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <Path d="M38 10V28" stroke={GREEN_TXT} strokeWidth="2.2" strokeLinecap="round" fill="none" />
-      <Path d="M34 21H42" stroke={GREEN_TXT} strokeWidth="1.6" strokeLinecap="round" fill="none" />
-      <Path d="M34 25H42" stroke={GREEN_TXT} strokeWidth="1.6" strokeLinecap="round" fill="none" />
-    </Svg>
-  );
-}
 
 /* ─── Recipient avatar: teal circle with transfer ring ─── */
 function RecipientAvatar({ initials, color = TEAL_BG, rim = TEAL, size = 48 }: {
@@ -195,25 +175,6 @@ export default function TransferIndexScreen() {
             TrustPoint to TrustPoint transfers are{" "}
             <Text style={styles.bannerBold}>free &amp; instant</Text>
           </Text>
-        </View>
-
-        {/* ── Cashback promo card ───────────────────── */}
-        <View style={styles.promoCard}>
-          <PromoMoneyIcon size={52} />
-          <View style={styles.promoText}>
-            <Text style={styles.promoLine}>
-              You've made{" "}
-              <Text style={styles.promoGreen}>0</Text>
-              {" "}of{" "}
-              <Text style={styles.promoGreen}>50</Text>
-              {" "}interbank transfers today.
-            </Text>
-            <Text style={styles.promoLine}>
-              Transfer now to get{" "}
-              <Text style={styles.promoGold}>₦10</Text>
-              {" "}cashback.
-            </Text>
-          </View>
         </View>
 
         {/* ── Paying from ───────────────────────────── */}

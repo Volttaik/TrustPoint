@@ -395,6 +395,143 @@ export function MoreIcon({ size = 24 }: BankIconProps) {
 }
 
 /* ─────────────────────────────────────────────
+   OTHER BANKS — solid black extruded building
+   body with rim light; red gradient pediment
+   pops the top; white highlight strips on
+   columns for depth
+───────────────────────────────────────────── */
+export function OtherBanksIcon({ size = 24 }: BankIconProps) {
+  const id = useId();
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Defs>
+        <LinearGradient id={`${id}-body`} x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={BLK_LIGHT} />
+          <Stop offset="1" stopColor={BLK_DARK} />
+        </LinearGradient>
+        <LinearGradient id={`${id}-roof`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={R_LIGHT} />
+          <Stop offset="1" stopColor={R_DARK} />
+        </LinearGradient>
+      </Defs>
+      {/* base platform */}
+      <Rect x="1.5" y="19.8" width="21" height="2.8" rx="0.8" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="2.3" y="20.2" width="19.4" height="0.9" rx="0.45" fill={W} fillOpacity="0.22" />
+      {/* sub-base */}
+      <Rect x="2.8" y="17.8" width="18.4" height="2" rx="0.6" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="3.6" y="18.2" width="16.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.18" />
+      {/* columns */}
+      <Rect x="3.6"  y="10.2" width="2.6" height="7.6" rx="1.3" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="4"    y="10.7" width="1.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.28" />
+      <Rect x="7.8"  y="10.2" width="2.6" height="7.6" rx="1.3" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="8.2"  y="10.7" width="1.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.28" />
+      <Rect x="13.6" y="10.2" width="2.6" height="7.6" rx="1.3" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="14"   y="10.7" width="1.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.28" />
+      <Rect x="17.8" y="10.2" width="2.6" height="7.6" rx="1.3" fill={`url(#${id}-body)`} stroke={RIM} strokeWidth="0.5" />
+      <Rect x="18.2" y="10.7" width="1.8" height="0.8" rx="0.4" fill={W} fillOpacity="0.28" />
+      {/* pediment / roof — solid red extruded triangle */}
+      <Path d="M2 10.2L12 2.4L22 10.2Z" fill={`url(#${id}-roof)`} stroke={R_DARK} strokeWidth="0.4" strokeLinejoin="round" />
+      <Path d="M4.2 10.2L12 4L19.8 10.2Z" fill={W} fillOpacity="0.14" />
+      {/* keystone dot */}
+      <Circle cx="12" cy="6.4" r="1.2" fill={W} fillOpacity="0.85" />
+      <Circle cx="12" cy="6.4" r="0.5" fill={R_DARK} />
+    </Svg>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   INTERNATIONAL — red radial-gradient globe
+   sphere (ball-shaded like SavingsIcon vault)
+   with black extruded plane and engraved
+   meridian / latitude lines
+───────────────────────────────────────────── */
+export function InternationalIcon({ size = 24 }: BankIconProps) {
+  const id = useId();
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Defs>
+        <RadialGradient id={`${id}-globe`} cx="0.35" cy="0.28" r="0.85">
+          <Stop offset="0" stopColor={R_LIGHT} />
+          <Stop offset="1" stopColor={R_DARK} />
+        </RadialGradient>
+        <LinearGradient id={`${id}-plane`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={BLK_LIGHT} />
+          <Stop offset="1" stopColor={BLK_DARK} />
+        </LinearGradient>
+      </Defs>
+      {/* globe sphere — radial shaded red ball */}
+      <Circle cx="12" cy="12.5" r="10" fill={`url(#${id}-globe)`} stroke={R_DARK} strokeWidth="0.4" />
+      {/* specular highlight */}
+      <Ellipse cx="9.4" cy="8.2" rx="3.2" ry="1.9" fill={W} fillOpacity="0.22" />
+      {/* engraved equator */}
+      <Line x1="2" y1="12.5" x2="22" y2="12.5" stroke={W} strokeOpacity="0.35" strokeWidth="0.8" />
+      {/* engraved meridians */}
+      <Path d="M12 2.5C9.2 5.8 9.2 19.2 12 22.5" stroke={W} strokeOpacity="0.28" strokeWidth="0.8" fill="none" />
+      <Path d="M12 2.5C14.8 5.8 14.8 19.2 12 22.5" stroke={W} strokeOpacity="0.28" strokeWidth="0.8" fill="none" />
+      {/* latitude band */}
+      <Path d="M3.8 8.2C6.4 9.4 17.6 9.4 20.2 8.2" stroke={W} strokeOpacity="0.2" strokeWidth="0.7" fill="none" />
+      {/* solid black extruded plane */}
+      <Path d="M17.6 3.6L21.4 6.8L18.4 7.4L17.2 5.2Z" fill={`url(#${id}-plane)`} stroke={RIM} strokeWidth="0.5" strokeLinejoin="round" />
+      <Path d="M18.1 4.1L20.6 6.2L19.4 6.4Z" fill={W} fillOpacity="0.22" />
+      {/* dashed flight arc */}
+      <Path d="M8 9C11 6.5 14.5 4.8 17.6 3.6" stroke={W} strokeOpacity="0.5" strokeWidth="0.9" strokeDasharray="1.6 1.4" strokeLinecap="round" fill="none" />
+    </Svg>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   SCHEDULE TRANSFER — solid black extruded
+   calendar body with rim light; red radial-
+   gradient clock badge overlaps bottom-right
+   (same badge technique as BillsIcon checkmark)
+───────────────────────────────────────────── */
+export function ScheduleIcon({ size = 24 }: BankIconProps) {
+  const id = useId();
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Defs>
+        <LinearGradient id={`${id}-cal`} x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={BLK_LIGHT} />
+          <Stop offset="1" stopColor={BLK_DARK} />
+        </LinearGradient>
+        <RadialGradient id={`${id}-clock`} cx="0.35" cy="0.3" r="0.85">
+          <Stop offset="0" stopColor={R_LIGHT} />
+          <Stop offset="1" stopColor={R_DARK} />
+        </RadialGradient>
+      </Defs>
+      {/* calendar body */}
+      <Rect x="1.4" y="4" width="16.2" height="16.2" rx="2.2" fill={`url(#${id}-cal)`} stroke={RIM} strokeWidth="0.6" />
+      {/* top highlight strip */}
+      <Rect x="1.8" y="4.4" width="15.4" height="1.2" rx="0.6" fill={W} fillOpacity="0.28" />
+      {/* header band */}
+      <Rect x="1.4" y="4" width="16.2" height="5.2" rx="2.2" fill={W} fillOpacity="0.07" />
+      {/* peg lines */}
+      <Line x1="6"    y1="2"   x2="6"    y2="6.2" stroke={RIM} strokeWidth="1.8" strokeLinecap="round" />
+      <Line x1="12.4" y1="2"   x2="12.4" y2="6.2" stroke={RIM} strokeWidth="1.8" strokeLinecap="round" />
+      {/* day grid dots */}
+      <Circle cx="5.2"  cy="13" r="1.05" fill={W} fillOpacity="0.55" />
+      <Circle cx="9.5"  cy="13" r="1.05" fill={W} fillOpacity="0.55" />
+      <Circle cx="5.2"  cy="17" r="1.05" fill={W} fillOpacity="0.35" />
+      <Circle cx="9.5"  cy="17" r="1.05" fill={W} fillOpacity="0.35" />
+      <Circle cx="13.8" cy="13" r="1.05" fill={W} fillOpacity="0.35" />
+      {/* clock badge — red sphere, bottom-right */}
+      <Circle cx="18.6" cy="18.6" r="5.4" fill={`url(#${id}-clock)`} stroke={R_DARK} strokeWidth="0.4" />
+      <Ellipse cx="17.2" cy="16.4" rx="1.8" ry="1.1" fill={W} fillOpacity="0.24" />
+      <Circle cx="18.6" cy="18.6" r="3.2" fill="none" stroke={W} strokeOpacity="0.5" strokeWidth="0.8" />
+      {/* clock ticks */}
+      <Line x1="18.6" y1="15.8" x2="18.6" y2="16.6" stroke={W} strokeWidth="0.9" strokeLinecap="round" />
+      <Line x1="18.6" y1="20.6" x2="18.6" y2="21.4" stroke={W} strokeWidth="0.9" strokeLinecap="round" />
+      <Line x1="15.8" y1="18.6" x2="16.6" y2="18.6" stroke={W} strokeWidth="0.9" strokeLinecap="round" />
+      <Line x1="20.6" y1="18.6" x2="21.4" y2="18.6" stroke={W} strokeWidth="0.9" strokeLinecap="round" />
+      {/* clock hands */}
+      <Line x1="18.6" y1="18.6" x2="18.6" y2="16.8" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
+      <Line x1="18.6" y1="18.6" x2="20.2" y2="19.5" stroke={W} strokeWidth="1.3" strokeLinecap="round" />
+      <Circle cx="18.6" cy="18.6" r="0.7" fill={W} />
+    </Svg>
+  );
+}
+
+/* ─────────────────────────────────────────────
    HEADER ICONS — same solid black + rim-light
    language applied at smaller scale
 ───────────────────────────────────────────── */
