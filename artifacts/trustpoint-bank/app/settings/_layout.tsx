@@ -7,6 +7,13 @@ export default function SettingsLayout() {
       <Stack.Screen name="profile" />
       <Stack.Screen name="security" />
       <Stack.Screen name="theme" />
+      <Stack.Screen name="notifications" />
+      <Stack.Screen name="change-pin" />
+      <Stack.Screen name="biometrics" />
+      <Stack.Screen name="devices" />
+      <Stack.Screen name="help" />
+      <Stack.Screen name="about" />
+      <Stack.Screen name="upgrade" />
     </Stack>
   );
 }

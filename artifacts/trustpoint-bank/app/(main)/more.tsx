@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,33 +25,36 @@ const MENU_SECTIONS: {
   {
     title: "Account",
     items: [
-      { icon: "edit-2",      label: "Edit Profile",      route: "/settings/profile" },
-      { icon: "trending-up", label: "Account Upgrade",   route: "/settings/upgrade" },
-      { icon: "link",        label: "Linked Accounts",   route: null },
+      { icon: "edit-2",      label: "Edit Profile",        route: "/settings/profile" },
+      { icon: "trending-up", label: "Account Upgrade",     route: "/settings/upgrade" },
+      { icon: "user-check",  label: "KYC / Verification",  route: "/profile/kyc" },
     ],
   },
   {
     title: "Finance",
     items: [
-      { icon: "pie-chart",    label: "Savings & Goals",     route: "/savings" },
-      { icon: "activity",     label: "Investments",          route: null },
-      { icon: "dollar-sign",  label: "Loans",                route: null },
-      { icon: "gift",         label: "Referrals & Rewards",  route: null },
+      { icon: "pie-chart",   label: "Savings & Goals",     route: "/savings" },
+      { icon: "dollar-sign", label: "Loans",               route: "/loans" },
+      { icon: "gift",        label: "Referrals & Rewards", route: "/referral" },
+      { icon: "file-text",   label: "Account Statement",   route: "/statements" },
     ],
   },
   {
     title: "Security",
     items: [
-      { icon: "shield",      label: "Security Settings", route: "/settings/security" },
-      { icon: "smartphone",  label: "Trusted Devices",   route: null },
+      { icon: "shield",      label: "Security Settings",   route: "/settings/security" },
+      { icon: "lock",        label: "Change PIN",          route: "/settings/change-pin" },
+      { icon: "fingerprint", label: "Biometrics",          route: "/settings/biometrics" },
+      { icon: "smartphone",  label: "Trusted Devices",     route: "/settings/devices" },
     ],
   },
   {
     title: "Preferences",
     items: [
-      { icon: "moon",         label: "Theme",           route: "/settings/theme", isTheme: true },
-      { icon: "bell",         label: "Notifications",   route: "/notifications" },
-      { icon: "help-circle",  label: "Help & Support",  route: null },
+      { icon: "moon",        label: "Theme",               route: "/settings/theme", isTheme: true },
+      { icon: "bell",        label: "Notifications",       route: "/settings/notifications" },
+      { icon: "help-circle", label: "Help & Support",      route: "/settings/help" },
+      { icon: "info",        label: "About TrustPoint",    route: "/settings/about" },
     ],
   },
 ];
@@ -62,6 +66,12 @@ export default function MoreScreen() {
   const isDark = colors.background !== "#F4F5F7";
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = 90 + (Platform.OS === "web" ? 34 : 0);
+
+  const handleCopyAcct = async () => {
+    if (user?.accountNumber) {
+      await Clipboard.setStringAsync(user.accountNumber);
+    }
+  };
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to sign out?", [
@@ -95,12 +105,7 @@ export default function MoreScreen() {
       }}
       style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
     >
-      <View
-        style={[
-          styles.menuIcon,
-          { backgroundColor: isDark ? "#1A1A1A" : colors.charcoal },
-        ]}
-      >
+      <View style={[styles.menuIcon, { backgroundColor: isDark ? "#1A1A1A" : colors.charcoal }]}>
         <TpIcon name={icon} size={17} color={colors.mutedForeground} strokeWidth={1.8} />
       </View>
       <Text style={[styles.menuLabel, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
@@ -142,7 +147,7 @@ export default function MoreScreen() {
             </Text>
             <View style={[styles.tierBadge, { backgroundColor: colors.primary + "22" }]}>
               <Text style={[styles.tierText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                Tier {user?.tier ?? 2} Account
+                Tier {user?.tier ?? 1} Account
               </Text>
             </View>
           </View>
@@ -161,10 +166,33 @@ export default function MoreScreen() {
               {user?.accountNumber ?? "1234567890"}
             </Text>
           </View>
-          <Pressable style={[styles.copyBtn, { backgroundColor: colors.primary + "18" }]}>
+          <Pressable onPress={handleCopyAcct} style={[styles.copyBtn, { backgroundColor: colors.primary + "18" }]}>
             <TpIcon name="copy" size={16} color={colors.primary} strokeWidth={1.8} />
             <Text style={[styles.copyText, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>Copy</Text>
           </Pressable>
+        </View>
+
+        {/* Quick actions */}
+        <View style={styles.quickRow}>
+          {[
+            { icon: "arrow-down-left" as TpIconName, label: "Receive", route: "/deposit" },
+            { icon: "qr-code" as TpIconName, label: "QR Pay", route: "/qr" },
+            { icon: "zap" as TpIconName, label: "Airtime", route: "/airtime" },
+            { icon: "file-text" as TpIconName, label: "Statement", route: "/statements" },
+          ].map((item) => (
+            <Pressable
+              key={item.label}
+              onPress={() => router.push(item.route as any)}
+              style={[styles.quickItem, { backgroundColor: colors.card, borderColor: colors.border }]}
+            >
+              <View style={[styles.quickIcon, { backgroundColor: colors.primary + "18" }]}>
+                <TpIcon name={item.icon} size={18} color={colors.primary} strokeWidth={1.8} />
+              </View>
+              <Text style={[styles.quickLabel, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
+                {item.label}
+              </Text>
+            </Pressable>
+          ))}
         </View>
 
         {/* Menu sections */}
@@ -242,6 +270,17 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   copyText: { fontSize: 13 },
+  quickRow: { flexDirection: "row", gap: 10 },
+  quickItem: {
+    flex: 1,
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  quickIcon: { width: 38, height: 38, borderRadius: 19, alignItems: "center", justifyContent: "center" },
+  quickLabel: { fontSize: 11 },
   sectionTitle: { fontSize: 11, letterSpacing: 0.8, marginBottom: 8, marginLeft: 4 },
   menuCard: { borderRadius: 16, borderWidth: 1, overflow: "hidden" },
   menuItem: {
