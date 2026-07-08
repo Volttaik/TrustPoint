@@ -78,7 +78,10 @@ export type TpIconName =
   | "headset"
   | "plus"
   | "car"
-  | "shopping-bag";
+  | "shopping-bag"
+  | "signal"
+  | "clock"
+  | "radio";
 
 interface TpIconProps {
   name: TpIconName;
@@ -524,6 +527,31 @@ const ICONS: Record<TpIconName, IconRenderer> = {
     <>
       <Path d="M6 8h12l-1 12H7L6 8z" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
       <Path d="M9 8V6a3 3 0 0 1 6 0v2" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </>
+  ),
+  signal: (c, sw) => (
+    <>
+      <Path d="M2 20h.01" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M7 20v-4" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M12 20v-8" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M17 20V8" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M22 4v16" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" />
+    </>
+  ),
+  clock: (c, sw) => (
+    <>
+      <Circle cx="12" cy="12" r="10" stroke={c} strokeWidth={sw} fill="none" />
+      <Polyline points="12 6 12 12 16 14" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </>
+  ),
+  radio: (c, sw) => (
+    <>
+      <Circle cx="12" cy="12" r="2" stroke={c} strokeWidth={sw} fill="none" />
+      <Path d="M4.93 4.93a10 10 0 0 0 0 14.14" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M7.76 7.76a6 6 0 0 0 0 8.49" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M10.6 10.6a2 2 0 0 0 0 2.83" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M16.24 7.76a6 6 0 0 1 0 8.49" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Path d="M19.07 4.93a10 10 0 0 1 0 14.14" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </>
   ),
 };
