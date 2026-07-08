@@ -183,8 +183,9 @@ function CustomTabBar() {
           left: 0,
           right: 0,
           height: totalH + bottomH,
-          borderTopWidth: isDark ? 0 : StyleSheet.hairlineWidth,
-          borderTopColor: isDark ? "transparent" : "rgba(0,0,0,0.14)",
+          backgroundColor: colors.tabBackground,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.14)",
         },
       ]}
     >
