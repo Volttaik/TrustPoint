@@ -68,29 +68,37 @@ export default function AuthLandingScreen() {
         </Text>
       </Animated.View>
 
-      {/* Decorative icons — scattered, transparent background */}
+      {/* Decorative icons — scattered */}
       <Animated.View style={[styles.iconsRow, iconsStyle]}>
         {/* "Secure" — medium, sits lower */}
         <View style={[styles.iconItem, { marginTop: 28 }]}>
-          <Image source={require("@/assets/icons/financial_security_nobg.png")} style={{ width: 58, height: 58 }} resizeMode="contain" />
+          <View style={styles.iconBg}>
+            <Image source={require("@/assets/icons/financial_security.webp")} style={{ width: 52, height: 52 }} resizeMode="contain" />
+          </View>
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Secure</Text>
         </View>
 
         {/* "Fast" — largest, sits at top */}
         <View style={[styles.iconItem, { marginTop: 0 }]}>
-          <Image source={require("@/assets/icons/exchange_currency_rate_nobg.png")} style={{ width: 80, height: 80 }} resizeMode="contain" />
+          <View style={styles.iconBg}>
+            <Image source={require("@/assets/icons/exchange_currency_rate.webp")} style={{ width: 72, height: 72 }} resizeMode="contain" />
+          </View>
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Fast</Text>
         </View>
 
         {/* "Smart" — medium-large, sits lowest */}
-        <View style={[styles.iconItem, { marginTop: 50 }]}>
-          <Image source={require("@/assets/icons/financial_goal_nobg.png")} style={{ width: 64, height: 64 }} resizeMode="contain" />
+        <View style={[styles.iconItem, { marginTop: 44 }]}>
+          <View style={styles.iconBg}>
+            <Image source={require("@/assets/icons/financial_goal.webp")} style={{ width: 58, height: 58 }} resizeMode="contain" />
+          </View>
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Smart</Text>
         </View>
 
         {/* "Grow" — smallest, mid-height */}
         <View style={[styles.iconItem, { marginTop: 14 }]}>
-          <Image source={require("@/assets/icons/savings_nobg.png")} style={{ width: 48, height: 48 }} resizeMode="contain" />
+          <View style={styles.iconBg}>
+            <Image source={require("@/assets/icons/savings.webp")} style={{ width: 44, height: 44 }} resizeMode="contain" />
+          </View>
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Grow</Text>
         </View>
       </Animated.View>
@@ -165,6 +173,11 @@ const styles = StyleSheet.create({
   iconItem: {
     alignItems: "center",
     gap: 6,
+  },
+  iconBg: {
+    backgroundColor: "#000000",
+    borderRadius: 16,
+    overflow: "hidden",
   },
   iconLabel: { fontSize: 11, color: "#555555" },
 
