@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -22,14 +22,26 @@ import { CardCarousel } from "@/components/CardCarousel";
 import { QuickActions } from "@/components/QuickActions";
 import { TransactionItem } from "@/components/TransactionItem";
 import { TpIcon } from "@/components/TpIcon";
+import { BankLogo } from "@/components/BankLogo";
+import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
 export default function DashboardScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, transactions, cards, showBalance, toggleShowBalance, freezeCard } = useApp();
+  const {
+    user,
+    transactions,
+    cards,
+    showBalance,
+    toggleShowBalance,
+    freezeCard,
+    linkedAccounts,
+    activeAccountId,
+  } = useApp();
   const [refreshing, setRefreshing] = React.useState(false);
+  const [showSwitcher, setShowSwitcher] = useState(false);
 
   const isDark    = colors.background !== "#F4F5F7";
   const topPad    = insets.top;
@@ -48,6 +60,12 @@ export default function DashboardScreen() {
   }, []);
 
   const recentTx = transactions.slice(0, 2);
+
+  // Active account — drives balance, account number, and bank logo across dashboard
+  const activeAccount = linkedAccounts.find((a) => a.id === activeAccountId);
+  const activeBankName    = activeAccount?.bankName    ?? "TrustPoint Bank";
+  const activeBalance     = activeAccount?.balance     ?? user?.balance  ?? 247560;
+  const activeAccountNum  = activeAccount?.accountNumber ?? user?.accountNumber;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -84,7 +102,7 @@ export default function DashboardScreen() {
           />
         }
       >
-        {/* User greeting + action buttons */}
+        {/* User greeting + bank logo + action buttons */}
         <View style={styles.header}>
           <Pressable onPress={() => router.push("/(main)/more")} style={styles.identity}>
             <Avatar
@@ -101,21 +119,33 @@ export default function DashboardScreen() {
               </Text>
             </View>
           </Pressable>
+
           <View style={styles.headerRight}>
+            {/* Active bank logo — tappable to switch */}
+            <Pressable
+              onPress={() => setShowSwitcher(true)}
+              style={[
+                styles.bankLogoBtn,
+                {
+                  backgroundColor: isDark ? "#111111" : colors.surfaceHigh,
+                  borderColor: colors.borderStrong,
+                },
+              ]}
+            >
+              <BankLogo bankName={activeBankName} size={28} />
+            </Pressable>
+
             <HeaderIconButton icon="qr-code" colors={colors} isDark={isDark} onPress={() => {}} />
-            <HeaderIconButton icon="headset" colors={colors} isDark={isDark} onPress={() => {}} />
             <HeaderIconButton icon="bell" colors={colors} isDark={isDark} onPress={() => router.push("/notifications")} dot />
           </View>
         </View>
 
-        {/* Balance Card */}
+        {/* Balance Card — uses active linked account data */}
         <BalanceShield
-          balance={user?.balance ?? 247560}
-          income={user?.income ?? 450000}
-          expenses={user?.expenses ?? 76015}
+          balance={activeBalance}
           showBalance={showBalance}
           onToggle={toggleShowBalance}
-          accountNumber={user?.accountNumber}
+          accountNumber={activeAccountNum}
           cardholderName={user?.name}
         />
 
@@ -159,28 +189,14 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.rewardsRow}>
             <View style={[styles.rewardCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Image
-                source={require("@/assets/icons/passive_income.webp")}
-                style={styles.rewardImg}
-              />
-              <Text style={[styles.rewardLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                Cashback
-              </Text>
-              <Text style={[styles.rewardAmount, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-                ₦0.00
-              </Text>
+              <Image source={require("@/assets/icons/passive_income.webp")} style={styles.rewardImg} />
+              <Text style={[styles.rewardLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Cashback</Text>
+              <Text style={[styles.rewardAmount, { color: colors.text, fontFamily: "Inter_700Bold" }]}>₦0.00</Text>
             </View>
             <View style={[styles.rewardCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Image
-                source={require("@/assets/icons/crowdfunding.webp")}
-                style={styles.rewardImg}
-              />
-              <Text style={[styles.rewardLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                Referrals
-              </Text>
-              <Text style={[styles.rewardAmount, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-                ₦0.00
-              </Text>
+              <Image source={require("@/assets/icons/crowdfunding.webp")} style={styles.rewardImg} />
+              <Text style={[styles.rewardLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Referrals</Text>
+              <Text style={[styles.rewardAmount, { color: colors.text, fontFamily: "Inter_700Bold" }]}>₦0.00</Text>
             </View>
           </View>
         </View>
@@ -244,13 +260,10 @@ export default function DashboardScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      <AccountSwitcher visible={showSwitcher} onClose={() => setShowSwitcher(false)} />
     </View>
   );
-}
-
-function formatAccount(acc: string) {
-  if (acc.length < 4) return acc;
-  return `${acc.slice(0, 2)}•• •••• ${acc.slice(-4)}`;
 }
 
 function HeaderIconButton({
@@ -308,6 +321,15 @@ const styles = StyleSheet.create({
   greeting: { fontSize: 12.5, letterSpacing: 0.1 },
   name: { fontSize: 20, letterSpacing: -0.5, marginTop: 1 },
   headerRight: { flexDirection: "row", alignItems: "center", gap: 8 },
+  bankLogoBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    overflow: "hidden",
+  },
   iconBtn: {
     width: 40,
     height: 40,

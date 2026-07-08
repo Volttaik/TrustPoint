@@ -26,12 +26,11 @@ import Svg, {
 import { useApp, type Beneficiary } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 import { TpIcon } from "@/components/TpIcon";
+import { BankLogo } from "@/components/BankLogo";
 
-/* ─── Stable accent ──────────────────────────────────────── */
 const RED    = "#E11D33";
 const RED_DK = "#8E0E1E";
 
-/* ─── Banner icon ───────────────────────────────────────── */
 function BannerIcon({ size = 24 }: { size?: number }) {
   const id = useId();
   return (
@@ -52,8 +51,8 @@ function BannerIcon({ size = 24 }: { size?: number }) {
   );
 }
 
-/* ─── Recipient avatar ──────────────────────────────────── */
-function RecipientAvatar({ initials, size = 52 }: { initials: string; size?: number }) {
+/** Profile avatar for confirm sheet only — shows the person, not the bank */
+function PersonAvatar({ initials, size = 52 }: { initials: string; size?: number }) {
   const id = useId();
   return (
     <Svg width={size} height={size} viewBox="0 0 52 52" fill="none">
@@ -72,7 +71,6 @@ function RecipientAvatar({ initials, size = 52 }: { initials: string; size?: num
   );
 }
 
-/* ─── History icon ──────────────────────────────────────── */
 function HistoryIcon({ size = 20, color }: { size?: number; color: string }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -84,19 +82,19 @@ function HistoryIcon({ size = 20, color }: { size?: number; color: string }) {
   );
 }
 
-/* ─── Account-number formatter ──────────────────────────── */
 function fmtAcct(raw: string) {
   const d = raw.replace(/\D/g, "").slice(0, 10);
   return [d.slice(0, 3), d.slice(3, 6), d.slice(6, 10)].filter(Boolean).join(" ");
 }
 
-/* ═══════════════════════════════════════════════════════
-   SCREEN
-══════════════════════════════════════════════════════════ */
 export default function TransferIndexScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, beneficiaries } = useApp();
+  const { user, beneficiaries, linkedAccounts, activeAccountId } = useApp();
+  const activeAccount   = linkedAccounts.find((a) => a.id === activeAccountId);
+  const activeBalance   = activeAccount?.balance     ?? user?.balance  ?? 0;
+  const activeAcctNum   = activeAccount?.accountNumber ?? user?.accountNumber ?? "";
+  const activeBankName  = activeAccount?.bankName    ?? "TrustPoint Bank";
 
   const [raw, setRaw]                 = useState("");
   const [activeTab, setActiveTab]     = useState<"recent" | "saved">("recent");
@@ -145,18 +143,14 @@ export default function TransferIndexScreen() {
     }
   }
 
-  /* ── Derived dynamic style pieces ─────────────────── */
   const isDark = colors.background !== "#F4F5F7";
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background, paddingTop: topPad }]}>
       <StatusBar style={isDark ? "light" : "dark"} />
 
-      {/* ── Header ────────────────────────────────────── */}
-      <View style={[styles.header, {
-        backgroundColor: colors.background,
-        borderBottomColor: colors.border,
-      }]}>
+      {/* Header */}
+      <View style={[styles.header, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn} hitSlop={8}>
           <TpIcon name="arrow-left" size={22} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
@@ -178,53 +172,36 @@ export default function TransferIndexScreen() {
         contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Banner ─────────────────────────────────── */}
-        <View style={[styles.banner, {
-          backgroundColor: isDark ? "#12040A" : "#FFF0F2",
-          borderColor: RED_DK + "44",
-        }]}>
+        {/* Banner */}
+        <View style={[styles.banner, { backgroundColor: isDark ? "#12040A" : "#FFF0F2", borderColor: RED_DK + "44" }]}>
           <BannerIcon size={26} />
           <Text style={[styles.bannerText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             TrustPoint to TrustPoint transfers are{" "}
-            <Text style={{ color: colors.text, fontFamily: "Inter_600SemiBold" }}>
-              free &amp; instant
-            </Text>
+            <Text style={{ color: colors.text, fontFamily: "Inter_600SemiBold" }}>free &amp; instant</Text>
           </Text>
-          <Image
-            source={require("@/assets/icons/investment_flow.webp")}
-            style={styles.bannerDeco}
-            resizeMode="contain"
-          />
+          <Image source={require("@/assets/icons/investment_flow.webp")} style={styles.bannerDeco} resizeMode="contain" />
         </View>
 
-        {/* ── Paying from ─────────────────────────────── */}
+        {/* Paying from — shows active linked account */}
         <View style={styles.section}>
-          <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-            Paying from
-          </Text>
+          <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Paying from</Text>
           <View style={[styles.senderCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            {/* Avatar */}
-            <View style={[styles.acctAvatar, { backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.12)" }]}>
-              <Text style={[styles.acctInitial, { color: "#fff", fontFamily: "Inter_700Bold" }]}>
-                {user?.initials?.slice(0, 2).toUpperCase() ?? "TP"}
-              </Text>
-            </View>
-            {/* Info */}
+            <BankLogo bankName={activeBankName} size={44} circular />
             <View style={styles.acctInfo}>
               <Text style={[styles.senderName, { fontFamily: "Inter_600SemiBold" }]} numberOfLines={1}>
-                {user?.name ?? "TrustPoint Account"}
+                {activeBankName === "TrustPoint Bank" ? (user?.name ?? "TrustPoint Account") : activeBankName}
               </Text>
               <Text style={[styles.senderSub, { fontFamily: "Inter_400Regular" }]}>
-                {user?.accountNumber ? fmtAcct(user.accountNumber) : "000 000 0000"}
+                {activeAcctNum ? fmtAcct(activeAcctNum) : "000 000 0000"}
               </Text>
               <Text style={[styles.senderBalance, { fontFamily: "Inter_700Bold" }]}>
-                ₦{(user?.balance ?? 0).toLocaleString("en-NG", { minimumFractionDigits: 2 })}
+                ₦{activeBalance.toLocaleString("en-NG", { minimumFractionDigits: 2 })}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* ── Account number input ─────────────────────── */}
+        {/* Account number input */}
         <View style={styles.section}>
           <Text style={[styles.label, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             Enter recipient's account number
@@ -235,13 +212,7 @@ export default function TransferIndexScreen() {
               onChangeText={(t) => setRaw(t.replace(/\D/g, "").slice(0, 10))}
               keyboardType="number-pad"
               maxLength={12}
-              style={[
-                styles.inputField,
-                {
-                  color: raw.length === 0 ? colors.placeholder : colors.text,
-                  fontFamily: "Inter_600SemiBold",
-                },
-              ]}
+              style={[styles.inputField, { color: raw.length === 0 ? colors.placeholder : colors.text, fontFamily: "Inter_600SemiBold" }]}
               placeholder="000 000 0000"
               placeholderTextColor={colors.placeholder}
               textAlign="center"
@@ -250,6 +221,7 @@ export default function TransferIndexScreen() {
             />
           </View>
 
+          {/* Resolved row — shows BANK LOGO (not profile avatar) */}
           {resolved && (
             <Pressable
               onPress={() => setShowConfirm(true)}
@@ -258,7 +230,7 @@ export default function TransferIndexScreen() {
                 { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
               ]}
             >
-              <RecipientAvatar initials={resolved.name.slice(0, 2)} size={44} />
+              <BankLogo bankName={resolved.bank} size={44} circular />
               <View style={styles.resolvedInfo}>
                 <Text style={[styles.resolvedName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
                   {resolved.name}
@@ -272,11 +244,9 @@ export default function TransferIndexScreen() {
           )}
         </View>
 
-        {/* ── Select recipient ─────────────────────────── */}
+        {/* Select recipient */}
         <View style={styles.section}>
-          <Text style={[styles.label, { color: colors.text, fontFamily: "Inter_400Regular" }]}>
-            Select recipient
-          </Text>
+          <Text style={[styles.label, { color: colors.text, fontFamily: "Inter_400Regular" }]}>Select recipient</Text>
           <View style={[styles.recipientCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             {/* search */}
             <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -306,10 +276,7 @@ export default function TransferIndexScreen() {
                           : { backgroundColor: "transparent", borderColor: colors.border },
                       ]}
                     >
-                      <Text style={[styles.tabTxt, {
-                        color: active ? RED : colors.mutedForeground,
-                        fontFamily: "Inter_600SemiBold",
-                      }]}>
+                      <Text style={[styles.tabTxt, { color: active ? RED : colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
                         {tab.charAt(0).toUpperCase() + tab.slice(1)}
                       </Text>
                     </TouchableOpacity>
@@ -317,13 +284,11 @@ export default function TransferIndexScreen() {
                 })}
               </View>
               <TouchableOpacity hitSlop={8}>
-                <Text style={[styles.viewAll, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-                  View All
-                </Text>
+                <Text style={[styles.viewAll, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>View All</Text>
               </TouchableOpacity>
             </View>
 
-            {/* list */}
+            {/* Beneficiary list — BANK LOGO as avatar */}
             {filtered.length === 0 ? (
               <View style={styles.emptyRow}>
                 <Text style={[styles.emptyTxt, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
@@ -338,7 +303,8 @@ export default function TransferIndexScreen() {
                     onPress={() => handleBeneficiary(b)}
                     style={({ pressed }) => [styles.benefRow, pressed && { opacity: 0.7 }]}
                   >
-                    <RecipientAvatar initials={b.initials} size={48} />
+                    {/* Bank logo as profile picture */}
+                    <BankLogo bankName={b.bank} size={48} circular />
                     <View style={styles.benefInfo}>
                       <Text style={[styles.benefName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
                         {b.name}
@@ -355,18 +321,10 @@ export default function TransferIndexScreen() {
         </View>
       </ScrollView>
 
-      {/* ══ Confirm bottom sheet ═══════════════════════ */}
-      <Modal
-        visible={showConfirm}
-        transparent
-        animationType="slide"
-        onRequestClose={dismissConfirm}
-      >
+      {/* Confirm sheet — shows PROFILE AVATAR (person, not bank) */}
+      <Modal visible={showConfirm} transparent animationType="slide" onRequestClose={dismissConfirm}>
         <Pressable style={styles.overlay} onPress={dismissConfirm} />
-        <View style={[styles.sheet, {
-          backgroundColor: colors.surfaceElevated,
-          borderColor: colors.border,
-        }]}>
+        <View style={[styles.sheet, { backgroundColor: colors.surfaceElevated, borderColor: colors.border }]}>
           <View style={[styles.handle, { backgroundColor: colors.border }]} />
 
           <Text style={[styles.sheetTitle, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
@@ -374,16 +332,21 @@ export default function TransferIndexScreen() {
           </Text>
 
           <View style={[styles.recipientDetail, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <RecipientAvatar
+            {/* Profile avatar on confirm — person graphic, not bank logo */}
+            <PersonAvatar
               initials={(selectedBenef?.name ?? resolved?.name ?? "TU").slice(0, 2)}
               size={56}
             />
             <Text style={[styles.recipientName, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
               {selectedBenef?.name ?? resolved?.name ?? "Account Holder"}
             </Text>
-            <Text style={[styles.recipientBank, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              {selectedBenef?.bank ?? resolved?.bank ?? "TrustPoint Bank"}
-            </Text>
+            {/* Bank name row with logo */}
+            <View style={styles.recipientBankRow}>
+              <BankLogo bankName={selectedBenef?.bank ?? resolved?.bank} size={20} circular />
+              <Text style={[styles.recipientBank, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                {selectedBenef?.bank ?? resolved?.bank ?? "TrustPoint Bank"}
+              </Text>
+            </View>
             <Text style={[styles.recipientAcct, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
               {selectedBenef ? selectedBenef.account : fmtAcct(raw)}
             </Text>
@@ -391,9 +354,7 @@ export default function TransferIndexScreen() {
 
           {!selectedBenef && (
             <View style={styles.saveRow}>
-              <Text style={[styles.saveTxt, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
-                Save recipient?
-              </Text>
+              <Text style={[styles.saveTxt, { color: colors.text, fontFamily: "Inter_500Medium" }]}>Save recipient?</Text>
               <Switch
                 value={saveRecipient}
                 onValueChange={setSave}
@@ -411,9 +372,7 @@ export default function TransferIndexScreen() {
               onPress={dismissConfirm}
               activeOpacity={0.8}
             >
-              <Text style={[styles.changeTxt, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
-                Change
-              </Text>
+              <Text style={[styles.changeTxt, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>Change</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.confirmBtn, { backgroundColor: RED }]}
@@ -429,10 +388,8 @@ export default function TransferIndexScreen() {
   );
 }
 
-/* ═══════ Styles ════════════════════════════════════════════ */
 const styles = StyleSheet.create({
   root: { flex: 1 },
-
   header: {
     flexDirection: "row", alignItems: "center",
     justifyContent: "space-between",
@@ -457,19 +414,9 @@ const styles = StyleSheet.create({
   section: { gap: 10 },
   label:   { fontSize: 13, paddingLeft: 2 },
 
-  card: {
-    flexDirection: "row", alignItems: "center", gap: 12,
-    borderRadius: 14, borderWidth: 1, padding: 14,
-  },
   senderCard: {
     flexDirection: "row", alignItems: "center", gap: 12,
-    borderRadius: 16, borderWidth: 1, padding: 16,
-    overflow: "hidden",
-  },
-  senderDeco: {
-    position: "absolute", right: -10, top: "50%",
-    width: 90, height: 90, opacity: 0.25,
-    transform: [{ translateY: -45 }],
+    borderRadius: 16, borderWidth: 1, padding: 16, overflow: "hidden",
   },
   senderName:    { fontSize: 14, color: "#fff", letterSpacing: -0.1 },
   senderSub:     { fontSize: 12, color: "rgba(255,255,255,0.45)", letterSpacing: 0.5 },
@@ -480,8 +427,6 @@ const styles = StyleSheet.create({
   },
   acctInitial: { fontSize: 15 },
   acctInfo:    { flex: 1, gap: 4 },
-  acctName:    { fontSize: 14, letterSpacing: -0.1 },
-  acctBalance: { fontSize: 17 },
 
   inputCard: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
   inputField: {
@@ -498,7 +443,6 @@ const styles = StyleSheet.create({
   resolvedBank: { fontSize: 12 },
 
   recipientCard: { borderRadius: 14, borderWidth: 1, overflow: "hidden" },
-
   searchBar: {
     flexDirection: "row", alignItems: "center", gap: 8,
     margin: 12, borderRadius: 10, borderWidth: 1,
@@ -543,6 +487,7 @@ const styles = StyleSheet.create({
     alignItems: "center", gap: 6,
   },
   recipientName: { fontSize: 18, letterSpacing: -0.4, textAlign: "center" },
+  recipientBankRow: { flexDirection: "row", alignItems: "center", gap: 6 },
   recipientBank: { fontSize: 13, textAlign: "center" },
   recipientAcct: { fontSize: 13, letterSpacing: 2, textAlign: "center" },
 

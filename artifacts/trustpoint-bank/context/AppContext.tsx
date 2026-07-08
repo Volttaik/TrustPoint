@@ -45,6 +45,14 @@ export interface Beneficiary {
   favorite: boolean;
 }
 
+export interface LinkedAccount {
+  id: string;
+  bankName: string;
+  accountNumber: string;
+  balance: number;
+  isDefault: boolean;
+}
+
 export interface User {
   id?: number;
   name: string;
@@ -78,6 +86,10 @@ export interface AppContextType {
   transactions: Transaction[];
   cards: Card[];
   beneficiaries: Beneficiary[];
+  linkedAccounts: LinkedAccount[];
+  activeAccountId: string | null;
+  switchAccount: (id: string) => void;
+  addLinkedAccount: (bankName: string, accountNumber: string) => Promise<void>;
   login: (pin: string) => Promise<boolean>;
   loginWithCredentials: (identifier: string, password: string) => Promise<boolean>;
   verifyPin: (pin: string) => Promise<boolean>;
@@ -137,6 +149,28 @@ const MOCK_BENEFICIARIES: Beneficiary[] = [
   { id: "b5", name: "Kola Adesanya", bank: "Access Bank", account: "7890123456", avatarColor: "#F4A261", initials: "KA", favorite: false },
 ];
 
+const buildDefaultLinkedAccounts = (user: any, preferredBank?: string): LinkedAccount[] => {
+  const accounts: LinkedAccount[] = [
+    {
+      id: "tp-default",
+      bankName: "TrustPoint Bank",
+      accountNumber: user?.accountNumber ?? "0000000000",
+      balance: 247560,
+      isDefault: true,
+    },
+  ];
+  if (preferredBank && preferredBank !== "TrustPoint Bank") {
+    accounts.push({
+      id: `linked-${Date.now()}`,
+      bankName: preferredBank,
+      accountNumber: "0" + Math.floor(Math.random() * 1000000000).toString().padStart(9, "0"),
+      balance: Math.floor(Math.random() * 150000) + 10000,
+      isDefault: false,
+    });
+  }
+  return accounts;
+};
+
 const buildUser = (apiUser: any, pin: string, extra?: Partial<User>): User => {
   const nameParts = (apiUser.name ?? "").trim().split(" ");
   const initials = nameParts.map((w: string) => w[0]).join("").slice(0, 2).toUpperCase() || "??";
@@ -184,26 +218,54 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>(MOCK_BENEFICIARIES);
   const [showBalance, setShowBalance] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [linkedAccounts, setLinkedAccounts] = useState<LinkedAccount[]>([]);
+  const [activeAccountId, setActiveAccountId] = useState<string | null>("tp-default");
 
   useEffect(() => {
     const init = async () => {
       try {
-        const [storedUser, storedTheme, storedTransactions, storedCards, storedBeneficiaries, storedSession] =
-          await Promise.all([
-            AsyncStorage.getItem("@tp_user"),
-            AsyncStorage.getItem("@tp_theme"),
-            AsyncStorage.getItem("@tp_transactions"),
-            AsyncStorage.getItem("@tp_cards"),
-            AsyncStorage.getItem("@tp_beneficiaries"),
-            AsyncStorage.getItem("@tp_has_session"),
-          ]);
-        if (storedUser) setUser(JSON.parse(storedUser));
+        const [
+          storedUser,
+          storedTheme,
+          storedTransactions,
+          storedCards,
+          storedBeneficiaries,
+          storedSession,
+          storedLinked,
+          storedActiveId,
+        ] = await Promise.all([
+          AsyncStorage.getItem("@tp_user"),
+          AsyncStorage.getItem("@tp_theme"),
+          AsyncStorage.getItem("@tp_transactions"),
+          AsyncStorage.getItem("@tp_cards"),
+          AsyncStorage.getItem("@tp_beneficiaries"),
+          AsyncStorage.getItem("@tp_has_session"),
+          AsyncStorage.getItem("@tp_linked_accounts"),
+          AsyncStorage.getItem("@tp_active_account_id"),
+        ]);
+        if (storedUser) {
+          const parsed = JSON.parse(storedUser);
+          setUser(parsed);
+          if (!storedLinked) {
+            // First load after registration — seed linked accounts from preferredBank
+            const defaults = buildDefaultLinkedAccounts(parsed, parsed.preferredBank);
+            setLinkedAccounts(defaults);
+            setActiveAccountId(defaults[0].id);
+            await AsyncStorage.setItem("@tp_linked_accounts", JSON.stringify(defaults));
+            await AsyncStorage.setItem("@tp_active_account_id", defaults[0].id);
+          }
+        }
         if (storedTheme) setTheme(storedTheme as "dark" | "light");
         else setTheme("dark");
         if (storedTransactions) setTransactions(JSON.parse(storedTransactions));
         if (storedCards) setCards(JSON.parse(storedCards));
         if (storedBeneficiaries) setBeneficiaries(JSON.parse(storedBeneficiaries));
         if (storedSession === "true") setHasSessionState(true);
+        if (storedLinked) {
+          const parsed = JSON.parse(storedLinked);
+          setLinkedAccounts(parsed);
+          setActiveAccountId(storedActiveId ?? parsed[0]?.id ?? "tp-default");
+        }
       } catch (e) {
         console.error("AppContext init error:", e);
       } finally {
@@ -225,6 +287,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   const toggleShowBalance = useCallback(() => setShowBalance((v) => !v), []);
+
+  const switchAccount = useCallback((id: string) => {
+    setActiveAccountId(id);
+    AsyncStorage.setItem("@tp_active_account_id", id);
+  }, []);
+
+  const addLinkedAccount = useCallback(async (bankName: string, accountNumber: string) => {
+    const newAcct: LinkedAccount = {
+      id: `linked-${Date.now()}`,
+      bankName,
+      accountNumber,
+      balance: 0,
+      isDefault: false,
+    };
+    setLinkedAccounts((prev) => {
+      const updated = [...prev, newAcct];
+      AsyncStorage.setItem("@tp_linked_accounts", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
 
   const phoneExists = useCallback(async (phone: string): Promise<boolean> => {
     try {
@@ -303,7 +385,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       await saveUser(u);
       await AsyncStorage.setItem("@tp_last_phone", data.phone ?? "");
       await AsyncStorage.setItem("@tp_password", encodePassword(data.password));
-      // Do NOT set isAuthenticated — user must log in
+
+      // Seed linked accounts from preferred bank
+      const defaults = buildDefaultLinkedAccounts(apiUser, data.preferredBank);
+      setLinkedAccounts(defaults);
+      setActiveAccountId(defaults[0].id);
+      await AsyncStorage.setItem("@tp_linked_accounts", JSON.stringify(defaults));
+      await AsyncStorage.setItem("@tp_active_account_id", defaults[0].id);
     } catch (err: any) {
       throw err;
     }
@@ -378,6 +466,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       transactions,
       cards,
       beneficiaries,
+      linkedAccounts,
+      activeAccountId,
+      switchAccount,
+      addLinkedAccount,
       login,
       loginWithCredentials,
       verifyPin,

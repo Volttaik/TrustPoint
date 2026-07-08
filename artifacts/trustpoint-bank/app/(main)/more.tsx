@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Alert,
   Platform,
@@ -14,13 +14,15 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "@/components/Avatar";
+import { BankLogo } from "@/components/BankLogo";
+import { AccountSwitcher } from "@/components/AccountSwitcher";
 import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
 const MENU_SECTIONS: {
   title: string;
-  items: { icon: TpIconName; label: string; route: string | null; isTheme?: boolean }[];
+  items: { icon: TpIconName; label: string; route: string | null; isTheme?: boolean; isAccounts?: boolean }[];
 }[] = [
   {
     title: "Account",
@@ -28,6 +30,7 @@ const MENU_SECTIONS: {
       { icon: "edit-2",      label: "Edit Profile",        route: "/settings/profile" },
       { icon: "trending-up", label: "Account Upgrade",     route: "/settings/upgrade" },
       { icon: "shield",      label: "KYC / Verification",  route: "/profile/kyc" },
+      { icon: "refresh-cw",  label: "Manage Accounts",     route: null, isAccounts: true },
     ],
   },
   {
@@ -62,15 +65,19 @@ const MENU_SECTIONS: {
 export default function MoreScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, logout, toggleTheme, theme } = useApp();
+  const { user, logout, toggleTheme, theme, linkedAccounts, activeAccountId } = useApp();
   const isDark = colors.background !== "#F4F5F7";
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
   const bottomPad = 90 + (Platform.OS === "web" ? 34 : 0);
+  const [showSwitcher, setShowSwitcher] = useState(false);
+
+  const activeAccount    = linkedAccounts.find((a) => a.id === activeAccountId);
+  const activeBankName   = activeAccount?.bankName    ?? "TrustPoint Bank";
+  const activeAccountNum = activeAccount?.accountNumber ?? user?.accountNumber ?? "";
 
   const handleCopyAcct = async () => {
-    if (user?.accountNumber) {
-      await Clipboard.setStringAsync(user.accountNumber);
-    }
+    const num = activeAccountNum;
+    if (num) await Clipboard.setStringAsync(num);
   };
 
   const handleLogout = () => {
@@ -92,15 +99,18 @@ export default function MoreScreen() {
     label,
     route,
     isTheme,
+    isAccounts,
   }: {
     icon: TpIconName;
     label: string;
     route: string | null;
     isTheme?: boolean;
+    isAccounts?: boolean;
   }) => (
     <Pressable
       onPress={() => {
         if (isTheme) { toggleTheme(); return; }
+        if (isAccounts) { setShowSwitcher(true); return; }
         if (route) router.push(route as any);
       }}
       style={({ pressed }) => [styles.menuItem, { opacity: pressed ? 0.7 : 1 }]}
@@ -113,15 +123,26 @@ export default function MoreScreen() {
       </Text>
       <View style={styles.menuRight}>
         {isTheme && (
+          /* Monochrome black/white toggle: dark = white thumb, light = black thumb */
           <Switch
-            value={theme === "light"}
+            value={theme === "dark"}
             onValueChange={toggleTheme}
-            trackColor={{ false: colors.border, true: colors.primary + "88" }}
-            thumbColor={theme === "light" ? colors.primary : colors.mutedForeground}
-            ios_backgroundColor={colors.border}
+            trackColor={{
+              false: isDark ? "#2A2A2A" : "#D0D0D0",
+              true:  isDark ? "#3A3A3A" : "#1A1A1A",
+            }}
+            thumbColor={theme === "dark" ? "#FFFFFF" : "#000000"}
+            ios_backgroundColor={isDark ? "#2A2A2A" : "#D0D0D0"}
           />
         )}
-        {!isTheme && (
+        {isAccounts && (
+          <View style={styles.linkedBadge}>
+            <Text style={[styles.linkedCount, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+              {linkedAccounts.length}
+            </Text>
+          </View>
+        )}
+        {!isTheme && !isAccounts && (
           <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2} />
         )}
       </View>
@@ -156,14 +177,39 @@ export default function MoreScreen() {
           </Pressable>
         </View>
 
-        {/* Account number */}
+        {/* Active account card */}
+        <Pressable
+          onPress={() => setShowSwitcher(true)}
+          style={[styles.activeAcctCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+        >
+          <BankLogo bankName={activeBankName} size={42} />
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.acctLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              Active Account
+            </Text>
+            <Text style={[styles.acctBankName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+              {activeBankName}
+            </Text>
+            <Text style={[styles.acctNum, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              {user?.accountNumber ?? "—"}
+            </Text>
+          </View>
+          <View style={[styles.switchTag, { backgroundColor: colors.primary + "18" }]}>
+            <TpIcon name="refresh-cw" size={13} color={colors.primary} strokeWidth={2} />
+            <Text style={[styles.switchTagTxt, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+              Switch
+            </Text>
+          </View>
+        </Pressable>
+
+        {/* Account number copy */}
         <View style={[styles.acctCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View>
             <Text style={[styles.acctLabel, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
               Account Number
             </Text>
-            <Text style={[styles.acctNum, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
-              {user?.accountNumber ?? "1234567890"}
+            <Text style={[styles.acctNumLarge, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+              {activeAccountNum || "1234567890"}
             </Text>
           </View>
           <Pressable onPress={handleCopyAcct} style={[styles.copyBtn, { backgroundColor: colors.primary + "18" }]}>
@@ -232,6 +278,8 @@ export default function MoreScreen() {
           TrustPoint Bank v1.0.0
         </Text>
       </ScrollView>
+
+      <AccountSwitcher visible={showSwitcher} onClose={() => setShowSwitcher(false)} />
     </View>
   );
 }
@@ -251,6 +299,26 @@ const styles = StyleSheet.create({
   profileEmail: { fontSize: 13, marginBottom: 6 },
   tierBadge: { alignSelf: "flex-start", paddingHorizontal: 8, paddingVertical: 3, borderRadius: 10 },
   tierText: { fontSize: 11 },
+
+  activeAcctCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  acctBankName: { fontSize: 15, letterSpacing: -0.2 },
+  switchTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+  },
+  switchTagTxt: { fontSize: 12 },
+
   acctCard: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -260,7 +328,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   acctLabel: { fontSize: 12, marginBottom: 4 },
-  acctNum: { fontSize: 18, letterSpacing: 2 },
+  acctNum: { fontSize: 12, letterSpacing: 0.5 },
+  acctNumLarge: { fontSize: 18, letterSpacing: 2 },
   copyBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -293,6 +362,15 @@ const styles = StyleSheet.create({
   menuIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   menuLabel: { flex: 1, fontSize: 14 },
   menuRight: { alignItems: "center", justifyContent: "center" },
+  linkedBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  linkedCount: { fontSize: 14 },
   sep: { height: 0.5, marginLeft: 64 },
   logoutBtn: {
     flexDirection: "row",

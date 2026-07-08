@@ -7,6 +7,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { TpIcon } from "@/components/TpIcon";
 import { PackIcon, PackIconName } from "@/components/PackIcon";
+import { BankLogo } from "@/components/BankLogo";
 import { useColors } from "@/hooks/useColors";
 import { Transaction } from "@/context/AppContext";
 
@@ -26,6 +27,11 @@ const CATEGORY_ICON: Record<string, PackIconName> = {
   Income:        "tx_income",
   Shopping:      "tx_shopping",
 };
+
+/** Whether a transaction should show a bank logo instead of initials */
+function isBankTransaction(tx: Transaction) {
+  return tx.category === "Transfer" && !!tx.bank;
+}
 
 export function TransactionItem({ tx, onPress }: TransactionItemProps) {
   const colors = useColors();
@@ -62,6 +68,7 @@ export function TransactionItem({ tx, onPress }: TransactionItemProps) {
   };
 
   const categoryIcon: PackIconName = CATEGORY_ICON[tx.category] ?? "tx_default";
+  const showBankLogo = isBankTransaction(tx);
 
   return (
     <AnimatedPressable
@@ -71,18 +78,24 @@ export function TransactionItem({ tx, onPress }: TransactionItemProps) {
       style={[aStyle, styles.row]}
     >
       <View style={styles.merchantWrap}>
-        <View
-          style={[
-            styles.merchantIcon,
-            { backgroundColor: (tx.avatarColor ?? colors.primary) + "1E", borderColor: (tx.avatarColor ?? colors.primary) + "35" },
-          ]}
-        >
-          <Text
-            style={[styles.merchantInitials, { color: tx.avatarColor ?? colors.primary, fontFamily: "Inter_700Bold" }]}
+        {showBankLogo ? (
+          /* Bank logo circle for Transfer transactions */
+          <BankLogo bankName={tx.bank} size={46} circular />
+        ) : (
+          /* Initials circle for non-transfer transactions */
+          <View
+            style={[
+              styles.merchantIcon,
+              { backgroundColor: (tx.avatarColor ?? colors.primary) + "1E", borderColor: (tx.avatarColor ?? colors.primary) + "35" },
+            ]}
           >
-            {tx.title.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
-          </Text>
-        </View>
+            <Text
+              style={[styles.merchantInitials, { color: tx.avatarColor ?? colors.primary, fontFamily: "Inter_700Bold" }]}
+            >
+              {tx.title.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+            </Text>
+          </View>
+        )}
         <View
           style={[
             styles.dirBadge,
