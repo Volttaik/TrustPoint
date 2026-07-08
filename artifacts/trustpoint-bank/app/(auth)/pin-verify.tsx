@@ -105,10 +105,8 @@ export default function PinVerifyScreen() {
   const initials = user?.initials ?? "?";
   const avatarColor = user?.avatarColor ?? PRIMARY;
 
-  const pinFillColor =
-    status === "success" ? "#2FBE73" :
-    status === "error"   ? PRIMARY :
-    PRIMARY;
+  /* Always use primary red — no green on success (keep single visual language) */
+  const pinFillColor = PRIMARY;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -167,11 +165,13 @@ export default function PinVerifyScreen() {
 
       {/* PinPad */}
       <View style={styles.padContainer}>
+        {/* showDots={false}: pin-verify renders its own dot row above */}
         <PinPad
           pin={pin}
           onKeyPress={handleKeyPress}
           onDelete={handleDelete}
           shake={false}
+          showDots={false}
         />
       </View>
 

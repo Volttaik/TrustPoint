@@ -22,27 +22,27 @@ export function PlanCategoryChips({ selected, onSelect }: Props) {
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={styles.strip}
     >
-      {PLAN_CATEGORIES.map((cat) => {
-        const active = cat.id === selected;
-        return (
-          <CategoryChip
-            key={cat.id}
-            label={cat.label}
-            emoji={cat.emoji}
-            active={active}
-            colors={colors}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              onSelect(cat.id);
-            }}
-          />
-        );
-      })}
+      {PLAN_CATEGORIES.map((cat) => (
+        <CategoryChip
+          key={cat.id}
+          label={cat.label}
+          active={cat.id === selected}
+          colors={colors}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            onSelect(cat.id);
+          }}
+        />
+      ))}
     </ScrollView>
   );
 }
 
-function CategoryChip({ label, emoji, active, colors, onPress }: any) {
+function CategoryChip({
+  label, active, colors, onPress,
+}: {
+  label: string; active: boolean; colors: any; onPress: () => void;
+}) {
   const scale = useSharedValue(1);
   const aStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
@@ -69,7 +69,7 @@ function CategoryChip({ label, emoji, active, colors, onPress }: any) {
             },
           ]}
         >
-          {emoji ? `${emoji} ${label}` : label}
+          {label}
         </Text>
       </Pressable>
     </Animated.View>

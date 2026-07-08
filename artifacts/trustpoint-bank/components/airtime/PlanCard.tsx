@@ -27,16 +27,14 @@ export function PlanCard({ plan, selected, onPress }: Props) {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           onPress();
         }}
-        onPressIn={() => { scale.value = withSpring(0.95, { damping: 14, stiffness: 220 }); }}
+        onPressIn={() => { scale.value = withSpring(0.96, { damping: 14, stiffness: 220 }); }}
         onPressOut={() => { scale.value = withSpring(1,    { damping: 14, stiffness: 220 }); }}
         style={[
           styles.card,
           {
-            backgroundColor: selected
-              ? colors.primary + "10"
-              : colors.card,
-            borderColor: selected ? colors.primary : colors.border,
-            borderWidth: selected ? 1.5 : 1,
+            backgroundColor: selected ? colors.primary + "10" : colors.card,
+            borderColor:     selected ? colors.primary : colors.border,
+            borderWidth:     selected ? 1.5 : 1,
           },
         ]}
       >
@@ -62,11 +60,10 @@ export function PlanCard({ plan, selected, onPress }: Props) {
         <Text
           style={[
             styles.size,
-            {
-              color: selected ? colors.primary : colors.text,
-              fontFamily: "Inter_700Bold",
-            },
+            { color: selected ? colors.primary : colors.text, fontFamily: "Inter_700Bold" },
           ]}
+          adjustsFontSizeToFit
+          numberOfLines={1}
         >
           {plan.size}
         </Text>
@@ -75,11 +72,10 @@ export function PlanCard({ plan, selected, onPress }: Props) {
         <Text
           style={[
             styles.price,
-            {
-              color: selected ? colors.primary : colors.text,
-              fontFamily: "Inter_700Bold",
-            },
+            { color: selected ? colors.primary : colors.text, fontFamily: "Inter_700Bold" },
           ]}
+          adjustsFontSizeToFit
+          numberOfLines={1}
         >
           ₦{plan.price.toLocaleString()}
         </Text>
@@ -111,43 +107,41 @@ export function PlanCard({ plan, selected, onPress }: Props) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1 },
+  /** 48% width → forced 2-column grid regardless of plan count */
+  wrap: { flexBasis: "48%", flexGrow: 0, flexShrink: 0 },
   card: {
-    borderRadius: 16,
-    padding: 14,
-    gap: 4,
-    minHeight: 120,
+    borderRadius: 14,
+    padding: 12,
+    gap: 3,
+    minHeight: 108,
   },
   cashbackBadge: {
     alignSelf: "flex-start",
     backgroundColor: "#7C3AED22",
     borderRadius: 20,
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 2,
-    marginBottom: 6,
+    marginBottom: 5,
   },
-  cashbackText: {
-    fontSize: 10,
-    color: "#7C3AED",
-  },
+  cashbackText: { fontSize: 9, color: "#7C3AED" },
   popularBadge: {
     alignSelf: "flex-start",
     borderRadius: 20,
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 2,
-    marginBottom: 6,
+    marginBottom: 5,
   },
-  popularText: { fontSize: 10 },
-  size:     { fontSize: 20, letterSpacing: -0.5 },
-  price:    { fontSize: 15, letterSpacing: -0.3 },
-  validity: { fontSize: 11, marginTop: 2 },
-  desc:     { fontSize: 10, lineHeight: 14, marginTop: 2 },
+  popularText: { fontSize: 9 },
+  size:     { fontSize: 15, letterSpacing: -0.3 },
+  price:    { fontSize: 13, letterSpacing: -0.2 },
+  validity: { fontSize: 10, marginTop: 1 },
+  desc:     { fontSize: 9,  lineHeight: 13, marginTop: 1 },
   bonusTag: {
     alignSelf: "flex-start",
     borderRadius: 6,
-    paddingHorizontal: 6,
+    paddingHorizontal: 5,
     paddingVertical: 2,
-    marginTop: 4,
+    marginTop: 3,
   },
   bonusText: { fontSize: 9 },
 });

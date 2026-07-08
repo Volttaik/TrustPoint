@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import {
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -24,23 +25,47 @@ interface Props {
   onSelfPress?: () => void;
   selfPhone?: string;
   onContactPress?: () => void;
+  /** Override the auto-detected network with an externally chosen one. */
+  networkId?: NetworkId | null;
+  /** Called whenever the auto-detected network changes. */
+  onNetworkDetected?: (id: NetworkId | null) => void;
 }
 
-export function PhoneCard({ phone, onChangePhone, onSelfPress, selfPhone, onContactPress }: Props) {
+export function PhoneCard({
+  phone,
+  onChangePhone,
+  onSelfPress,
+  selfPhone,
+  onContactPress,
+  networkId: networkIdProp,
+  onNetworkDetected,
+}: Props) {
   const colors = useColors();
   const isDark = colors.background !== "#F4F5F7";
 
-  const detectedId = phone.length >= 4 ? detectNetwork(phone) : null;
-  const network = detectedId ? NETWORKS[detectedId] : null;
+  const autoDetected = phone.length >= 4 ? detectNetwork(phone) : null;
+
+  /* Notify parent when auto-detection changes */
+  const prevAuto = useRef<NetworkId | null>(null);
+  useEffect(() => {
+    if (autoDetected !== prevAuto.current) {
+      prevAuto.current = autoDetected;
+      onNetworkDetected?.(autoDetected);
+    }
+  }, [autoDetected]);
+
+  /* The displayed network: prop override takes priority */
+  const activeId = networkIdProp ?? autoDetected;
+  const network  = activeId ? NETWORKS[activeId] : null;
 
   const logoOpacity = useSharedValue(0);
   const logoScale   = useSharedValue(0.7);
   const prevId      = useRef<NetworkId | null>(null);
 
   useEffect(() => {
-    if (detectedId !== prevId.current) {
-      prevId.current = detectedId;
-      if (detectedId) {
+    if (activeId !== prevId.current) {
+      prevId.current = activeId;
+      if (activeId) {
         logoOpacity.value = 0;
         logoScale.value   = 0.7;
         logoOpacity.value = withTiming(1, { duration: 200 });
@@ -50,14 +75,14 @@ export function PhoneCard({ phone, onChangePhone, onSelfPress, selfPhone, onCont
         logoScale.value   = withTiming(0.7, { duration: 150 });
       }
     }
-  }, [detectedId]);
+  }, [activeId]);
 
   const logoStyle = useAnimatedStyle(() => ({
     opacity:   logoOpacity.value,
     transform: [{ scale: logoScale.value }],
   }));
 
-  // Format display: 0801 234 5678
+  /* Format display: 0801 234 5678 */
   const formatted = phone.replace(/\D/g, "").slice(0, 11);
   const display =
     formatted.length <= 4
@@ -72,9 +97,9 @@ export function PhoneCard({ phone, onChangePhone, onSelfPress, selfPhone, onCont
       <View style={styles.inputRow}>
         {/* Network logo / placeholder */}
         <View style={styles.logoSlot}>
-          {detectedId ? (
+          {activeId ? (
             <Animated.View style={logoStyle}>
-              <NetworkLogo id={detectedId} size={36} />
+              <NetworkLogo id={activeId} size={36} />
             </Animated.View>
           ) : (
             <View style={[styles.logoPlaceholder, { backgroundColor: isDark ? "#1A1A1A" : "#F0F0F0" }]}>
@@ -83,7 +108,7 @@ export function PhoneCard({ phone, onChangePhone, onSelfPress, selfPhone, onCont
           )}
         </View>
 
-        {/* Text input */}
+        {/* Text input — outline removed on web */}
         <TextInput
           value={display}
           onChangeText={(t) => onChangePhone(t.replace(/\D/g, "").slice(0, 11))}
@@ -92,10 +117,8 @@ export function PhoneCard({ phone, onChangePhone, onSelfPress, selfPhone, onCont
           keyboardType="phone-pad"
           style={[
             styles.input,
-            {
-              color: colors.text,
-              fontFamily: "Inter_600SemiBold",
-            },
+            { color: colors.text, fontFamily: "Inter_600SemiBold" },
+            Platform.OS === "web" && ({ outlineWidth: 0 } as any),
           ]}
           cursorColor={colors.primary}
           returnKeyType="done"
@@ -110,18 +133,20 @@ export function PhoneCard({ phone, onChangePhone, onSelfPress, selfPhone, onCont
         </TouchableOpacity>
       </View>
 
-      {/* Network label row */}
-      {network && (
-        <Animated.View style={[styles.networkRow, logoStyle]}>
-          <View style={[styles.networkBadge, { backgroundColor: network.color + "18", borderColor: network.color + "33" }]}>
-            <Text style={[styles.networkText, { color: network.color, fontFamily: "Inter_600SemiBold" }]}>
-              {network.name}
-            </Text>
-          </View>
+      {/* Character count row (only while typing) */}
+      {formatted.length > 0 && formatted.length < 11 && (
+        <View style={styles.networkRow}>
+          {network ? (
+            <View style={[styles.networkBadge, { backgroundColor: network.color + "18", borderColor: network.color + "33" }]}>
+              <Text style={[styles.networkText, { color: network.color, fontFamily: "Inter_600SemiBold" }]}>
+                {network.name}
+              </Text>
+            </View>
+          ) : <View />}
           <Text style={[styles.charCount, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             {formatted.length}/11
           </Text>
-        </Animated.View>
+        </View>
       )}
 
       {/* Buy for self */}

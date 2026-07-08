@@ -21,15 +21,15 @@ export interface DataPlan {
   popular?: boolean;
 }
 
-export const PLAN_CATEGORIES: { id: PlanCategory; label: string; emoji: string }[] = [
-  { id: "hot-deals",  label: "Hot Deals",  emoji: "🔥" },
-  { id: "daily",      label: "Daily",      emoji: "" },
-  { id: "weekly",     label: "Weekly",     emoji: "" },
-  { id: "monthly",    label: "Monthly",    emoji: "" },
-  { id: "sme",        label: "SME",        emoji: "" },
-  { id: "social",     label: "Social",     emoji: "" },
-  { id: "night",      label: "Night",      emoji: "🌙" },
-  { id: "broadband",  label: "Broadband",  emoji: "" },
+export const PLAN_CATEGORIES: { id: PlanCategory; label: string }[] = [
+  { id: "hot-deals",  label: "Hot Deals"  },
+  { id: "daily",      label: "Daily"      },
+  { id: "weekly",     label: "Weekly"     },
+  { id: "monthly",    label: "Monthly"    },
+  { id: "sme",        label: "SME"        },
+  { id: "social",     label: "Social"     },
+  { id: "night",      label: "Night"      },
+  { id: "broadband",  label: "Broadband"  },
 ];
 
 const mtnPlans: Record<PlanCategory, DataPlan[]> = {

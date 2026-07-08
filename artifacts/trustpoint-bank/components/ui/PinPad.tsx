@@ -17,11 +17,20 @@ interface PinPadProps {
   onKeyPress: (key: string) => void;
   onDelete: () => void;
   shake?: boolean;
+  /** Set false to suppress the built-in dot row (e.g. when the parent renders its own). Default: true. */
+  showDots?: boolean;
 }
 
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "del"];
 
-export function PinPad({ pin, pinLength = 4, onKeyPress, onDelete, shake }: PinPadProps) {
+export function PinPad({
+  pin,
+  pinLength = 4,
+  onKeyPress,
+  onDelete,
+  shake,
+  showDots = true,
+}: PinPadProps) {
   const colors = useColors();
   const shakeAnim = useSharedValue(0);
 
@@ -29,10 +38,10 @@ export function PinPad({ pin, pinLength = 4, onKeyPress, onDelete, shake }: PinP
     if (shake) {
       shakeAnim.value = withSequence(
         withTiming(-10, { duration: 60 }),
-        withTiming(10, { duration: 60 }),
+        withTiming(10,  { duration: 60 }),
         withTiming(-10, { duration: 60 }),
-        withTiming(10, { duration: 60 }),
-        withTiming(0, { duration: 60 }),
+        withTiming(10,  { duration: 60 }),
+        withTiming(0,   { duration: 60 }),
       );
     }
   }, [shake]);
@@ -50,11 +59,13 @@ export function PinPad({ pin, pinLength = 4, onKeyPress, onDelete, shake }: PinP
 
   return (
     <View style={styles.wrapper}>
-      <Animated.View style={[styles.dots, shakeStyle]}>
-        {Array.from({ length: pinLength }).map((_, i) => (
-          <PinDot key={i} filled={i < pin.length} color={colors.primary} />
-        ))}
-      </Animated.View>
+      {showDots && (
+        <Animated.View style={[styles.dots, shakeStyle]}>
+          {Array.from({ length: pinLength }).map((_, i) => (
+            <PinDot key={i} filled={i < pin.length} color={colors.primary} />
+          ))}
+        </Animated.View>
+      )}
 
       <View style={styles.grid}>
         {KEYS.map((key, idx) => (
@@ -101,7 +112,7 @@ function PinKey({ label, onPress, textColor, bgColor }: any) {
         activeOpacity={0.7}
         onPress={onPress}
         onPressIn={() => { scale.value = withSpring(0.9, { damping: 10, stiffness: 300 }); }}
-        onPressOut={() => { scale.value = withSpring(1, { damping: 10, stiffness: 300 }); }}
+        onPressOut={() => { scale.value = withSpring(1,   { damping: 10, stiffness: 300 }); }}
         style={[styles.keyInner, { backgroundColor: bgColor }]}
       >
         {label === "del" ? (
