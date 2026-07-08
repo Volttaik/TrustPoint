@@ -62,8 +62,13 @@ const server = http.createServer((req, res) => {
 
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME[ext] || "application/octet-stream";
-  res.writeHead(200, { "content-type": contentType });
-  res.end(fs.readFileSync(filePath));
+  const buf = fs.readFileSync(filePath);
+  res.writeHead(200, {
+    "content-type": contentType,
+    "content-length": buf.length,
+    "cache-control": "no-cache",
+  });
+  res.end(buf);
 });
 
 server.listen(PORT, "0.0.0.0", () => {
