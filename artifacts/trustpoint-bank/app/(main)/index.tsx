@@ -135,8 +135,8 @@ export default function DashboardScreen() {
             actions={[
               { icon: "shuffle",         label: "Transfer",  onPress: () => router.push("/transfer"), accent: true },
               { icon: "plus",            label: "Add Money", onPress: () => router.push("/deposit") },
-              { icon: "phone",           label: "Airtime",   onPress: () => router.push("/(main)/payments") },
-              { icon: "wifi",            label: "Data",      onPress: () => router.push("/(main)/payments") },
+              { icon: "phone",           label: "Airtime",   onPress: () => router.push("/airtime") },
+              { icon: "wifi",            label: "Data",      onPress: () => router.push("/data") },
               { icon: "file-text",       label: "Bills",     onPress: () => router.push("/(main)/payments") },
               { icon: "credit-card",     label: "Cards",     onPress: () => router.push("/(main)/cards") },
               { icon: "trending-up",     label: "Savings",   onPress: () => router.push("/savings") },

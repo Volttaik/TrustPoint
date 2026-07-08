@@ -5,102 +5,44 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, { Path, Circle, Rect, G } from "react-native-svg";
+import * as Haptics from "expo-haptics";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { SuccessModal } from "@/components/ui/SuccessModal";
 import { TpIcon } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
+import { PhoneCard } from "@/components/airtime/PhoneCard";
+import { BeneficiaryStrip } from "@/components/airtime/BeneficiaryStrip";
+import { AmountChips } from "@/components/airtime/AmountChips";
+import { SummaryCard } from "@/components/airtime/SummaryCard";
+import { PinSheet } from "@/components/airtime/PinSheet";
+import { detectNetwork } from "@/components/airtime/networkDetect";
 
-type Tab = "airtime" | "data";
-
-const NETWORKS = [
-  { id: "mtn", name: "MTN", color: "#FFD700", bg: "#1A1A00" },
-  { id: "airtel", name: "Airtel", color: "#E63946", bg: "#1A0000" },
-  { id: "glo", name: "Glo", color: "#00B140", bg: "#001A00" },
-  { id: "9mobile", name: "9Mobile", color: "#007A3D", bg: "#001A0D" },
-];
-
-const DATA_BUNDLES: Record<string, { id: string; size: string; validity: string; price: number }[]> = {
-  mtn: [
-    { id: "m1", size: "500MB", validity: "1 day", price: 150 },
-    { id: "m2", size: "1GB", validity: "7 days", price: 300 },
-    { id: "m3", size: "2GB", validity: "30 days", price: 500 },
-    { id: "m4", size: "5GB", validity: "30 days", price: 1000 },
-    { id: "m5", size: "10GB", validity: "30 days", price: 2000 },
-    { id: "m6", size: "20GB", validity: "30 days", price: 3500 },
-  ],
-  airtel: [
-    { id: "a1", size: "500MB", validity: "1 day", price: 150 },
-    { id: "a2", size: "1.5GB", validity: "7 days", price: 350 },
-    { id: "a3", size: "3GB", validity: "30 days", price: 600 },
-    { id: "a4", size: "6GB", validity: "30 days", price: 1000 },
-    { id: "a5", size: "10GB", validity: "30 days", price: 1800 },
-    { id: "a6", size: "15GB", validity: "30 days", price: 2500 },
-  ],
-  glo: [
-    { id: "g1", size: "500MB", validity: "1 day", price: 100 },
-    { id: "g2", size: "1.5GB", validity: "7 days", price: 250 },
-    { id: "g3", size: "3.6GB", validity: "30 days", price: 500 },
-    { id: "g4", size: "7.5GB", validity: "30 days", price: 1000 },
-    { id: "g5", size: "12GB", validity: "30 days", price: 1500 },
-    { id: "g6", size: "25GB", validity: "30 days", price: 2500 },
-  ],
-  "9mobile": [
-    { id: "e1", size: "300MB", validity: "1 day", price: 100 },
-    { id: "e2", size: "1GB", validity: "7 days", price: 300 },
-    { id: "e3", size: "2GB", validity: "30 days", price: 500 },
-    { id: "e4", size: "5GB", validity: "30 days", price: 1000 },
-    { id: "e5", size: "10GB", validity: "30 days", price: 2000 },
-    { id: "e6", size: "15GB", validity: "30 days", price: 3000 },
-  ],
-};
-
-const QUICK_AMOUNTS = [100, 200, 500, 1000, 2000, 5000];
-
-const RECENT_NUMBERS = ["08012345678", "08098765432", "07011223344"];
-
-function NetworkLogo({ id, size = 36 }: { id: string; size?: number }) {
-  if (id === "mtn") {
-    return (
-      <Svg width={size} height={size} viewBox="0 0 40 40">
-        <Rect width="40" height="40" rx="8" fill="#FFD700" />
-        <Path d="M6 28L14 14l6 10 6-10 8 14" stroke="#001489" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      </Svg>
-    );
-  }
-  if (id === "airtel") {
-    return (
-      <Svg width={size} height={size} viewBox="0 0 40 40">
-        <Rect width="40" height="40" rx="8" fill="#E63946" />
-        <Path d="M10 25c5-10 15-10 20 0" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" fill="none" />
-        <Path d="M14 20c3-6 9-6 12 0" stroke="#fff" strokeWidth="3" strokeLinecap="round" fill="none" />
-        <Circle cx="20" cy="27" r="2.5" fill="#fff" />
-      </Svg>
-    );
-  }
-  if (id === "glo") {
-    return (
-      <Svg width={size} height={size} viewBox="0 0 40 40">
-        <Rect width="40" height="40" rx="8" fill="#00B140" />
-        <Circle cx="20" cy="20" r="10" stroke="#fff" strokeWidth="3" fill="none" />
-        <Path d="M20 10 A10 10 0 0 1 30 20 L24 20" stroke="#fff" strokeWidth="3" strokeLinecap="round" fill="none" />
-        <Circle cx="20" cy="20" r="3" fill="#fff" />
-      </Svg>
-    );
-  }
+/* ─── HistoryIcon inline SVG ─────────────────────────── */
+function HistoryIcon({ size = 20, color }: { size?: number; color: string }) {
+  const Svg = require("react-native-svg").default;
+  const Path = require("react-native-svg").Path;
   return (
-    <Svg width={size} height={size} viewBox="0 0 40 40">
-      <Rect width="40" height="40" rx="8" fill="#007A3D" />
-      <Path d="M12 28 Q20 10 28 28" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-      <Circle cx="20" cy="15" r="3" fill="#fff" />
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M3 12A9 9 0 1 0 12 3M3 12H7M3 12V8"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"
+      />
+      <Path
+        d="M12 7.5V12.5L15 14.5"
+        stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none"
+      />
     </Svg>
   );
 }
@@ -108,279 +50,234 @@ function NetworkLogo({ id, size = 36 }: { id: string; size?: number }) {
 export default function AirtimeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { addTransaction, user } = useApp();
-  const [tab, setTab] = useState<Tab>("airtime");
-  const [network, setNetwork] = useState("mtn");
-  const [phone, setPhone] = useState(user?.phone ?? "");
-  const [amount, setAmount] = useState("");
-  const [bundle, setBundle] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+  const { user, beneficiaries, addTransaction, login } = useApp();
+  const isDark = colors.background !== "#F4F5F7";
 
-  const selectedNet = NETWORKS.find((n) => n.id === network)!;
-  const bundles = DATA_BUNDLES[network] ?? [];
-  const selectedBundle = bundles.find((b) => b.id === bundle);
+  const topPad    = insets.top    + (Platform.OS === "web" ? 67 : 0);
+  const bottomPad = insets.bottom + (Platform.OS === "web" ? 34 : 0) + 24;
 
-  const handleBuy = async () => {
+  const [phone, setPhone]       = useState("");
+  const [amount, setAmount]     = useState("");
+  const [customAmount, setCustom] = useState("");
+  const [showPin, setShowPin]   = useState(false);
+  const [loading, setLoading]   = useState(false);
+
+  const networkId = phone.length >= 4 ? detectNetwork(phone) : null;
+  const numAmount = parseInt(amount || customAmount || "0", 10);
+  const canProceed = phone.length >= 10 && numAmount >= 50;
+
+  /* Summary fade in */
+  const summaryOpacity = useSharedValue(0);
+  const summaryStyle = useAnimatedStyle(() => ({ opacity: summaryOpacity.value }));
+  React.useEffect(() => {
+    summaryOpacity.value = withTiming(canProceed ? 1 : 0, { duration: 200 });
+  }, [canProceed]);
+
+  /**
+   * Filter to entries whose `account` looks like a Nigerian mobile number
+   * (10 digits starting with 0, or 13 chars starting with 234).
+   * Bank account numbers (10 digits NOT starting with 0) are excluded.
+   */
+  const isPhoneNumber = (s: string) => {
+    const d = s.replace(/\D/g, "");
+    return (d.length === 11 && d.startsWith("0")) ||
+           (d.length === 13 && d.startsWith("234"));
+  };
+  const recentBenefs = beneficiaries
+    .filter((b) => isPhoneNumber(b.account))
+    .slice(0, 6)
+    .map((b) => ({
+      id: b.id,
+      name: b.name,
+      phone: b.account.replace(/\D/g, ""),
+      avatarColor: b.avatarColor,
+    }));
+
+  async function handlePinSuccess() {
+    setShowPin(false);
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
-    const isAirtime = tab === "airtime";
+    await new Promise((r) => setTimeout(r, 1400));
     addTransaction({
-      title: isAirtime ? `${selectedNet.name} Airtime` : `${selectedNet.name} Data`,
-      subtitle: isAirtime
-        ? `₦${Number(amount).toLocaleString()} to ${phone}`
-        : `${selectedBundle?.size} to ${phone}`,
-      amount: isAirtime ? Number(amount) : (selectedBundle?.price ?? 0),
+      title: `${networkId ? networkId.toUpperCase() : "MTN"} Airtime`,
+      subtitle: `₦${numAmount.toLocaleString()} to ${phone}`,
+      amount: numAmount,
       type: "debit",
       status: "success",
-      category: isAirtime ? "Airtime" : "Data",
-      avatarColor: selectedNet.color,
+      category: "Airtime",
+      avatarColor: networkId === "mtn" ? "#FFC300" :
+                   networkId === "airtel" ? "#E63946" :
+                   networkId === "glo" ? "#00B140" : "#00A550",
     });
     setLoading(false);
-    setSuccess(true);
-  };
-
-  const canSubmit = tab === "airtime"
-    ? phone.length >= 10 && Number(amount) > 0
-    : phone.length >= 10 && !!bundle;
+    router.replace({
+      pathname: "/airtime/success",
+      params: {
+        phone,
+        amount: String(numAmount),
+        network: networkId ?? "mtn",
+        type: "airtime",
+      },
+    });
+  }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar style={colors.background !== "#F4F5F7" ? "light" : "dark"} />
+    <View style={[styles.root, { backgroundColor: colors.background }]}>
+      <StatusBar style={isDark ? "light" : "dark"} />
 
-      <View style={[styles.header, { paddingTop: topPad + 12 }]}>
+      {/* ── Header ────────────────────────────────────── */}
+      <View style={[styles.header, { paddingTop: topPad + 10 }]}>
         <TouchableOpacity
           onPress={() => router.back()}
-          style={[styles.backBtn, { backgroundColor: colors.surface }]}
+          style={[styles.headerBtn, { backgroundColor: isDark ? "#111111" : colors.surfaceHigh }]}
+          hitSlop={8}
         >
           <TpIcon name="arrow-left" size={20} color={colors.text} strokeWidth={2} />
         </TouchableOpacity>
+
         <Text style={[styles.headerTitle, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
-          Airtime & Data
+          Buy Airtime
         </Text>
-        <View style={{ width: 40 }} />
+
+        <TouchableOpacity
+          style={[styles.headerBtn, { backgroundColor: isDark ? "#111111" : colors.surfaceHigh }]}
+          hitSlop={8}
+        >
+          <HistoryIcon size={18} color={colors.mutedForeground} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scroll, { paddingBottom: bottomPad }]}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Tab switcher */}
-        <View style={[styles.tabs, { backgroundColor: colors.surface }]}>
-          {(["airtime", "data"] as Tab[]).map((t) => (
-            <Pressable
-              key={t}
-              onPress={() => setTab(t)}
-              style={[
-                styles.tab,
-                tab === t && { backgroundColor: colors.primary },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.tabText,
-                  {
-                    color: tab === t ? "#fff" : colors.mutedForeground,
-                    fontFamily: tab === t ? "Inter_600SemiBold" : "Inter_500Medium",
-                  },
-                ]}
-              >
-                {t === "airtime" ? "Airtime" : "Data"}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
-        {/* Networks */}
-        <View>
+        {/* ── Phone section ─────────────────────────── */}
+        <View style={styles.section}>
           <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-            Select Network
+            Enter phone number
           </Text>
-          <View style={styles.networks}>
-            {NETWORKS.map((net) => (
-              <Pressable
-                key={net.id}
-                onPress={() => { setNetwork(net.id); setBundle(""); }}
-                style={[
-                  styles.networkCard,
-                  {
-                    backgroundColor: network === net.id ? net.color + "20" : colors.card,
-                    borderColor: network === net.id ? net.color : colors.border,
-                  },
-                ]}
-              >
-                <NetworkLogo id={net.id} size={40} />
-                <Text
-                  style={[
-                    styles.networkName,
-                    {
-                      color: network === net.id ? net.color : colors.text,
-                      fontFamily: "Inter_600SemiBold",
-                    },
-                  ]}
-                >
-                  {net.name}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-
-        {/* Phone number */}
-        <View>
-          <Input
-            label="Phone Number"
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-            placeholder="08012345678"
-            prefixIcon={<TpIcon name="phone" size={18} color={colors.placeholder} strokeWidth={1.8} />}
+          <PhoneCard
+            phone={phone}
+            onChangePhone={setPhone}
+            selfPhone={user?.phone ?? undefined}
+            onSelfPress={() => setPhone(user?.phone?.replace(/\D/g, "") ?? "")}
+            onContactPress={() => {}}
           />
-          {RECENT_NUMBERS.length > 0 && (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 10 }}>
-              <View style={{ flexDirection: "row", gap: 8 }}>
-                {RECENT_NUMBERS.map((num) => (
-                  <Pressable
-                    key={num}
-                    onPress={() => setPhone(num)}
-                    style={[styles.recentChip, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                  >
-                    <TpIcon name="phone" size={12} color={colors.mutedForeground} strokeWidth={1.8} />
-                    <Text style={[styles.recentText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                      {num}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </ScrollView>
-          )}
         </View>
 
-        {/* Airtime amount */}
-        {tab === "airtime" && (
-          <View>
+        {/* ── Recent beneficiaries ──────────────────── */}
+        <View style={styles.sectionNoPad}>
+          <View style={styles.sectionHeaderPad}>
             <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-              Amount (₦)
+              Select beneficiary
             </Text>
-            <View style={styles.quickAmounts}>
-              {QUICK_AMOUNTS.map((a) => (
-                <Pressable
-                  key={a}
-                  onPress={() => setAmount(String(a))}
-                  style={[
-                    styles.quickChip,
-                    {
-                      backgroundColor: amount === String(a) ? colors.primary + "20" : colors.surface,
-                      borderColor: amount === String(a) ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.quickChipText,
-                      {
-                        color: amount === String(a) ? colors.primary : colors.mutedForeground,
-                        fontFamily: "Inter_500Medium",
-                      },
-                    ]}
-                  >
-                    ₦{a.toLocaleString()}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-            <Input
-              placeholder="Or enter custom amount"
-              value={amount}
-              onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ""))}
+            <TouchableOpacity>
+              <Text style={[styles.viewAll, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>
+                All beneficiaries
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <BeneficiaryStrip
+            beneficiaries={recentBenefs}
+            onSelect={(p) => setPhone(p)}
+            selectedPhone={phone}
+          />
+        </View>
+
+        {/* ── Amount section ────────────────────────── */}
+        <View style={styles.sectionNoPad}>
+          <View style={styles.sectionHeaderPad}>
+            <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+              Select amount
+            </Text>
+          </View>
+          <AmountChips
+            selected={amount}
+            onSelect={(a) => { setAmount(a); setCustom(""); }}
+          />
+        </View>
+
+        {/* Custom amount input */}
+        <View style={styles.customInputWrap}>
+          <View style={[styles.customInput, {
+            backgroundColor: colors.card,
+            borderColor: customAmount ? colors.primary + "80" : colors.border,
+          }]}>
+            <Text style={[styles.naira, { color: colors.placeholder, fontFamily: "Inter_400Regular" }]}>₦</Text>
+            <TextInput
+              value={customAmount}
+              onChangeText={(t) => { setCustom(t.replace(/[^0-9]/g, "")); setAmount(""); }}
+              placeholder="Custom amount"
+              placeholderTextColor={colors.placeholder}
               keyboardType="number-pad"
-              prefixIcon={<Text style={{ color: colors.placeholder, fontSize: 16, fontFamily: "Inter_400Regular" }}>₦</Text>}
+              style={[styles.customField, { color: colors.text, fontFamily: "Inter_500Medium" }]}
+              cursorColor={colors.primary}
             />
           </View>
+        </View>
+
+        {/* ── Summary ───────────────────────────────── */}
+        {canProceed && (
+          <Animated.View style={[styles.sectionPad, summaryStyle]}>
+            <SummaryCard
+              networkId={networkId}
+              phone={phone}
+              purchaseType="Airtime"
+              amount={numAmount}
+              payFrom={`TrustPoint · ${user?.accountNumber?.slice(-4) ?? "****"}`}
+            />
+          </Animated.View>
         )}
 
-        {/* Data bundles */}
-        {tab === "data" && (
-          <View>
-            <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-              Select Bundle
+        {/* ── More actions ──────────────────────────── */}
+        <View style={styles.sectionPad}>
+          <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+            More actions
+          </Text>
+          <View style={[styles.moreCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <TpIcon name="phone" size={18} color={colors.mutedForeground} strokeWidth={1.8} />
+            <Text style={[styles.moreText, { color: colors.text, fontFamily: "Inter_500Medium" }]}>
+              No Network? Dial *5573*3# for airtime
             </Text>
-            <View style={styles.bundles}>
-              {bundles.map((b) => (
-                <Pressable
-                  key={b.id}
-                  onPress={() => setBundle(b.id)}
-                  style={[
-                    styles.bundleCard,
-                    {
-                      backgroundColor: bundle === b.id ? colors.primary + "15" : colors.card,
-                      borderColor: bundle === b.id ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.bundleSize,
-                      {
-                        color: bundle === b.id ? colors.primary : colors.text,
-                        fontFamily: "Inter_700Bold",
-                      },
-                    ]}
-                  >
-                    {b.size}
-                  </Text>
-                  <Text style={[styles.bundleValidity, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    {b.validity}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.bundlePrice,
-                      {
-                        color: bundle === b.id ? colors.primary : colors.text,
-                        fontFamily: "Inter_600SemiBold",
-                      },
-                    ]}
-                  >
-                    ₦{b.price.toLocaleString()}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
+            <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2.2} />
           </View>
-        )}
-
-          <Button
-            onPress={handleBuy}
-            loading={loading}
-            disabled={!canSubmit}
-            fullWidth
-            size="large"
-          >
-            {tab === "airtime"
-              ? `Buy Airtime${amount ? ` — ₦${Number(amount).toLocaleString()}` : ""}`
-              : `Buy ${selectedBundle ? selectedBundle.size : "Data"}${selectedBundle ? ` — ₦${selectedBundle.price.toLocaleString()}` : ""}`
-            }
-          </Button>
+        </View>
       </ScrollView>
 
-      <SuccessModal
-        visible={success}
-        title={tab === "airtime" ? "Airtime Purchased!" : "Data Purchased!"}
-        subtitle={
-          tab === "airtime"
-            ? `₦${Number(amount).toLocaleString()} to ${phone}`
-            : `${selectedBundle?.size ?? ""} to ${phone}`
-        }
-        onDismiss={() => { setSuccess(false); setAmount(""); setBundle(""); }}
+      {/* ── CTA ───────────────────────────────────────── */}
+      <View style={[styles.cta, {
+        paddingBottom: bottomPad,
+        backgroundColor: colors.background,
+        borderTopColor: colors.border,
+      }]}>
+        <Button
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setShowPin(true); }}
+          disabled={!canProceed}
+          loading={loading}
+          fullWidth
+          size="large"
+        >
+          {canProceed
+            ? `Buy ₦${numAmount.toLocaleString()} Airtime`
+            : "Buy Airtime"}
+        </Button>
+      </View>
+
+      {/* ── PIN sheet ────────────────────────────────── */}
+      <PinSheet
+        visible={showPin}
+        title="Authorize Airtime Purchase"
+        subtitle={`Enter your 4-digit PIN to buy ₦${numAmount.toLocaleString()} airtime`}
+        onDismiss={() => setShowPin(false)}
+        onSuccess={handlePinSuccess}
+        validatePin={async (p) => login(p)}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  root:   { flex: 1 },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -388,71 +285,52 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 16,
   },
-  backBtn: { width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center" },
-  headerTitle: { fontSize: 18, letterSpacing: -0.5 },
-  scroll: { paddingHorizontal: 20, gap: 20, paddingTop: 4 },
-  tabs: {
+  headerBtn: {
+    width: 38, height: 38, borderRadius: 19,
+    alignItems: "center", justifyContent: "center",
+  },
+  headerTitle: { fontSize: 18, letterSpacing: -0.4 },
+  scroll: { gap: 22, paddingTop: 4 },
+
+  section:       { paddingHorizontal: 20, gap: 12 },
+  sectionNoPad:  { gap: 12 },
+  sectionPad:    { paddingHorizontal: 20, gap: 12 },
+  sectionHeaderPad: {
     flexDirection: "row",
-    borderRadius: 14,
-    padding: 4,
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 11,
+    justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
-  tabText: { fontSize: 14 },
-  sectionLabel: { fontSize: 13, marginBottom: 10 },
-  networks: { flexDirection: "row", gap: 10 },
-  networkCard: {
-    flex: 1,
-    alignItems: "center",
-    gap: 8,
-    paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1.5,
-  },
-  networkName: { fontSize: 12 },
-  recentChip: {
+  sectionLabel: { fontSize: 13 },
+  viewAll:      { fontSize: 13 },
+
+  customInputWrap: { paddingHorizontal: 20 },
+  customInput: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 20,
+    borderRadius: 14,
     borderWidth: 1,
-  },
-  recentText: { fontSize: 12 },
-  quickAmounts: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
-  quickChip: {
     paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
+    paddingVertical: 13,
+    gap: 6,
   },
-  quickChipText: { fontSize: 13 },
-  bundles: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  bundleCard: {
-    width: "30%",
-    flex: 1,
-    minWidth: "28%",
-    padding: 12,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    gap: 4,
-    alignItems: "center",
-  },
-  bundleSize: { fontSize: 16 },
-  bundleValidity: { fontSize: 11 },
-  bundlePrice: { fontSize: 13 },
-  successBox: {
+  naira:       { fontSize: 18 },
+  customField: { flex: 1, fontSize: 18, padding: 0 },
+
+  moreCard: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    padding: 16,
+    gap: 12,
     borderRadius: 14,
     borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
   },
-  successText: { fontSize: 15 },
+  moreText: { flex: 1, fontSize: 13, lineHeight: 19 },
+
+  cta: {
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+  },
 });
