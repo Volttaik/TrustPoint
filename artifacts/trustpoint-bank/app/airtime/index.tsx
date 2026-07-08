@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -62,7 +63,10 @@ export default function AirtimeScreen() {
   const summaryOpacity = useSharedValue(0);
   const summaryStyle   = useAnimatedStyle(() => ({ opacity: summaryOpacity.value }));
   useEffect(() => {
-    summaryOpacity.value = withTiming(canProceed ? 1 : 0, { duration: 200 });
+    summaryOpacity.value = withTiming(canProceed ? 1 : 0, {
+      duration: 260,
+      easing: Easing.out(Easing.cubic),
+    });
   }, [canProceed]);
 
   /* Beneficiaries: phone-pattern entries only */

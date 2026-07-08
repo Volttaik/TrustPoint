@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -60,7 +61,7 @@ export default function DataScreen() {
   const summaryOpacity = useSharedValue(0);
   const summaryStyle   = useAnimatedStyle(() => ({ opacity: summaryOpacity.value }));
   useEffect(() => {
-    summaryOpacity.value = withTiming(canProceed ? 1 : 0, { duration: 220 });
+    summaryOpacity.value = withTiming(canProceed ? 1 : 0, { duration: 260, easing: Easing.out(Easing.cubic) });
   }, [canProceed]);
 
   /* Simulate plan loading on category/network change */

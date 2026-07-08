@@ -61,8 +61,8 @@ function NetworkChip({
     <Animated.View style={aStyle}>
       <Pressable
         onPress={onPress}
-        onPressIn={() => { scale.value = withSpring(0.93, { damping: 12, stiffness: 260 }); }}
-        onPressOut={() => { scale.value = withSpring(1,    { damping: 12, stiffness: 260 }); }}
+        onPressIn={() => { scale.value = withSpring(0.94, { damping: 18, stiffness: 320 }); }}
+        onPressOut={() => { scale.value = withSpring(1,    { damping: 18, stiffness: 320 }); }}
         style={[
           styles.chip,
           {

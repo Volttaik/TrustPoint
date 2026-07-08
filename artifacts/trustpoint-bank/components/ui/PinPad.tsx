@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
@@ -36,12 +37,14 @@ export function PinPad({
 
   useEffect(() => {
     if (shake) {
+      const ease = Easing.out(Easing.quad);
       shakeAnim.value = withSequence(
-        withTiming(-10, { duration: 60 }),
-        withTiming(10,  { duration: 60 }),
-        withTiming(-10, { duration: 60 }),
-        withTiming(10,  { duration: 60 }),
-        withTiming(0,   { duration: 60 }),
+        withTiming(-9, { duration: 55, easing: ease }),
+        withTiming(9,  { duration: 55, easing: ease }),
+        withTiming(-7, { duration: 50, easing: ease }),
+        withTiming(7,  { duration: 50, easing: ease }),
+        withTiming(-4, { duration: 40, easing: ease }),
+        withTiming(0,  { duration: 40, easing: ease }),
       );
     }
   }, [shake]);
@@ -111,8 +114,8 @@ function PinKey({ label, onPress, textColor, bgColor }: any) {
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onPress}
-        onPressIn={() => { scale.value = withSpring(0.9, { damping: 10, stiffness: 300 }); }}
-        onPressOut={() => { scale.value = withSpring(1,   { damping: 10, stiffness: 300 }); }}
+        onPressIn={() => { scale.value = withSpring(0.91, { damping: 16, stiffness: 340 }); }}
+        onPressOut={() => { scale.value = withSpring(1,    { damping: 16, stiffness: 340 }); }}
         style={[styles.keyInner, { backgroundColor: bgColor }]}
       >
         {label === "del" ? (

@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { TpIcon } from "@/components/TpIcon";
 import Animated, {
+  Easing,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -31,12 +32,13 @@ export default function AuthLandingScreen() {
   const btnsOpacity   = useSharedValue(0);
 
   useEffect(() => {
-    logoOpacity.value   = withTiming(1, { duration: 560 });
-    logoTranslate.value = withTiming(0, { duration: 560 });
-    textOpacity.value   = withDelay(220, withTiming(1, { duration: 500 }));
-    textTranslate.value = withDelay(220, withTiming(0, { duration: 500 }));
-    iconsOpacity.value  = withDelay(380, withTiming(1, { duration: 520 }));
-    btnsOpacity.value   = withDelay(500, withTiming(1, { duration: 500 }));
+    const ease = Easing.out(Easing.cubic);
+    logoOpacity.value   = withTiming(1, { duration: 640, easing: ease });
+    logoTranslate.value = withTiming(0, { duration: 640, easing: ease });
+    textOpacity.value   = withDelay(180, withTiming(1, { duration: 580, easing: ease }));
+    textTranslate.value = withDelay(180, withTiming(0, { duration: 580, easing: ease }));
+    iconsOpacity.value  = withDelay(340, withTiming(1, { duration: 600, easing: ease }));
+    btnsOpacity.value   = withDelay(460, withTiming(1, { duration: 560, easing: ease }));
   }, []);
 
   const logoStyle  = useAnimatedStyle(() => ({ opacity: logoOpacity.value,  transform: [{ translateY: logoTranslate.value }] }));

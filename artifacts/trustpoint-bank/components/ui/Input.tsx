@@ -43,10 +43,6 @@ export function Input({
     onBlurProp?.(e);
   }, [onBlurProp]);
 
-  const bg = focused
-    ? colors.inputBackground === "#FFFFFF" ? "#EBEBED" : "#1E2022"
-    : colors.inputBackground;
-
   return (
     <View style={{ width: "100%" }}>
       {label && (
@@ -58,7 +54,9 @@ export function Input({
         style={[
           styles.container,
           {
-            backgroundColor: bg,
+            backgroundColor: colors.inputBackground,
+            borderWidth: 1,
+            borderColor: focused ? colors.primary + "60" : "transparent",
           },
         ]}
       >
@@ -107,6 +105,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     letterSpacing: -0.2,
     outlineStyle: "none",
+    outlineWidth: 0,
+    outline: "none",
   } as any,
   prefix: { marginRight: 10 },
   suffix: { marginLeft: 10, padding: 4 },

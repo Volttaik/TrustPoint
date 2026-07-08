@@ -27,8 +27,8 @@ export function PlanCard({ plan, selected, onPress }: Props) {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           onPress();
         }}
-        onPressIn={() => { scale.value = withSpring(0.96, { damping: 14, stiffness: 220 }); }}
-        onPressOut={() => { scale.value = withSpring(1,    { damping: 14, stiffness: 220 }); }}
+        onPressIn={() => { scale.value = withSpring(0.96, { damping: 18, stiffness: 280 }); }}
+        onPressOut={() => { scale.value = withSpring(1,    { damping: 18, stiffness: 280 }); }}
         style={[
           styles.card,
           {
@@ -111,29 +111,29 @@ const styles = StyleSheet.create({
   wrap: { flexBasis: "48%", flexGrow: 0, flexShrink: 0 },
   card: {
     borderRadius: 14,
-    padding: 12,
-    gap: 3,
-    minHeight: 108,
+    padding: 11,
+    gap: 2,
+    minHeight: 96,
   },
   cashbackBadge: {
     alignSelf: "flex-start",
     backgroundColor: "#7C3AED22",
     borderRadius: 20,
-    paddingHorizontal: 7,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    marginBottom: 5,
+    marginBottom: 4,
   },
   cashbackText: { fontSize: 9, color: "#7C3AED" },
   popularBadge: {
     alignSelf: "flex-start",
     borderRadius: 20,
-    paddingHorizontal: 7,
+    paddingHorizontal: 6,
     paddingVertical: 2,
-    marginBottom: 5,
+    marginBottom: 4,
   },
   popularText: { fontSize: 9 },
-  size:     { fontSize: 15, letterSpacing: -0.3 },
-  price:    { fontSize: 13, letterSpacing: -0.2 },
+  size:     { fontSize: 14, letterSpacing: -0.3 },
+  price:    { fontSize: 12, letterSpacing: -0.2 },
   validity: { fontSize: 10, marginTop: 1 },
   desc:     { fontSize: 9,  lineHeight: 13, marginTop: 1 },
   bonusTag: {

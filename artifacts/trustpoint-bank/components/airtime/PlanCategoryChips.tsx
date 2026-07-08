@@ -50,8 +50,8 @@ function CategoryChip({
     <Animated.View style={aStyle}>
       <Pressable
         onPress={onPress}
-        onPressIn={() => { scale.value = withSpring(0.91, { damping: 14, stiffness: 260 }); }}
-        onPressOut={() => { scale.value = withSpring(1,    { damping: 14, stiffness: 260 }); }}
+        onPressIn={() => { scale.value = withSpring(0.93, { damping: 18, stiffness: 320 }); }}
+        onPressOut={() => { scale.value = withSpring(1,    { damping: 18, stiffness: 320 }); }}
         style={[
           styles.chip,
           {
