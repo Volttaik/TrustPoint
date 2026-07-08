@@ -15,6 +15,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { TpSpinner } from "@/components/ui/TpSpinner";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -44,8 +45,11 @@ export default function AirtimeScreen() {
   const [manualNetId, setManualNetId] = useState<NetworkId | null>(null);
   const [amount, setAmount]         = useState("");
   const [customAmount, setCustom]   = useState("");
-  const [showPin, setShowPin]       = useState(false);
-  const [loading, setLoading]       = useState(false);
+  const [showPin, setShowPin]         = useState(false);
+  const [loading, setLoading]         = useState(false);
+  const [overlayVisible, setOverlay]  = useState(false);
+  const overlayOpacity = useSharedValue(0);
+  const overlayStyle   = useAnimatedStyle(() => ({ opacity: overlayOpacity.value }));
 
   /* Resolved network: manual override wins over auto-detection */
   const autoNetId = phone.length >= 4 ? detectNetwork(phone) : null;
@@ -82,7 +86,13 @@ export default function AirtimeScreen() {
   async function handlePinSuccess() {
     setShowPin(false);
     setLoading(true);
+
+    // Show branded processing overlay so the transition to success feels seamless
+    setOverlay(true);
+    overlayOpacity.value = withTiming(1, { duration: 260 });
+
     await new Promise((r) => setTimeout(r, 1400));
+
     addTransaction({
       title: `${netId ? netId.toUpperCase() : "MTN"} Airtime`,
       subtitle: `₦${numAmount.toLocaleString()} to ${phone}`,
@@ -92,7 +102,13 @@ export default function AirtimeScreen() {
       category: "Airtime",
       avatarColor: netId === "mtn" ? "#FFC300" : netId === "airtel" ? "#E63946" : netId === "glo" ? "#00B140" : "#00A550",
     });
+
+    // Gentle fade-out before navigating so we don't flash between screens
+    overlayOpacity.value = withTiming(0, { duration: 200 });
+    await new Promise((r) => setTimeout(r, 190));
+
     setLoading(false);
+    setOverlay(false);
     router.replace({ pathname: "/airtime/success", params: { phone, amount: String(numAmount), network: netId ?? "mtn", type: "airtime" } });
   }
 
@@ -266,6 +282,19 @@ export default function AirtimeScreen() {
         onSuccess={handlePinSuccess}
         validatePin={async (p) => login(p)}
       />
+
+      {/* Processing overlay — fades in after PIN, fades out before success screen */}
+      {overlayVisible && (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.processingOverlay, overlayStyle]}
+          pointerEvents="none"
+        >
+          <TpSpinner size="large" />
+          <Text style={[styles.processingText, { color: "#F1FAEE", fontFamily: "Inter_500Medium" }]}>
+            Processing…
+          </Text>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -354,5 +383,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
+  },
+
+  processingOverlay: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+    backgroundColor: "rgba(0,0,0,0.88)",
+    zIndex: 200,
+  },
+  processingText: {
+    fontSize: 16,
+    letterSpacing: -0.3,
   },
 });

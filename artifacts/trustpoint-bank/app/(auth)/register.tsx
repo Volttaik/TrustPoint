@@ -11,9 +11,12 @@ import {
   View,
 } from "react-native";
 import Animated, {
+  Easing,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
+  withSpring,
   withTiming,
 } from "react-native-reanimated";
 import { router } from "expo-router";
@@ -81,6 +84,39 @@ const pwdChecks = (p: string) => ({
   num:   /\d/.test(p),
 });
 
+// ── Animated password-requirement row ────────────────────────────────────────
+// The check icon does a quick pop-bounce the first time a criterion is satisfied,
+// giving tactile feedback that the rule has been met.
+function AnimatedReqRow({ label, ok }: { label: string; ok: boolean }) {
+  const iconScale = useSharedValue(1);
+  const prevOk    = React.useRef(false);
+
+  React.useEffect(() => {
+    if (ok && !prevOk.current) {
+      iconScale.value = withSequence(
+        withTiming(1.45, { duration: 90 }),
+        withSpring(1, { damping: 9, stiffness: 260 }),
+      );
+    }
+    prevOk.current = ok;
+  }, [ok]);
+
+  const iconStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale.value }],
+  }));
+
+  return (
+    <View style={styles.reqRow}>
+      <Animated.View style={iconStyle}>
+        <TpIcon name="check-circle" size={14} color={ok ? "#2FBE73" : "#333"} strokeWidth={2} />
+      </Animated.View>
+      <Text style={[styles.reqText, { color: ok ? "#2FBE73" : "#555", fontFamily: "Inter_400Regular" }]}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 export default function RegisterScreen() {
   const insets = useSafeAreaInsets();
   const { registerUser } = useApp();
@@ -130,7 +166,7 @@ export default function RegisterScreen() {
   const [selectedBank, setSelectedBank] = useState<string | undefined>();
   const [bankSearch, setBankSearch]     = useState("");
 
-  // Animated shake
+  // ── Shake animation (validation error feedback) ───────────────────
   const shakeX = useSharedValue(0);
   const doShake = useCallback(() => {
     shakeX.value = withSequence(
@@ -143,11 +179,37 @@ export default function RegisterScreen() {
   }, []);
   const shakeStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shakeX.value }] }));
 
-  const advance = () => {
-    setError("");
-    scrollRef.current?.scrollTo({ y: 0, animated: false });
-    setStep((s) => s + 1);
-  };
+  // ── Step transition animation (slide + fade between steps) ────────
+  const stepOpacity = useSharedValue(1);
+  const stepSlideX  = useSharedValue(0);
+  const stepAnimStyle = useAnimatedStyle(() => ({
+    opacity: stepOpacity.value,
+    transform: [{ translateX: stepSlideX.value }],
+  }));
+
+  // Stable JS callbacks for use inside Reanimated worklet callbacks
+  const _scrollTop  = useCallback(() => scrollRef.current?.scrollTo({ y: 0, animated: false }), []);
+  const _clearError = useCallback(() => setError(""), []);
+  const _setStep    = useCallback((n: number) => setStep(n), []);
+
+  const goToStep = useCallback((newStep: number, dir: 1 | -1) => {
+    const outX = -22 * dir;
+    const inX  =  22 * dir;
+    // Phase 1: fade + slide current content out
+    stepOpacity.value = withTiming(0, { duration: 110 });
+    stepSlideX.value  = withTiming(outX, { duration: 110 }, (finished) => {
+      if (!finished) return;
+      // Phase 2: update step while invisible, then slide in from opposite side
+      runOnJS(_scrollTop)();
+      runOnJS(_clearError)();
+      runOnJS(_setStep)(newStep);
+      stepSlideX.value  = inX;
+      stepOpacity.value = withTiming(1, { duration: 230, easing: Easing.out(Easing.cubic) });
+      stepSlideX.value  = withTiming(0, { duration: 230, easing: Easing.out(Easing.cubic) });
+    });
+  }, [_scrollTop, _clearError, _setStep]);
+
+  const advance = useCallback(() => goToStep(step + 1, 1), [step, goToStep]);
 
   const handleNext = useCallback(async () => {
     setError("");
@@ -221,14 +283,13 @@ export default function RegisterScreen() {
   };
 
   const handleBack = () => {
-    setError("");
     if (step === 3 && pinStep === "confirm") {
       setPinStep("set");
       setConfirmPin("");
       return;
     }
     if (step === 0) { router.replace("/(auth)/auth-landing"); return; }
-    setStep((s) => Math.max(0, s - 1));
+    goToStep(Math.max(0, step - 1), -1);
   };
 
   // ── PIN step handlers ─────────────────────────────────────────────
@@ -362,6 +423,7 @@ export default function RegisterScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        <Animated.View style={stepAnimStyle}>
         {/* Step heading */}
         {step !== 3 && (
           <View style={styles.stepHead}>
@@ -569,7 +631,7 @@ export default function RegisterScreen() {
               prefixIcon={<TpIcon name="lock" size={18} color="#555" strokeWidth={1.8} />}
             />
 
-            {/* Requirements */}
+            {/* Requirements — each row bounces its icon when the criterion is met */}
             <View style={styles.reqBlock}>
               {[
                 { label: "At least 8 characters", ok: checks.len },
@@ -577,17 +639,7 @@ export default function RegisterScreen() {
                 { label: "One lowercase letter",  ok: checks.lower },
                 { label: "One number",            ok: checks.num },
               ].map((r) => (
-                <View key={r.label} style={styles.reqRow}>
-                  <TpIcon
-                    name="check-circle"
-                    size={14}
-                    color={r.ok ? "#2FBE73" : "#333"}
-                    strokeWidth={2}
-                  />
-                  <Text style={[styles.reqText, { color: r.ok ? "#2FBE73" : "#555", fontFamily: "Inter_400Regular" }]}>
-                    {r.label}
-                  </Text>
-                </View>
+                <AnimatedReqRow key={r.label} label={r.label} ok={r.ok} />
               ))}
             </View>
 
@@ -708,6 +760,8 @@ export default function RegisterScreen() {
             ) : null}
           </View>
         )}
+
+        </Animated.View>
 
         {/* Bottom button spacer */}
         <View style={{ height: isContinueBtnStep ? 120 : 40 }} />
