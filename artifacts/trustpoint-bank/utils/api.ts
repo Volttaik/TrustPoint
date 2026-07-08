@@ -1,6 +1,11 @@
 import { Platform } from "react-native";
 
-const BASE = `https://${process.env.EXPO_PUBLIC_DOMAIN ?? "localhost"}`;
+// On web, use a relative URL so the static server can proxy /api to the API
+// server. On native, use the full domain from EXPO_PUBLIC_DOMAIN.
+const BASE =
+  Platform.OS === "web"
+    ? ""
+    : `https://${process.env.EXPO_PUBLIC_DOMAIN ?? "localhost"}`;
 
 export const API_BASE = `${BASE}/api/bank`;
 

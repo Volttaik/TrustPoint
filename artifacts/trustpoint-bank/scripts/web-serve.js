@@ -4,6 +4,7 @@ const path = require("path");
 
 const DIST = path.join(__dirname, "..", "dist");
 const PORT = parseInt(process.env.PORT || "5000", 10);
+const API_PORT = 8080;
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -22,14 +23,40 @@ const MIME = {
   ".woff2": "font/woff2",
 };
 
+function proxyToApi(req, res) {
+  const options = {
+    hostname: "127.0.0.1",
+    port: API_PORT,
+    path: req.url,
+    method: req.method,
+    headers: req.headers,
+  };
+
+  const proxy = http.request(options, (apiRes) => {
+    res.writeHead(apiRes.statusCode, apiRes.headers);
+    apiRes.pipe(res, { end: true });
+  });
+
+  proxy.on("error", (err) => {
+    console.error("API proxy error:", err.message);
+    res.writeHead(502, { "content-type": "application/json" });
+    res.end(JSON.stringify({ error: "API unavailable" }));
+  });
+
+  req.pipe(proxy, { end: true });
+}
+
 const server = http.createServer((req, res) => {
-  let urlPath = (req.url || "/").split("?")[0];
+  const urlPath = (req.url || "/").split("?")[0];
+
+  // Proxy /api/* requests to the API server
+  if (urlPath.startsWith("/api/")) {
+    return proxyToApi(req, res);
+  }
+
   let filePath = path.join(DIST, urlPath === "/" ? "index.html" : urlPath);
 
-  if (
-    !fs.existsSync(filePath) ||
-    fs.statSync(filePath).isDirectory()
-  ) {
+  if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     filePath = path.join(DIST, "index.html");
   }
 
@@ -42,4 +69,5 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`TrustPoint Bank web app on http://localhost:${PORT}`);
   console.log(`Serving from: ${DIST}`);
+  console.log(`Proxying /api/* → http://localhost:${API_PORT}`);
 });
