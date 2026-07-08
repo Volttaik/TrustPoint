@@ -1,58 +1,53 @@
 import React, { useEffect } from "react";
-import { Dimensions, Image, StyleSheet, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withRepeat,
-  withSequence,
   withTiming,
 } from "react-native-reanimated";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { Text } from "react-native";
 import { useApp } from "@/context/AppContext";
 
-const { width, height } = Dimensions.get("window");
-
 export default function SplashScreen() {
-  const { isAuthenticated, user, isLoading } = useApp();
-  const logoScale = useSharedValue(0.6);
+  const { user, hasSession, isLoading } = useApp();
+
   const logoOpacity = useSharedValue(0);
-  const glowOpacity = useSharedValue(0.3);
+  const logoTranslateY = useSharedValue(20);
   const tagOpacity = useSharedValue(0);
+  const tagTranslateY = useSharedValue(10);
 
   useEffect(() => {
-    logoScale.value = withTiming(1, { duration: 900 });
-    logoOpacity.value = withTiming(1, { duration: 900 });
-    tagOpacity.value = withDelay(700, withTiming(1, { duration: 600 }));
-    glowOpacity.value = withRepeat(
-      withSequence(withTiming(0.6, { duration: 1400 }), withTiming(0.2, { duration: 1400 })),
-      -1,
-      true,
-    );
+    logoOpacity.value = withTiming(1, { duration: 800 });
+    logoTranslateY.value = withTiming(0, { duration: 800 });
+    tagOpacity.value = withDelay(600, withTiming(1, { duration: 600 }));
+    tagTranslateY.value = withDelay(600, withTiming(0, { duration: 600 }));
   }, []);
 
   useEffect(() => {
     if (isLoading) return;
     const timer = setTimeout(() => {
-      if (isAuthenticated) {
-        router.replace("/(main)");
-      } else if (user?.onboarded) {
-        router.replace("/(auth)/login");
+      if (user && hasSession) {
+        router.replace("/(auth)/pin-verify");
+      } else if (user) {
+        router.replace("/(auth)/auth-landing");
       } else {
         router.replace("/(auth)/onboarding");
       }
-    }, 2600);
+    }, 2400);
     return () => clearTimeout(timer);
-  }, [isLoading, isAuthenticated, user]);
+  }, [isLoading, user, hasSession]);
 
   const logoStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: logoScale.value }],
     opacity: logoOpacity.value,
+    transform: [{ translateY: logoTranslateY.value }],
   }));
-  const glowStyle = useAnimatedStyle(() => ({ opacity: glowOpacity.value }));
-  const tagStyle = useAnimatedStyle(() => ({ opacity: tagOpacity.value }));
+
+  const tagStyle = useAnimatedStyle(() => ({
+    opacity: tagOpacity.value,
+    transform: [{ translateY: tagTranslateY.value }],
+  }));
 
   return (
     <View style={styles.container}>
@@ -63,8 +58,6 @@ export default function SplashScreen() {
         resizeMode="cover"
       />
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
-
-      <Animated.View style={[styles.glow, glowStyle]} />
 
       <Animated.View style={[styles.logoContainer, logoStyle]}>
         <Image
@@ -90,36 +83,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  overlay: { backgroundColor: "rgba(0,0,0,0.6)" },
-  glow: {
-    position: "absolute",
-    width: 320,
-    height: 320,
-    borderRadius: 160,
-    backgroundColor: "#E63946",
-    opacity: 0.1,
-  },
+  overlay: { backgroundColor: "rgba(0,0,0,0.62)" },
   logoContainer: { alignItems: "center", gap: 6 },
-  iconImg: {
-    width: 90,
-    height: 90,
-    marginBottom: 8,
-  },
-  logoText: {
-    fontSize: 34,
-    color: "#fff",
-    letterSpacing: -1,
-  },
-  logoSub: {
-    fontSize: 13,
-    color: "#E63946",
-    letterSpacing: 6,
-  },
+  iconImg: { width: 88, height: 88, marginBottom: 10 },
+  logoText: { fontSize: 34, color: "#fff", letterSpacing: -1 },
+  logoSub: { fontSize: 13, color: "#E11D33", letterSpacing: 6 },
   tagline: {
     position: "absolute",
     bottom: 80,
     fontSize: 13,
-    color: "#ffffff55",
+    color: "#ffffff44",
     letterSpacing: 2,
   },
 });

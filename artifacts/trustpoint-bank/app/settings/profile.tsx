@@ -13,7 +13,7 @@ import { useColors } from "@/hooks/useColors";
 export default function ProfileScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, registerUser } = useApp();
+  const { user, updateUser } = useApp();
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
@@ -24,7 +24,7 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1000));
-    await registerUser({ name, email, phone, rawPin: "" });
+    await updateUser({ name, email, phone });
     setLoading(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
