@@ -68,29 +68,29 @@ export default function AuthLandingScreen() {
         </Text>
       </Animated.View>
 
-      {/* Decorative icons — scattered, pure SVG strokes, no background */}
+      {/* Decorative icons — scattered, transparent background */}
       <Animated.View style={[styles.iconsRow, iconsStyle]}>
         {/* "Secure" — medium, sits lower */}
-        <View style={[styles.iconItem, { marginTop: 32 }]}>
-          <TpIcon name="shield" size={58} color="#E11D33" strokeWidth={1.4} />
+        <View style={[styles.iconItem, { marginTop: 28 }]}>
+          <Image source={require("@/assets/icons/financial_security_nobg.png")} style={{ width: 58, height: 58 }} resizeMode="contain" />
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Secure</Text>
         </View>
 
         {/* "Fast" — largest, sits at top */}
         <View style={[styles.iconItem, { marginTop: 0 }]}>
-          <TpIcon name="zap" size={82} color="#F1FAEE" strokeWidth={1.3} />
+          <Image source={require("@/assets/icons/exchange_currency_rate_nobg.png")} style={{ width: 80, height: 80 }} resizeMode="contain" />
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Fast</Text>
         </View>
 
         {/* "Smart" — medium-large, sits lowest */}
         <View style={[styles.iconItem, { marginTop: 50 }]}>
-          <TpIcon name="trending-up" size={64} color="#888888" strokeWidth={1.5} />
+          <Image source={require("@/assets/icons/financial_goal_nobg.png")} style={{ width: 64, height: 64 }} resizeMode="contain" />
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Smart</Text>
         </View>
 
         {/* "Grow" — smallest, mid-height */}
-        <View style={[styles.iconItem, { marginTop: 16 }]}>
-          <TpIcon name="pie-chart" size={48} color="#E11D33" strokeWidth={1.6} />
+        <View style={[styles.iconItem, { marginTop: 14 }]}>
+          <Image source={require("@/assets/icons/savings_nobg.png")} style={{ width: 48, height: 48 }} resizeMode="contain" />
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Grow</Text>
         </View>
       </Animated.View>
