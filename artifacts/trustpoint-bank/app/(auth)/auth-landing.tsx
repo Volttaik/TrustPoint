@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { TpIcon } from "@/components/TpIcon";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -55,7 +56,6 @@ export default function AuthLandingScreen() {
           resizeMode="contain"
         />
         <Text style={[styles.brandName, { fontFamily: "Inter_700Bold" }]}>TrustPoint</Text>
-        <Text style={[styles.brandSub, { fontFamily: "Inter_600SemiBold" }]}>BANK</Text>
       </Animated.View>
 
       {/* Heading */}
@@ -68,22 +68,29 @@ export default function AuthLandingScreen() {
         </Text>
       </Animated.View>
 
-      {/* Decorative icons row */}
+      {/* Decorative icons — scattered, pure SVG strokes, no background */}
       <Animated.View style={[styles.iconsRow, iconsStyle]}>
-        <View style={styles.iconCard}>
-          <Image source={require("@/assets/icons/financial_security.webp")} style={styles.iconImg} resizeMode="contain" />
+        {/* "Secure" — medium, sits lower */}
+        <View style={[styles.iconItem, { marginTop: 32 }]}>
+          <TpIcon name="shield" size={58} color="#E11D33" strokeWidth={1.4} />
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Secure</Text>
         </View>
-        <View style={styles.iconCard}>
-          <Image source={require("@/assets/icons/exchange_currency_rate.webp")} style={styles.iconImg} resizeMode="contain" />
+
+        {/* "Fast" — largest, sits at top */}
+        <View style={[styles.iconItem, { marginTop: 0 }]}>
+          <TpIcon name="zap" size={82} color="#F1FAEE" strokeWidth={1.3} />
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Fast</Text>
         </View>
-        <View style={styles.iconCard}>
-          <Image source={require("@/assets/icons/financial_goal.webp")} style={styles.iconImg} resizeMode="contain" />
+
+        {/* "Smart" — medium-large, sits lowest */}
+        <View style={[styles.iconItem, { marginTop: 50 }]}>
+          <TpIcon name="trending-up" size={64} color="#888888" strokeWidth={1.5} />
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Smart</Text>
         </View>
-        <View style={styles.iconCard}>
-          <Image source={require("@/assets/icons/savings.webp")} style={styles.iconImg} resizeMode="contain" />
+
+        {/* "Grow" — smallest, mid-height */}
+        <View style={[styles.iconItem, { marginTop: 16 }]}>
+          <TpIcon name="pie-chart" size={48} color="#E11D33" strokeWidth={1.6} />
           <Text style={[styles.iconLabel, { fontFamily: "Inter_500Medium" }]}>Grow</Text>
         </View>
       </Animated.View>
@@ -131,7 +138,6 @@ const styles = StyleSheet.create({
   },
   logo: { width: 64, height: 64, marginBottom: 6 },
   brandName: { fontSize: 26, color: "#F1FAEE", letterSpacing: -0.8 },
-  brandSub:  { fontSize: 11, color: PRIMARY, letterSpacing: 5 },
 
   headingArea: {
     marginTop: 40,
@@ -151,21 +157,16 @@ const styles = StyleSheet.create({
 
   iconsRow: {
     flexDirection: "row",
-    marginTop: 40,
-    gap: 12,
+    alignItems: "flex-start",
+    marginTop: 36,
+    paddingHorizontal: 8,
+    justifyContent: "space-between",
   },
-  iconCard: {
-    flex: 1,
-    backgroundColor: "#111111",
-    borderRadius: 16,
-    paddingVertical: 16,
+  iconItem: {
     alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderColor: "#1E1E1E",
+    gap: 6,
   },
-  iconImg: { width: 44, height: 44 },
-  iconLabel: { fontSize: 11, color: "#666666" },
+  iconLabel: { fontSize: 11, color: "#555555" },
 
   btnArea: {
     flex: 1,

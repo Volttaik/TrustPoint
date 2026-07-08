@@ -33,8 +33,6 @@ export function Input({
   const [focused, setFocused] = useState(false);
   const [secure, setSecure] = useState(secureTextEntry ?? false);
 
-  const isDark = colors.background === "#08090A" || colors.background === "#0A0A0A";
-
   const handleFocus = useCallback((e: any) => {
     setFocused(true);
     onFocusProp?.(e);
@@ -46,8 +44,8 @@ export function Input({
   }, [onBlurProp]);
 
   const bg = focused
-    ? isDark ? "#252729" : "#EBEBED"
-    : isDark ? "#1B1D21" : "#F2F3F5";
+    ? colors.inputBackground === "#FFFFFF" ? "#EBEBED" : "#1E2022"
+    : colors.inputBackground;
 
   return (
     <View style={{ width: "100%" }}>

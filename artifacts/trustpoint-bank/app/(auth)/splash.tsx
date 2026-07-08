@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -9,6 +9,8 @@ import Animated, {
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useApp } from "@/context/AppContext";
+
+const { width: SW, height: SH } = Dimensions.get("window");
 
 export default function SplashScreen() {
   const { user, hasSession, isLoading } = useApp();
@@ -52,11 +54,14 @@ export default function SplashScreen() {
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
+
+      {/* Background swirl — natural size, left-anchored */}
       <Image
         source={require("@/assets/images/splash_bg.png")}
-        style={StyleSheet.absoluteFill}
-        resizeMode="cover"
+        style={styles.bgImage}
+        resizeMode="contain"
       />
+
       <View style={[StyleSheet.absoluteFill, styles.overlay]} />
 
       <Animated.View style={[styles.logoContainer, logoStyle]}>
@@ -66,7 +71,6 @@ export default function SplashScreen() {
           resizeMode="contain"
         />
         <Text style={[styles.logoText, { fontFamily: "Inter_700Bold" }]}>TrustPoint</Text>
-        <Text style={[styles.logoSub, { fontFamily: "Inter_600SemiBold" }]}>BANK</Text>
       </Animated.View>
 
       <Animated.Text style={[styles.tagline, tagStyle, { fontFamily: "Inter_400Regular" }]}>
@@ -83,11 +87,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  overlay: { backgroundColor: "rgba(0,0,0,0.62)" },
+  bgImage: {
+    position: "absolute",
+    left: -SW * 0.12,
+    top: SH * 0.1,
+    width: SW * 0.9,
+    height: SH * 0.7,
+  },
+  overlay: { backgroundColor: "rgba(0,0,0,0.52)" },
   logoContainer: { alignItems: "center", gap: 6 },
   iconImg: { width: 88, height: 88, marginBottom: 10 },
   logoText: { fontSize: 34, color: "#fff", letterSpacing: -1 },
-  logoSub: { fontSize: 13, color: "#E11D33", letterSpacing: 6 },
   tagline: {
     position: "absolute",
     bottom: 80,
