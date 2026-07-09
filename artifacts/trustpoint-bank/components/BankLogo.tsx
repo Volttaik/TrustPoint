@@ -101,13 +101,14 @@ export function BankLogo({ bankName, size = 40, circular = true }: BankLogoProps
     null;
 
   if (wordmarkSvg) {
-    const ratio = WORDMARK_RATIOS[bank.name] ?? 3;
-    const logoH = size;
-    const logoW = Math.min(size * ratio, size * 3.5);
-    const br = size * 0.18; // subtle rounded corner
+    // Render inside a circle — wordmarks are wide so scale them small to fit
+    const ratio = WORDMARK_RATIOS[bank.name] ?? 3.5;
+    // Inner SVG: fill horizontally at ~88% of diameter; height = width / ratio
+    const innerW = size * 0.88;
+    const innerH = innerW / ratio;
     return (
-      <View style={[styles.wrap, styles.wordmarkWrap, { width: logoW, height: logoH, borderRadius: br, backgroundColor: "#ffffff" }]}>
-        <SvgXml xml={wordmarkSvg} width="90%" height="90%" />
+      <View style={[styles.wrap, styles.wordmarkWrap, { width: size, height: size, borderRadius: size / 2, backgroundColor: "#ffffff" }]}>
+        <SvgXml xml={wordmarkSvg} width={innerW} height={innerH} />
       </View>
     );
   }
