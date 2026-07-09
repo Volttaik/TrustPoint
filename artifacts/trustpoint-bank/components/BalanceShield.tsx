@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Image, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { TpIcon } from "@/components/TpIcon";
+import { ShareAccountSheet } from "@/components/ShareAccountSheet";
 
 const CARD_ASPECT = 1536 / 1024;
 const H_PAD = 20;
@@ -11,6 +13,7 @@ interface BalanceShieldProps {
   onToggle?: () => void;
   accountNumber?: string;
   cardholderName?: string;
+  bankName?: string;
 }
 
 export function BalanceShield({
@@ -19,8 +22,11 @@ export function BalanceShield({
   onToggle,
   accountNumber,
   cardholderName,
+  bankName = "TrustPoint MFB",
 }: BalanceShieldProps) {
   const { width: winWidth } = useWindowDimensions();
+  const [copied, setCopied] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const cardW = winWidth - H_PAD * 2;
   const cardH = cardW / CARD_ASPECT;
@@ -28,6 +34,13 @@ export function BalanceShield({
   const formatted = balance.toLocaleString("en-NG", { minimumFractionDigits: 0 });
   const digits = (accountNumber ?? "").replace(/\D/g, "");
   const masked = digits.length >= 4 ? `**** **** ${digits.slice(-4)}` : "**** **** ****";
+
+  async function handleCopy() {
+    if (!accountNumber) return;
+    await Clipboard.setStringAsync(accountNumber);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2200);
+  }
 
   return (
     <View style={[styles.wrapper, { width: cardW, height: cardH }]}>
@@ -60,17 +73,49 @@ export function BalanceShield({
             <Pressable onPress={onToggle} hitSlop={14} style={styles.eyeBtn}>
               <TpIcon
                 name={showBalance ? "eye" : "eye-off"}
-                size={15}
-                color="rgba(255,255,255,0.65)"
-                strokeWidth={1.8}
+                size={17}
+                color="rgba(255,255,255,0.75)"
+                strokeWidth={2.4}
               />
             </Pressable>
           </View>
         </View>
 
-        {/* Masked account number bottom */}
-        <Text style={styles.accountNumber}>{masked}</Text>
+        {/* Masked account number + copy/share bottom */}
+        <View style={styles.acctRow}>
+          <Text style={styles.accountNumber}>{masked}</Text>
+          <View style={styles.acctActions}>
+            <Pressable onPress={handleCopy} hitSlop={10} style={styles.acctIconBtn}>
+              <TpIcon
+                name={copied ? "check" : "copy"}
+                size={15}
+                color="rgba(255,255,255,0.8)"
+                strokeWidth={2.4}
+              />
+            </Pressable>
+            <Pressable onPress={() => setSheetOpen(true)} hitSlop={10} style={styles.acctIconBtn}>
+              <TpIcon
+                name="share-2"
+                size={15}
+                color="rgba(255,255,255,0.8)"
+                strokeWidth={2.4}
+              />
+            </Pressable>
+          </View>
+        </View>
       </View>
+
+      <ShareAccountSheet
+        visible={sheetOpen}
+        onClose={() => setSheetOpen(false)}
+        accountName={cardholderName ?? "TrustPoint Account"}
+        accountNumber={accountNumber ?? ""}
+        bankName={bankName}
+        onCopied={() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2200);
+        }}
+      />
     </View>
   );
 }
@@ -102,27 +147,27 @@ const styles = StyleSheet.create({
   },
   nameBlock: { gap: 2, flex: 1, paddingRight: 8 },
   nameLabel: {
-    fontSize: 9,
-    color: "rgba(255,255,255,0.45)",
+    fontSize: 11,
+    color: "rgba(255,255,255,0.5)",
     fontFamily: "Inter_400Regular",
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   accountName: {
-    fontSize: 13,
-    color: "rgba(255,255,255,0.9)",
+    fontSize: 15,
+    color: "rgba(255,255,255,0.92)",
     fontFamily: "Inter_600SemiBold",
     letterSpacing: 0.1,
   },
   balanceCenter: {
     flex: 1,
     justifyContent: "center",
-    gap: 5,
+    gap: 6,
     paddingBottom: 20,
   },
   balanceLabel: {
-    fontSize: 11,
-    color: "rgba(255,255,255,0.55)",
+    fontSize: 13,
+    color: "rgba(255,255,255,0.6)",
     fontFamily: "Inter_400Regular",
     letterSpacing: 0.4,
     textTransform: "uppercase",
@@ -134,21 +179,41 @@ const styles = StyleSheet.create({
   },
   balanceAmount: {
     flex: 1,
-    fontSize: 22,
+    fontSize: 28,
     color: "#FFFFFF",
     fontFamily: "Inter_700Bold",
     letterSpacing: -0.5,
   },
   eyeBtn: {
-    width: 28,
-    height: 28,
+    width: 30,
+    height: 30,
     alignItems: "center",
     justifyContent: "center",
   },
+  acctRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   accountNumber: {
-    fontSize: 12,
-    color: "rgba(255,255,255,0.45)",
+    fontSize: 14,
+    color: "rgba(255,255,255,0.55)",
     fontFamily: "Inter_400Regular",
     letterSpacing: 2,
+  },
+  acctActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  acctIconBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
   },
 });

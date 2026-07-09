@@ -11,12 +11,7 @@ The TrustPoint Bank mobile artifact has two preview URLs:
 The artifact-managed workflow runs whatever `pnpm --filter @workspace/trustpoint-bank run dev` executes.
 Originally that was `expo start --web ...` which fails Replit's HTTP-200 port check (see metro-web-static-serve.md).
 
-## The fix
-Changed the `dev` script in `artifacts/trustpoint-bank/package.json` to:
-```json
-"dev": "node scripts/web-serve.js"
-```
+## The fix (updated)
+`scripts/web-serve.js` expects a `dist/index.html` that `scripts/build.js` never produces (build.js writes to `static-build/<platform>/manifest.json`, no web index.html). The correct server for build.js output is `server/serve.js` (serves manifests + landing page from `static-build/`). Both the `.replit` workflow command and `artifacts/trustpoint-bank/package.json`'s `dev`/`serve` scripts must point at `node server/serve.js`, not `scripts/web-serve.js`, or the page 502s after a fresh build.
 
-The artifact system injects `$PORT` automatically; web-serve.js respects it. Now the `.expo.` URL also serves the static export.
-
-**Why:** The artifact URL is what users see when clicking the mobile artifact preview; it must serve valid HTML with Content-Length headers.
+**Why:** The artifact URL (`.expo.` subdomain) and the regular workflow webview both need valid HTML with Content-Length headers; `web-serve.js` was leftover from an older build approach and is incompatible with the current `build.js`.

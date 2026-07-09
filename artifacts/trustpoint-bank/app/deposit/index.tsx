@@ -1,12 +1,9 @@
 import React, { useState } from "react";
 import {
   Image,
-  Linking,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
-  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -17,10 +14,9 @@ import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TpIcon } from "@/components/TpIcon";
+import { ShareAccountSheet } from "@/components/ShareAccountSheet";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
-
-const WHATSAPP_GREEN = "#25D366";
 
 const METHODS = [
   {
@@ -74,19 +70,6 @@ export default function DepositScreen() {
     await Clipboard.setStringAsync(accountNumber);
     setCopied(true);
     setTimeout(() => setCopied(false), 2200);
-    setSheetOpen(false);
-  }
-
-  async function shareToWhatsApp() {
-    const url = `whatsapp://send?text=${encodeURIComponent(shareText)}`;
-    const supported = await Linking.canOpenURL(url);
-    if (supported) await Linking.openURL(url);
-    else await Share.share({ message: shareText });
-    setSheetOpen(false);
-  }
-
-  async function shareLink() {
-    await Share.share({ message: shareText, title: "TrustPoint Account Details" });
     setSheetOpen(false);
   }
 
@@ -261,67 +244,17 @@ export default function DepositScreen() {
       </ScrollView>
 
       {/* ══ Share bottom sheet ══════════════════════════ */}
-      <Modal
+      <ShareAccountSheet
         visible={sheetOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setSheetOpen(false)}
-      >
-        <Pressable style={styles.overlay} onPress={() => setSheetOpen(false)} />
-        <View style={[styles.sheet, {
-          backgroundColor: colors.card,
-          borderColor:     colors.border,
-          paddingBottom:   Math.max(insets.bottom, 24),
-        }]}>
-          <View style={[styles.handle, { backgroundColor: colors.border }]} />
-
-          <Text style={[styles.sheetTitle, { color: colors.text, fontFamily: "Inter_700Bold" }]}>
-            Share via
-          </Text>
-          <Text style={[styles.sheetSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-            {accountName} · {accountNumber} · {bankName}
-          </Text>
-
-          <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
-
-          <SheetOption
-            icon={<TpIcon name="send" size={20} color={WHATSAPP_GREEN} strokeWidth={1.8} />}
-            iconBg={WHATSAPP_GREEN + "18"}
-            label="WhatsApp"
-            sublabel="Send account details on WhatsApp"
-            onPress={shareToWhatsApp}
-            colors={colors}
-          />
-          <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
-          <SheetOption
-            icon={<TpIcon name="share-2" size={20} color={colors.primary} strokeWidth={1.8} />}
-            iconBg={colors.primary + "18"}
-            label="Share"
-            sublabel="Share via any app on your device"
-            onPress={shareLink}
-            colors={colors}
-          />
-          <View style={[styles.sheetDivider, { backgroundColor: colors.border }]} />
-          <SheetOption
-            icon={<TpIcon name="copy" size={20} color={colors.text} strokeWidth={1.8} />}
-            iconBg={colors.surface}
-            label="Copy Account Number"
-            sublabel={accountNumber}
-            onPress={copyAccount}
-            colors={colors}
-          />
-
-          <TouchableOpacity
-            style={[styles.cancelBtn, { backgroundColor: colors.surface }]}
-            onPress={() => setSheetOpen(false)}
-            activeOpacity={0.8}
-          >
-            <Text style={[styles.cancelTxt, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-              Cancel
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
+        onClose={() => setSheetOpen(false)}
+        accountName={accountName}
+        accountNumber={accountNumber}
+        bankName={bankName}
+        onCopied={() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2200);
+        }}
+      />
     </View>
   );
 }
@@ -342,31 +275,6 @@ function DetailRow({
         {value}
       </Text>
     </View>
-  );
-}
-
-function SheetOption({
-  icon, iconBg, label, sublabel, onPress, colors,
-}: {
-  icon: React.ReactNode; iconBg: string; label: string;
-  sublabel: string; onPress: () => void; colors: any;
-}) {
-  return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.sheetOpt, pressed && { opacity: 0.65 }]}
-    >
-      <View style={[styles.optIcon, { backgroundColor: iconBg }]}>{icon}</View>
-      <View style={styles.optInfo}>
-        <Text style={[styles.optLabel, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
-          {label}
-        </Text>
-        <Text style={[styles.optSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          {sublabel}
-        </Text>
-      </View>
-      <TpIcon name="chevron-right" size={16} color={colors.mutedForeground} strokeWidth={2} />
-    </Pressable>
   );
 }
 
