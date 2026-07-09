@@ -39,7 +39,7 @@ export function AccountSwitcher({ visible, onClose }: Props) {
   const [adding, setAdding] = useState(false);
 
   const filteredBanks = NIGERIAN_BANKS.filter((b) =>
-    b.name.toLowerCase().includes(bankSearch.toLowerCase())
+    b.hasLogo && b.name.toLowerCase().includes(bankSearch.toLowerCase())
   );
 
   const handleAddAccount = async () => {
@@ -105,6 +105,9 @@ export function AccountSwitcher({ visible, onClose }: Props) {
                     <BankLogo bankName={acct.bankName} size={46} />
                     <View style={styles.acctInfo}>
                       <Text style={[styles.bankName, { color: colors.text, fontFamily: "Inter_600SemiBold" }]}>
+                        {user?.name ?? "Account Holder"}
+                      </Text>
+                      <Text style={[styles.acctNum, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
                         {acct.bankName}
                       </Text>
                       <Text style={[styles.acctNum, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>

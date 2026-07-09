@@ -36,7 +36,6 @@ export function BalanceShield({
 
   const activeAccount = linkedAccounts.find((a) => a.id === activeAccountId);
   const activeBankName = activeAccount?.bankName ?? "TrustPoint Bank";
-  const hasMultiple = linkedAccounts.length > 1;
 
   return (
     <>
@@ -51,16 +50,13 @@ export function BalanceShield({
 
           {/* Text overlay */}
           <View style={styles.overlay} pointerEvents="box-none">
-            {/* Bank logo + account label top-right */}
+            {/* Account holder name top-left */}
             <View style={styles.topRow}>
               <View style={styles.nameBlock}>
                 <Text style={styles.nameLabel}>Account Holder</Text>
                 <Text style={styles.accountName} numberOfLines={1}>
                   {cardholderName ?? "TrustPoint Account"}
                 </Text>
-              </View>
-              <View style={styles.bankLogoWrap}>
-                <BankLogo bankName={activeBankName} size={34} />
               </View>
             </View>
 

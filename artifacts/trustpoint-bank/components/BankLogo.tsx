@@ -32,10 +32,10 @@ export function BankLogo({ bankName, size = 40, circular = true }: BankLogoProps
   // ── TrustPoint Bank ───────────────────────────────────────────────
   if (bank.name === "TrustPoint Bank") {
     return (
-      <View style={[styles.wrap, { width: size, height: size, borderRadius: r, backgroundColor: "#E11D33" }]}>
+      <View style={[styles.wrap, { width: size, height: size, borderRadius: r, backgroundColor: "transparent" }]}>
         <Image
           source={require("@/assets/images/icon_transparent.png")}
-          style={{ width: size * 0.75, height: size * 0.75 }}
+          style={{ width: size, height: size }}
           resizeMode="contain"
         />
       </View>
@@ -96,15 +96,6 @@ export function BankLogo({ bankName, size = 40, circular = true }: BankLogoProps
     );
   }
 
-  // ── First Bank ───────────────────────────────────────────────────
-  if (bank.name === "First Bank") {
-    return (
-      <View style={[styles.wrap, { width: size, height: size, borderRadius: r, backgroundColor: "#00A0DC" }]}>
-        <Text style={[styles.initText, { fontSize: size * 0.3, color: "#fff", fontFamily: "Inter_700Bold" }]}>1st</Text>
-      </View>
-    );
-  }
-
   // ── Moniepoint ───────────────────────────────────────────────────
   if (bank.name === "Moniepoint") {
     return (
@@ -113,24 +104,6 @@ export function BankLogo({ bankName, size = 40, circular = true }: BankLogoProps
           {/* M letter shape */}
           <Path d="M8 52V14l14 20 13-20 13 20 13-20v38h-9V30l-4 8-13-18-13 18-4-8v22H8z" fill="#fff" />
         </Svg>
-      </View>
-    );
-  }
-
-  // ── Stanbic IBTC ─────────────────────────────────────────────────
-  if (bank.name === "Stanbic IBTC") {
-    return (
-      <View style={[styles.wrap, { width: size, height: size, borderRadius: r, backgroundColor: "#009BDE" }]}>
-        <Text style={[styles.initText, { fontSize: size * 0.26, color: "#fff", fontFamily: "Inter_700Bold" }]}>SI</Text>
-      </View>
-    );
-  }
-
-  // ── PremiumTrust Bank ────────────────────────────────────────────
-  if (bank.name === "PremiumTrust Bank") {
-    return (
-      <View style={[styles.wrap, { width: size, height: size, borderRadius: r, backgroundColor: "#006B3F" }]}>
-        <Text style={[styles.initText, { fontSize: size * 0.26, color: "#fff", fontFamily: "Inter_700Bold" }]}>PT</Text>
       </View>
     );
   }

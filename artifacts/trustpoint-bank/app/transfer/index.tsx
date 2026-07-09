@@ -189,7 +189,7 @@ export default function TransferIndexScreen() {
             <BankLogo bankName={activeBankName} size={44} circular />
             <View style={styles.acctInfo}>
               <Text style={[styles.senderName, { fontFamily: "Inter_600SemiBold" }]} numberOfLines={1}>
-                {activeBankName === "TrustPoint Bank" ? (user?.name ?? "TrustPoint Account") : activeBankName}
+                {user?.name ?? "TrustPoint Account"}
               </Text>
               <Text style={[styles.senderSub, { fontFamily: "Inter_400Regular" }]}>
                 {activeAcctNum ? fmtAcct(activeAcctNum) : "000 000 0000"}

@@ -8,6 +8,7 @@ import Animated, {
 import { TpIcon } from "@/components/TpIcon";
 import { PackIcon, PackIconName } from "@/components/PackIcon";
 import { BankLogo } from "@/components/BankLogo";
+import { getBankInfo } from "@/constants/banks";
 import { useColors } from "@/hooks/useColors";
 import { Transaction } from "@/context/AppContext";
 
@@ -30,7 +31,8 @@ const CATEGORY_ICON: Record<string, PackIconName> = {
 
 /** Whether a transaction should show a bank logo instead of initials */
 function isBankTransaction(tx: Transaction) {
-  return tx.category === "Transfer" && !!tx.bank;
+  if (tx.category !== "Transfer" || !tx.bank) return false;
+  return getBankInfo(tx.bank).hasLogo;
 }
 
 export function TransactionItem({ tx, onPress }: TransactionItemProps) {

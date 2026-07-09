@@ -435,9 +435,9 @@ export default function RegisterScreen() {
     }
   }, [step]);
 
-  // ── Filtered banks ─────────────────────────────────────────────────
+  // ── Filtered banks — only show banks with real graphical logos ──────
   const filteredBanks = NIGERIAN_BANKS.filter((b) =>
-    b.name.toLowerCase().includes(bankSearch.toLowerCase())
+    b.hasLogo && b.name.toLowerCase().includes(bankSearch.toLowerCase())
   );
 
   const checks = pwdChecks(password);
