@@ -5,26 +5,35 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { SuccessModal } from "@/components/ui/SuccessModal";
+import { TpSpinner } from "@/components/ui/TpSpinner";
+import { PinSheet } from "@/components/airtime/PinSheet";
 import { TpIcon, TpIconName } from "@/components/TpIcon";
 import { useApp } from "@/context/AppContext";
 import { useColors } from "@/hooks/useColors";
 
-type BillCategory = "electricity" | "tv" | "internet" | "water" | "betting";
+type BillCategory = "electricity" | "tv" | "internet" | "water" | "betting" | "gas";
 
 const CATEGORIES: { id: BillCategory; label: string; icon: TpIconName; color: string }[] = [
   { id: "electricity", label: "Electricity", icon: "zap", color: "#FF9500" },
   { id: "tv", label: "Cable TV", icon: "tv", color: "#007AFF" },
   { id: "internet", label: "Internet", icon: "wifi", color: "#34C759" },
   { id: "water", label: "Water", icon: "droplet", color: "#5AC8FA" },
+  { id: "gas", label: "Gas", icon: "flame", color: "#FF6B35" },
   { id: "betting", label: "Betting", icon: "activity", color: "#8E44AD" },
 ];
 
@@ -50,6 +59,11 @@ const PROVIDERS: Record<BillCategory, { id: string; name: string }[]> = {
     { id: "lwsc", name: "Lagos Water Corp" },
     { id: "abujawater", name: "Abuja Water Board" },
   ],
+  gas: [
+    { id: "nipco", name: "NIPCO Gas" },
+    { id: "topgas", name: "TopGas" },
+    { id: "bluecamel", name: "Blue Camel Energy" },
+  ],
   betting: [
     { id: "bet9ja", name: "Bet9ja" },
     { id: "sportybet", name: "SportyBet" },
@@ -61,14 +75,18 @@ const PROVIDERS: Record<BillCategory, { id: string; name: string }[]> = {
 export default function BillsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { addTransaction } = useApp();
+  const { addTransaction, login } = useApp();
   const [category, setCategory] = useState<BillCategory>("electricity");
   const [provider, setProvider] = useState<string>("");
   const [meterNumber, setMeterNumber] = useState("");
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [showPin, setShowPin] = useState(false);
+  const [overlayVisible, setOverlay] = useState(false);
+  const overlayOpacity = useSharedValue(0);
+  const overlayStyle = useAnimatedStyle(() => ({ opacity: overlayOpacity.value }));
   const topPad = insets.top + (Platform.OS === "web" ? 67 : 0);
+  const bottomPad = insets.bottom + (Platform.OS === "web" ? 34 : 0);
   const isDark = colors.background !== "#F4F5F7";
 
   const providers = PROVIDERS[category];
@@ -79,13 +97,20 @@ export default function BillsScreen() {
     category === "tv" ? "Smart Card / Decoder Number" :
     category === "internet" ? "Account / Username" :
     category === "betting" ? "Bettor ID / Username" :
+    category === "gas" ? "Meter / Account ID" :
     "Account Number";
 
   const canPay = provider && meterNumber && Number(amount) > 0;
 
-  const handlePay = async () => {
+  const handlePinSuccess = async () => {
+    setShowPin(false);
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
+
+    setOverlay(true);
+    overlayOpacity.value = withTiming(1, { duration: 260 });
+
+    await new Promise((r) => setTimeout(r, 1400));
+
     addTransaction({
       title: `${selectedProvider?.name ?? catInfo.label} Bill`,
       subtitle: `Ref: ${meterNumber}`,
@@ -95,8 +120,24 @@ export default function BillsScreen() {
       category: catInfo.label,
       avatarColor: catInfo.color,
     });
+
+    overlayOpacity.value = withTiming(0, { duration: 200 });
+    await new Promise((r) => setTimeout(r, 190));
+
     setLoading(false);
-    setSuccess(true);
+    setOverlay(false);
+    router.replace({
+      pathname: "/bills/success",
+      params: {
+        provider: selectedProvider?.name ?? catInfo.label,
+        amount: String(amount),
+        meter: meterNumber,
+        category: catInfo.label,
+        icon: catInfo.icon,
+        color: catInfo.color,
+        fieldLabel,
+      },
+    });
   };
 
   return (
@@ -131,7 +172,7 @@ export default function BillsScreen() {
               {CATEGORIES.map((cat) => (
                 <Pressable
                   key={cat.id}
-                  onPress={() => { setCategory(cat.id); setProvider(""); }}
+                  onPress={() => { Haptics.selectionAsync(); setCategory(cat.id); setProvider(""); setMeterNumber(""); }}
                   style={[
                     styles.catCard,
                     {
@@ -169,7 +210,7 @@ export default function BillsScreen() {
             {providers.map((p) => (
               <Pressable
                 key={p.id}
-                onPress={() => setProvider(p.id)}
+                onPress={() => { Haptics.selectionAsync(); setProvider(p.id); }}
                 style={[
                   styles.providerChip,
                   {
@@ -194,14 +235,33 @@ export default function BillsScreen() {
           </View>
         </View>
 
-        <Input
-          label={fieldLabel}
-          value={meterNumber}
-          onChangeText={setMeterNumber}
-          keyboardType="default"
-          placeholder={`Enter your ${fieldLabel.toLowerCase()}`}
-          prefixIcon={<TpIcon name="key" size={18} color={colors.placeholder} strokeWidth={1.8} />}
-        />
+        {/* Identifier card — styled like the phone/account card on Airtime & Data */}
+        <View>
+          <Text style={[styles.sectionLabel, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+            {fieldLabel}
+          </Text>
+          <View style={[styles.idCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={styles.idRow}>
+              <View style={[styles.idIconSlot, { backgroundColor: catInfo.color + "20" }]}>
+                <TpIcon name={catInfo.icon} size={18} color={catInfo.color} strokeWidth={1.8} />
+              </View>
+              <TextInput
+                value={meterNumber}
+                onChangeText={(t) => setMeterNumber(t.replace(/[^a-zA-Z0-9]/g, ""))}
+                placeholder={`Enter your ${fieldLabel.toLowerCase()}`}
+                placeholderTextColor={colors.placeholder}
+                keyboardType="default"
+                style={[
+                  styles.idInput,
+                  { color: colors.text, fontFamily: "Inter_600SemiBold" },
+                  Platform.OS === "web" && ({ outlineWidth: 0 } as any),
+                ]}
+                cursorColor={colors.primary}
+                returnKeyType="done"
+              />
+            </View>
+          </View>
+        </View>
 
         <Input
           label="Amount (₦)"
@@ -212,17 +272,37 @@ export default function BillsScreen() {
           prefixIcon={<Text style={{ color: colors.placeholder, fontSize: 16, fontFamily: "Inter_400Regular" }}>₦</Text>}
         />
 
-          <Button onPress={handlePay} loading={loading} disabled={!canPay} fullWidth size="large">
-            Pay ₦{amount ? Number(amount).toLocaleString() : "0"}
-          </Button>
+        <Button
+          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); setShowPin(true); }}
+          loading={loading}
+          disabled={!canPay}
+          fullWidth
+          size="large"
+        >
+          Pay ₦{amount ? Number(amount).toLocaleString() : "0"}
+        </Button>
       </ScrollView>
 
-      <SuccessModal
-        visible={success}
-        title="Payment Successful!"
-        subtitle={`${selectedProvider?.name ?? catInfo.label} — ₦${Number(amount).toLocaleString()}`}
-        onDismiss={() => { setSuccess(false); setProvider(""); setMeterNumber(""); setAmount(""); }}
+      <PinSheet
+        visible={showPin}
+        title="Authorize Bill Payment"
+        subtitle={selectedProvider ? `${selectedProvider.name} — ₦${amount ? Number(amount).toLocaleString() : "0"}` : "Enter your 4-digit PIN"}
+        onDismiss={() => setShowPin(false)}
+        onSuccess={handlePinSuccess}
+        validatePin={async (p) => login(p)}
       />
+
+      {overlayVisible && (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.processingOverlay, overlayStyle]}
+          pointerEvents="none"
+        >
+          <TpSpinner size="large" />
+          <Text style={[styles.processingText, { color: "#F1FAEE", fontFamily: "Inter_500Medium" }]}>
+            Processing…
+          </Text>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -259,14 +339,29 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   providerName: { fontSize: 13 },
-  successBox: {
+  idCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    overflow: "hidden",
+  },
+  idRow: {
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     gap: 12,
-    padding: 16,
-    borderRadius: 14,
-    borderWidth: 1,
   },
-  successTitle: { fontSize: 15 },
-  successSub: { fontSize: 13, marginTop: 2 },
+  idIconSlot: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  idInput: { flex: 1, fontSize: 18, letterSpacing: 0.5, padding: 0 },
+  processingOverlay: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+    backgroundColor: "rgba(0,0,0,0.88)",
+    zIndex: 200,
+  },
+  processingText: {
+    fontSize: 16,
+    letterSpacing: -0.3,
+  },
 });

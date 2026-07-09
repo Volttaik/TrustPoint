@@ -81,7 +81,8 @@ export type TpIconName =
   | "shopping-bag"
   | "signal"
   | "clock"
-  | "radio";
+  | "radio"
+  | "flame";
 
 interface TpIconProps {
   name: TpIconName;
@@ -553,6 +554,16 @@ const ICONS: Record<TpIconName, IconRenderer> = {
       <Path d="M16.24 7.76a6 6 0 0 1 0 8.49" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
       <Path d="M19.07 4.93a10 10 0 0 1 0 14.14" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" fill="none" />
     </>
+  ),
+  flame: (c, sw) => (
+    <Path
+      d="M12 22c4.4 0 7-2.7 7-6.5 0-2.7-1.4-4.3-2.6-5.7-.3-.4-.9-.2-.9.3.1 1.6-.6 2.7-1.3 2.7-.6 0-1-.6-.9-1.5.3-2.9-.8-6-3-8-.3-.3-.8 0-.7.4.6 2.6-.4 4-1.6 5.6C6.6 10.9 5 12.9 5 15.5 5 19.3 7.6 22 12 22z"
+      stroke={c}
+      strokeWidth={sw}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill="none"
+    />
   ),
 };
 

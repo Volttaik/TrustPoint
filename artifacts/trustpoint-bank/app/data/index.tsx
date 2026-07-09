@@ -13,6 +13,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { TpSpinner } from "@/components/ui/TpSpinner";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -48,6 +49,9 @@ export default function DataScreen() {
   const [showPin, setShowPin]           = useState(false);
   const [loading, setLoading]           = useState(false);
   const [planLoading, setPlanLoading]   = useState(false);
+  const [overlayVisible, setOverlay]    = useState(false);
+  const overlayOpacity = useSharedValue(0);
+  const overlayStyle   = useAnimatedStyle(() => ({ opacity: overlayOpacity.value }));
 
   /* Resolved network */
   const autoNetId = phone.length >= 4 ? detectNetwork(phone) : null;
@@ -85,7 +89,13 @@ export default function DataScreen() {
     if (!selected) return;
     setShowPin(false);
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1500));
+
+    // Show branded processing overlay so the transition to success feels seamless
+    setOverlay(true);
+    overlayOpacity.value = withTiming(1, { duration: 260 });
+
+    await new Promise((r) => setTimeout(r, 1400));
+
     addTransaction({
       title: `${netId.toUpperCase()} Data`,
       subtitle: `${selected.size} to ${phone}`,
@@ -95,7 +105,13 @@ export default function DataScreen() {
       category: "Data",
       avatarColor: netId === "mtn" ? "#FFC300" : netId === "airtel" ? "#E63946" : netId === "glo" ? "#00B140" : "#00A550",
     });
+
+    // Gentle fade-out before navigating so we don't flash between screens
+    overlayOpacity.value = withTiming(0, { duration: 200 });
+    await new Promise((r) => setTimeout(r, 190));
+
     setLoading(false);
+    setOverlay(false);
     router.replace({ pathname: "/data/success", params: { phone, amount: String(selected.price), network: netId, type: "data", plan: selected.size, validity: selected.validity } });
   }
 
@@ -263,6 +279,19 @@ export default function DataScreen() {
         onSuccess={handlePinSuccess}
         validatePin={async (p) => login(p)}
       />
+
+      {/* Processing overlay — fades in after PIN, fades out before success screen */}
+      {overlayVisible && (
+        <Animated.View
+          style={[StyleSheet.absoluteFill, styles.processingOverlay, overlayStyle]}
+          pointerEvents="none"
+        >
+          <TpSpinner size="large" />
+          <Text style={[styles.processingText, { color: "#F1FAEE", fontFamily: "Inter_500Medium" }]}>
+            Processing…
+          </Text>
+        </Animated.View>
+      )}
     </View>
   );
 }
@@ -339,5 +368,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
+  },
+
+  processingOverlay: {
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+    backgroundColor: "rgba(0,0,0,0.88)",
+    zIndex: 200,
+  },
+  processingText: {
+    fontSize: 16,
+    letterSpacing: -0.3,
   },
 });
